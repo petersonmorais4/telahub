@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated/painel.index'
+import { Route as AuthenticatedPainelAgendamentosRouteImport } from './routes/_authenticated/painel.agendamentos'
 import { Route as AuthenticatedPainelAnunciosRouteImport } from './routes/_authenticated/painel.anuncios'
+import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_authenticated/painel.configuracoes'
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
 
@@ -43,10 +45,22 @@ const AuthenticatedPainelIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const AuthenticatedPainelAgendamentosRoute =
+  AuthenticatedPainelAgendamentosRouteImport.update({
+    id: '/agendamentos',
+    path: '/agendamentos',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
 const AuthenticatedPainelAnunciosRoute =
   AuthenticatedPainelAnunciosRouteImport.update({
     id: '/anuncios',
     path: '/anuncios',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
+const AuthenticatedPainelConfiguracoesRoute =
+  AuthenticatedPainelConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
 const AuthenticatedPainelPlaylistsRoute =
@@ -66,7 +80,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/painel': typeof AuthenticatedPainelRouteWithChildren
+  '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
+  '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
@@ -74,7 +90,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
+  '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
@@ -85,7 +103,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRouteWithChildren
+  '/_authenticated/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/_authenticated/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
+  '/_authenticated/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
@@ -96,7 +116,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/painel'
+    | '/painel/agendamentos'
     | '/painel/anuncios'
+    | '/painel/configuracoes'
     | '/painel/playlists'
     | '/painel/telas'
     | '/painel/'
@@ -104,7 +126,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/painel/agendamentos'
     | '/painel/anuncios'
+    | '/painel/configuracoes'
     | '/painel/playlists'
     | '/painel/telas'
     | '/painel'
@@ -114,7 +138,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/painel'
+    | '/_authenticated/painel/agendamentos'
     | '/_authenticated/painel/anuncios'
+    | '/_authenticated/painel/configuracoes'
     | '/_authenticated/painel/playlists'
     | '/_authenticated/painel/telas'
     | '/_authenticated/painel/'
@@ -163,11 +189,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelIndexRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/_authenticated/painel/agendamentos': {
+      id: '/_authenticated/painel/agendamentos'
+      path: '/agendamentos'
+      fullPath: '/painel/agendamentos'
+      preLoaderRoute: typeof AuthenticatedPainelAgendamentosRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
     '/_authenticated/painel/anuncios': {
       id: '/_authenticated/painel/anuncios'
       path: '/anuncios'
       fullPath: '/painel/anuncios'
       preLoaderRoute: typeof AuthenticatedPainelAnunciosRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
+    '/_authenticated/painel/configuracoes': {
+      id: '/_authenticated/painel/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/painel/configuracoes'
+      preLoaderRoute: typeof AuthenticatedPainelConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
     '/_authenticated/painel/playlists': {
@@ -188,14 +228,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedPainelRouteChildren {
+  AuthenticatedPainelAgendamentosRoute: typeof AuthenticatedPainelAgendamentosRoute
   AuthenticatedPainelAnunciosRoute: typeof AuthenticatedPainelAnunciosRoute
+  AuthenticatedPainelConfiguracoesRoute: typeof AuthenticatedPainelConfiguracoesRoute
   AuthenticatedPainelPlaylistsRoute: typeof AuthenticatedPainelPlaylistsRoute
   AuthenticatedPainelTelasRoute: typeof AuthenticatedPainelTelasRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
 }
 
 const AuthenticatedPainelRouteChildren: AuthenticatedPainelRouteChildren = {
+  AuthenticatedPainelAgendamentosRoute: AuthenticatedPainelAgendamentosRoute,
   AuthenticatedPainelAnunciosRoute: AuthenticatedPainelAnunciosRoute,
+  AuthenticatedPainelConfiguracoesRoute: AuthenticatedPainelConfiguracoesRoute,
   AuthenticatedPainelPlaylistsRoute: AuthenticatedPainelPlaylistsRoute,
   AuthenticatedPainelTelasRoute: AuthenticatedPainelTelasRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,
