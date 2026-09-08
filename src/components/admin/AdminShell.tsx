@@ -18,11 +18,11 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/painel", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/painel/telas", label: "Telas", icon: MonitorPlay },
-  { to: "/painel/anuncios", label: "Anúncios", icon: Images },
-  { to: "/painel/playlists", label: "Playlists", icon: ListOrdered },
-  { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock },
-  { to: "/painel/configuracoes", label: "Configurações", icon: Settings },
+  { to: "/painel/telas", label: "Telas", icon: MonitorPlay, exact: false },
+  { to: "/painel/anuncios", label: "Anúncios", icon: Images, exact: false },
+  { to: "/painel/playlists", label: "Playlists", icon: ListOrdered, exact: false },
+  { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock, exact: false },
+  { to: "/painel/configuracoes", label: "Configurações", icon: Settings, exact: false },
 ] as const;
 
 export function AdminShell({
@@ -64,7 +64,7 @@ export function AdminShell({
             <Link
               key={item.to}
               to={item.to}
-              activeOptions={{ exact: item.exact ?? false }}
+              activeOptions={{ exact: item.exact }}
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               activeProps={{
