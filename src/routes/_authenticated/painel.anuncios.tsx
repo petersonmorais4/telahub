@@ -74,7 +74,7 @@ function AnunciosPage() {
       setUploading(true);
       const upload = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
         cacheControl: "3600",
-        contentType: file.type || undefined,
+        contentType: file.type || "application/octet-stream",
       });
       setUploading(false);
       if (upload.error) throw upload.error;

@@ -100,7 +100,7 @@ function ConfiguracoesPage() {
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "png";
     const path = `logo-${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
-      contentType: file.type || undefined,
+      contentType: file.type || "application/octet-stream",
     });
     setUploading(false);
     if (error) {

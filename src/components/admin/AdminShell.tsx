@@ -16,14 +16,14 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
-const nav = [
+const nav: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
   { to: "/painel", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/painel/telas", label: "Telas", icon: MonitorPlay },
   { to: "/painel/anuncios", label: "Anúncios", icon: Images },
   { to: "/painel/playlists", label: "Playlists", icon: ListOrdered },
   { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock },
   { to: "/painel/configuracoes", label: "Configurações", icon: Settings },
-] as const;
+];
 
 export function AdminShell({
   title,
