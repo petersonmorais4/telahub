@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -56,8 +57,7 @@ export function AdminShell({
         )}
       >
         <div className="flex h-16 items-center gap-2 px-6">
-          <MonitorPlay className="h-5 w-5 text-sidebar-primary" aria-hidden />
-          <span className="font-display text-base font-bold">SinalIndoor</span>
+          <BrandLogo className="h-9 w-auto max-w-[10.5rem]" />
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4">
           {nav.map((item) => (
