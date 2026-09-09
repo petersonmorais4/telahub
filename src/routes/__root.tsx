@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SinalIndoor — Mídia indoor e digital signage" },
+      { title: "TelaHub — Mídia indoor e digital signage" },
       {
         name: "description",
         content:
           "Gerencie anúncios, playlists e telas de mídia indoor e exiba em qualquer TV com um link público.",
       },
-      { property: "og:title", content: "SinalIndoor — Mídia indoor e digital signage" },
+      { property: "og:title", content: "TelaHub — Mídia indoor e digital signage" },
       {
         property: "og:description",
         content: "Painel de gestão de anúncios e player em tela cheia para TVs e monitores.",
@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

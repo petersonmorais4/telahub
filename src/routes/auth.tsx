@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/BrandLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,12 +13,12 @@ import { lovable } from "@/integrations/lovable";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar no painel — SinalIndoor" },
+      { title: "Entrar no painel — TelaHub" },
       {
         name: "description",
         content: "Acesso restrito ao painel administrativo de mídia indoor: telas, anúncios e playlists.",
       },
-      { property: "og:title", content: "Entrar no painel — SinalIndoor" },
+      { property: "og:title", content: "Entrar no painel — TelaHub" },
       { property: "og:description", content: "Acesso restrito ao painel administrativo de mídia indoor." },
       { name: "robots", content: "noindex" },
     ],
@@ -86,7 +87,7 @@ function AuthPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <span className="font-display text-xl font-bold">SinalIndoor</span>
+          <BrandLogo className="mx-auto h-20 w-auto max-w-full" />
           <h1 className="mt-3 text-2xl font-bold">Painel administrativo</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             O player das TVs é público — o login vale só para a gestão.

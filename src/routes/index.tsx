@@ -3,18 +3,19 @@ import { useEffect, useState } from "react";
 import { MonitorPlay, ListOrdered, CalendarClock, Images } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SinalIndoor — Painel de mídia indoor para TVs" },
+      { title: "TelaHub — Painel de mídia indoor para TVs" },
       {
         name: "description",
         content:
           "Cadastre telas, envie anúncios em imagem ou vídeo, monte playlists com agendamento e exiba em qualquer TV por um link público.",
       },
-      { property: "og:title", content: "SinalIndoor — Painel de mídia indoor para TVs" },
+      { property: "og:title", content: "TelaHub — Painel de mídia indoor para TVs" },
       {
         property: "og:description",
         content: "Gestão de anúncios e player em tela cheia para recepções, elevadores e lojas.",
@@ -48,7 +49,7 @@ function Index() {
     <main className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <span className="font-display text-lg font-bold">SinalIndoor</span>
+          <BrandLogo className="h-12 w-auto" />
           <Button asChild>
             <Link to={signedIn ? "/painel" : "/auth"}>{signedIn ? "Abrir painel" : "Entrar"}</Link>
           </Button>
