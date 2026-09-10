@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ParceiroRouteImport } from './routes/parceiro'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as PlayerCodeRouteImport } from './routes/player.$code'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated/painel.index'
@@ -33,6 +34,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParceiroRoute = ParceiroRouteImport.update({
+  id: '/parceiro',
+  path: '/parceiro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
@@ -85,6 +91,7 @@ const AuthenticatedPainelTelasRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/parceiro': typeof ParceiroRoute
   '/painel': typeof AuthenticatedPainelRouteWithChildren
   '/player/$code': typeof PlayerCodeRoute
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/parceiro': typeof ParceiroRoute
   '/player/$code': typeof PlayerCodeRoute
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/parceiro': typeof ParceiroRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRouteWithChildren
   '/player/$code': typeof PlayerCodeRoute
   '/_authenticated/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/parceiro'
     | '/painel'
     | '/player/$code'
     | '/painel/agendamentos'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/parceiro'
     | '/player/$code'
     | '/painel/agendamentos'
     | '/painel/anuncios'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/parceiro'
     | '/_authenticated/painel'
     | '/player/$code'
     | '/_authenticated/painel/agendamentos'
@@ -162,6 +174,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ParceiroRoute: typeof ParceiroRoute
   PlayerCodeRoute: typeof PlayerCodeRoute
 }
 
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parceiro': {
+      id: '/parceiro'
+      path: '/parceiro'
+      fullPath: '/parceiro'
+      preLoaderRoute: typeof ParceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/painel': {
@@ -283,6 +303,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ParceiroRoute: ParceiroRoute,
   PlayerCodeRoute: PlayerCodeRoute,
 }
 export const routeTree = rootRouteImport

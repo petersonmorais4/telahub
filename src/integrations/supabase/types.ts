@@ -83,6 +83,30 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_leads: {
+        Row: {
+          address: string
+          business_name: string
+          cnpj: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          address: string
+          business_name: string
+          cnpj: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          address?: string
+          business_name?: string
+          cnpj?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       play_logs: {
         Row: {
           id: string
