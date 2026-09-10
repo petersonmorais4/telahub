@@ -94,7 +94,7 @@ function Index() {
             </a>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <a href="#como-funciona">Como funciona</a>
+            <Link to="/parceiro">Seja Parceiro</Link>
           </Button>
         </div>
 
