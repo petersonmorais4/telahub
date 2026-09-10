@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import telahubLogo from "@/assets/telahub-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import {
   buildPlaylistQueue,
@@ -257,7 +258,13 @@ function PlayerPage() {
         />
       ) : (
         <div className="flex flex-col items-center gap-6 px-10 text-center">
-          {logoUrl ? (
+          {!data || queue.length > 0 ? (
+            <img
+              src={telahubLogo.url}
+              alt="TelaHUB"
+              className="max-h-[40vh] max-w-[60vw] object-contain"
+            />
+          ) : logoUrl ? (
             <img src={logoUrl} alt="" className="max-h-[40vh] max-w-[60vw] object-contain" />
           ) : (
             <p className="font-display text-5xl font-bold text-white/90">
@@ -265,9 +272,13 @@ function PlayerPage() {
             </p>
           )}
           <p className="text-2xl text-white/60">
-            {data && !data.screen
-              ? "Tela não encontrada"
-              : (settings?.idle_message ?? "Em breve novos conteúdos")}
+            {!data
+              ? "Carregando conteúdo"
+              : !data.screen
+                ? "Tela não encontrada"
+                : queue.length === 0
+                  ? (settings?.idle_message ?? "Em breve novos conteúdos")
+                  : "Carregando conteúdo"}
           </p>
         </div>
       )}
