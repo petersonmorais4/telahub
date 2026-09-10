@@ -91,8 +91,8 @@ function Index() {
     <main className="min-h-screen bg-background">
       <section className="relative isolate flex min-h-svh items-end overflow-hidden">
         <header className="absolute left-0 right-0 top-0 z-20">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-            <BrandLogo className="h-12 w-auto" />
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+            <BrandLogo className="h-10 w-auto" />
           </div>
         </header>
 
@@ -111,7 +111,7 @@ function Index() {
         </div>
         <div className="absolute inset-0 -z-10 bg-background/65" aria-hidden />
 
-        <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-32 sm:pb-20 sm:pt-36">
+        <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-10 sm:pb-20 sm:pt-12">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
             Mídia indoor
           </p>
