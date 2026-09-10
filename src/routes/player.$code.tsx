@@ -18,9 +18,9 @@ export const Route = createFileRoute("/player/$code")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Player — SinalIndoor" },
+      { title: "TelaHUB — Exibição" },
       { name: "description", content: "Exibição em tela cheia dos anúncios programados para esta tela." },
-      { property: "og:title", content: "Player — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Exibição" },
       { property: "og:description", content: "Exibição em tela cheia dos anúncios desta tela." },
       { name: "robots", content: "noindex" },
     ],
