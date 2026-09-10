@@ -150,30 +150,29 @@ function PlayerPage() {
     setIndex((prev) => prev + 1);
   }, []);
 
-  // Link temporário do arquivo atual + controle de transição crossfade
+  // Carrega URL do item atual e inicia crossfade quando pronto
   useEffect(() => {
     if (!current) {
-      setUrl(null);
       setCurrentItem(null);
+      setCurrentUrl(null);
       setPreviousItem(null);
-      setPrevUrl(null);
+      setPreviousUrl(null);
       return;
     }
+    if (currentItem?.itemId === current.itemId) return;
+
     let alive = true;
     getSignedUrl(current.media.storage_path).then((value) => {
       if (!alive) return;
-      setUrl(value);
-      setCurrentItem((displayed) => {
-        if (displayed?.itemId === current.itemId) return displayed;
-        setPreviousItem(displayed);
-        setPrevUrl(url);
-        return current;
-      });
+      setPreviousItem(currentItem);
+      setPreviousUrl(currentUrl);
+      setCurrentItem(current);
+      setCurrentUrl(value);
     });
     return () => {
       alive = false;
     };
-  }, [current, url]);
+  }, [current, currentItem, currentUrl]);
 
   // Tempo de exibição das imagens
   useEffect(() => {
