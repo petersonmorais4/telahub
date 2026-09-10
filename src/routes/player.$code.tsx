@@ -174,6 +174,13 @@ function PlayerPage() {
     };
   }, [current, currentItem, currentUrl]);
 
+  // Pré-carrega o link do próximo item para evitar espera na transição
+  useEffect(() => {
+    if (queue.length < 2) return;
+    const next = queue[(currentIndex + 1) % queue.length];
+    if (next) void getSignedUrl(next.media.storage_path);
+  }, [queue, currentIndex]);
+
   // Tempo de exibição das imagens
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
