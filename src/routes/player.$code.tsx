@@ -7,6 +7,7 @@ import {
   buildPlaylistQueue,
   getSignedUrl,
   type MediaRow,
+  type PlayableItem,
   type PlaylistItemRow,
   type PlaylistRow,
   type ScheduleRow,
