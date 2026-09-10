@@ -149,8 +149,7 @@ function Index() {
       </section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row">
-          <BrandLogo className="h-16 w-auto opacity-80" />
+        <div className="mx-auto flex max-w-6xl items-center justify-center px-6 py-10 sm:justify-end">
           <Link
             to={signedIn ? "/painel" : "/auth"}
             className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
