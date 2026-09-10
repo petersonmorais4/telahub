@@ -16,9 +16,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/painel/")({
   head: () => ({
     meta: [
-      { title: "Dashboard — SinalIndoor" },
+      { title: "TelaHUB — Dashboard" },
       { name: "description", content: "Visão geral das telas ativas, anúncios no ar e exibições recentes." },
-      { property: "og:title", content: "Dashboard — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Dashboard" },
       { property: "og:description", content: "Visão geral das telas, anúncios e exibições." },
       { name: "robots", content: "noindex" },
     ],

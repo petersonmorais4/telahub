@@ -30,9 +30,9 @@ import { formatDateTime, isOnline, randomCode, type PlaylistRow, type ScreenRow 
 export const Route = createFileRoute("/_authenticated/painel/telas")({
   head: () => ({
     meta: [
-      { title: "Telas — SinalIndoor" },
+      { title: "TelaHUB — Telas" },
       { name: "description", content: "Cadastre e acompanhe cada TV: código, local, playlist e status." },
-      { property: "og:title", content: "Telas — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Telas" },
       { property: "og:description", content: "Gestão das telas físicas da rede de mídia indoor." },
       { name: "robots", content: "noindex" },
     ],

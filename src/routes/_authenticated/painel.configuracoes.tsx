@@ -20,12 +20,12 @@ import { MEDIA_BUCKET, getSignedUrl, type SettingsRow } from "@/lib/signage";
 export const Route = createFileRoute("/_authenticated/painel/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Configurações — SinalIndoor" },
+      { title: "TelaHUB — Configurações" },
       {
         name: "description",
         content: "Logo da empresa, cor de fundo do player, transição padrão e duração padrão das imagens.",
       },
-      { property: "og:title", content: "Configurações — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Configurações" },
       { property: "og:description", content: "Ajustes gerais do player e da conta." },
       { name: "robots", content: "noindex" },
     ],

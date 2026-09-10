@@ -24,12 +24,12 @@ import type { MediaRow, PlaylistItemRow, PlaylistRow, ScreenRow } from "@/lib/si
 export const Route = createFileRoute("/_authenticated/painel/playlists")({
   head: () => ({
     meta: [
-      { title: "Playlists — SinalIndoor" },
+      { title: "TelaHUB — Playlists" },
       {
         name: "description",
         content: "Monte listas de reprodução ordenáveis, defina loop contínuo e vincule às telas.",
       },
-      { property: "og:title", content: "Playlists — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Playlists" },
       { property: "og:description", content: "Listas de reprodução ordenáveis para as telas." },
       { name: "robots", content: "noindex" },
     ],
