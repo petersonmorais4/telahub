@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AnunciarRouteImport } from './routes/anunciar'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ParceiroRouteImport } from './routes/parceiro'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnunciarRoute = AnunciarRouteImport.update({
+  id: '/anunciar',
+  path: '/anunciar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -90,6 +96,7 @@ const AuthenticatedPainelTelasRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anunciar': typeof AnunciarRoute
   '/auth': typeof AuthRoute
   '/parceiro': typeof ParceiroRoute
   '/painel': typeof AuthenticatedPainelRouteWithChildren
@@ -103,6 +110,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anunciar': typeof AnunciarRoute
   '/auth': typeof AuthRoute
   '/parceiro': typeof ParceiroRoute
   '/player/$code': typeof PlayerCodeRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/anunciar': typeof AnunciarRoute
   '/auth': typeof AuthRoute
   '/parceiro': typeof ParceiroRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRouteWithChildren
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/anunciar'
     | '/auth'
     | '/parceiro'
     | '/painel'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/anunciar'
     | '/auth'
     | '/parceiro'
     | '/player/$code'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/anunciar'
     | '/auth'
     | '/parceiro'
     | '/_authenticated/painel'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AnunciarRoute: typeof AnunciarRoute
   AuthRoute: typeof AuthRoute
   ParceiroRoute: typeof ParceiroRoute
   PlayerCodeRoute: typeof PlayerCodeRoute
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anunciar': {
+      id: '/anunciar'
+      path: '/anunciar'
+      fullPath: '/anunciar'
+      preLoaderRoute: typeof AnunciarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -302,6 +322,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AnunciarRoute: AnunciarRoute,
   AuthRoute: AuthRoute,
   ParceiroRoute: ParceiroRoute,
   PlayerCodeRoute: PlayerCodeRoute,
