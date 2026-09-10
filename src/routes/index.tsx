@@ -111,7 +111,7 @@ function Index() {
         </div>
         <div className="absolute inset-0 -z-10 bg-background/65" aria-hidden />
 
-        <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-2 sm:pb-20 sm:pt-4">
+        <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-14 sm:pb-20 sm:pt-14">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
             Mídia indoor
           </p>
