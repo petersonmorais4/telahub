@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import telahubLogo from "@/assets/telahub-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import {
   buildPlaylistQueue,
