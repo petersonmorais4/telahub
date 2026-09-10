@@ -265,9 +265,13 @@ function PlayerPage() {
             </p>
           )}
           <p className="text-2xl text-white/60">
-            {data && !data.screen
-              ? "Tela não encontrada"
-              : (settings?.idle_message ?? "Em breve novos conteúdos")}
+            {!data
+              ? "Carregando conteúdo"
+              : !data.screen
+                ? "Tela não encontrada"
+                : queue.length === 0
+                  ? (settings?.idle_message ?? "Em breve novos conteúdos")
+                  : "Carregando conteúdo"}
           </p>
         </div>
       )}
