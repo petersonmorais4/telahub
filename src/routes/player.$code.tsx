@@ -42,10 +42,10 @@ function PlayerPage() {
   const queryClient = useQueryClient();
   const [index, setIndex] = useState(0);
   const [tick, setTick] = useState(0);
-  const [url, setUrl] = useState<string | null>(null);
-  const [prevUrl, setPrevUrl] = useState<string | null>(null);
   const [currentItem, setCurrentItem] = useState<PlayableItem | null>(null);
+  const [currentUrl, setCurrentUrl] = useState<string | null>(null);
   const [previousItem, setPreviousItem] = useState<PlayableItem | null>(null);
+  const [previousUrl, setPreviousUrl] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
