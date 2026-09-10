@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MonitorPlay, ListOrdered, CalendarClock, Images } from "lucide-react";
+import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -9,27 +9,44 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TelaHub — Painel de mídia indoor para TVs" },
+      { title: "TelaHub — Anuncie em telas de alta circulação" },
       {
         name: "description",
         content:
-          "Cadastre telas, envie anúncios em imagem ou vídeo, monte playlists com agendamento e exiba em qualquer TV por um link público.",
+          "Sua marca em recepções, elevadores, academias e áreas comuns de condomínios. Anuncie em vídeo ou imagem e alcance seu público onde ele realmente está.",
       },
-      { property: "og:title", content: "TelaHub — Painel de mídia indoor para TVs" },
+      { property: "og:title", content: "TelaHub — Anuncie em telas de alta circulação" },
       {
         property: "og:description",
-        content: "Gestão de anúncios e player em tela cheia para recepções, elevadores e lojas.",
+        content:
+          "Alcance seu público em locais de alta circulação com anúncios em tela cheia.",
       },
     ],
   }),
   component: Index,
 });
 
-const features = [
-  { icon: MonitorPlay, title: "Telas", text: "Cadastre cada TV com um código e link exclusivos." },
-  { icon: Images, title: "Anúncios", text: "Imagens e vídeos com período de veiculação." },
-  { icon: ListOrdered, title: "Playlists", text: "Ordem por arrastar e soltar, em loop contínuo." },
-  { icon: CalendarClock, title: "Agendamentos", text: "Dias da semana e horários por campanha." },
+const benefits = [
+  {
+    icon: Eye,
+    title: "Alta fixação",
+    text: "Telas em pontos de espera e circulação, onde o público olha naturalmente.",
+  },
+  {
+    icon: Users,
+    title: "Público segmentado",
+    text: "Escolha horários e dias para impactar quem você quer, no momento certo.",
+  },
+  {
+    icon: MonitorPlay,
+    title: "Vídeo e imagem",
+    text: "Anúncios em tela cheia, com transições suaves e qualidade de TV.",
+  },
+  {
+    icon: BarChart3,
+    title: "Métricas claras",
+    text: "Relatório de exibições para você saber exatamente o que foi veiculado.",
+  },
 ];
 
 function Index() {
@@ -50,37 +67,62 @@ function Index() {
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <BrandLogo className="h-12 w-auto" />
-          <Button asChild>
-            <Link to={signedIn ? "/painel" : "/auth"}>{signedIn ? "Abrir painel" : "Entrar"}</Link>
-          </Button>
+          <Link
+            to={signedIn ? "/painel" : "/auth"}
+            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {signedIn ? "Abrir painel" : "Acesso da equipe"}
+          </Link>
         </div>
       </header>
 
       <section className="mx-auto max-w-6xl px-6 py-20">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Digital signage</p>
-        <h1 className="mt-4 max-w-2xl text-4xl font-bold leading-tight sm:text-5xl">
-          Anúncios no ar em todas as suas telas, controlados de um só lugar
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+          Mídia indoor
+        </p>
+        <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
+          Sua marca onde as pessoas realmente estão
         </h1>
         <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-          Um painel para organizar as campanhas e um link público por tela para rodar em Smart TVs,
-          Chromecast ou mini-PC — sem login e sem instalar nada.
+          Anuncie em recepções, elevadores, academias e áreas comuns de condomínios.
+          Seu vídeo ou imagem em tela cheia, no momento e no local certo para ser lembrado.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <Link to={signedIn ? "/painel" : "/auth"}>
-              {signedIn ? "Ir para o painel" : "Acessar o painel"}
-            </Link>
+            <a href="mailto:contato@telahub.com.br?subject=Quero%20anunciar%20na%20TelaHub">
+              Quero anunciar
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <a href="#como-funciona">Como funciona</a>
           </Button>
         </div>
 
-        <div className="mt-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f) => (
-            <div key={f.title} className="panel p-6">
-              <f.icon className="h-6 w-6 text-primary" aria-hidden />
-              <h2 className="mt-4 text-base font-semibold">{f.title}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
-            </div>
-          ))}
+        <div id="como-funciona" className="mt-24 scroll-mt-24">
+          <h2 className="text-2xl font-bold">Por que anunciar na TelaHub?</h2>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {benefits.map((b) => (
+              <div key={b.title} className="panel p-6">
+                <b.icon className="h-6 w-6 text-primary" aria-hidden />
+                <h3 className="mt-4 text-base font-semibold">{b.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{b.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-20 rounded-2xl border border-border bg-muted/40 p-8 sm:p-12">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-2xl font-bold sm:text-3xl">Quer reservar um espaço?</h2>
+            <p className="mt-3 text-muted-foreground">
+              Conte para a gente sua marca, público-alvo e região. Montamos uma proposta sob medida.
+            </p>
+            <Button asChild size="lg" className="mt-6">
+              <a href="mailto:contato@telahub.com.br?subject=Quero%20anunciar%20na%20TelaHub">
+                Solicitar proposta
+              </a>
+            </Button>
+          </div>
         </div>
       </section>
     </main>
