@@ -246,7 +246,7 @@ function PlayerPage() {
             <img src={logoUrl} alt="" className="max-h-[40vh] max-w-[60vw] object-contain" />
           ) : (
             <p className="font-display text-5xl font-bold text-white/90">
-              {settings?.company_name ?? "SinalIndoor"}
+              {settings?.company_name ?? "TelaHUB"}
             </p>
           )}
           <p className="text-2xl text-white/60">
