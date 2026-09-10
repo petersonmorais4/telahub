@@ -258,7 +258,13 @@ function PlayerPage() {
         />
       ) : (
         <div className="flex flex-col items-center gap-6 px-10 text-center">
-          {logoUrl ? (
+          {!data || queue.length > 0 ? (
+            <img
+              src={telahubLogo.url}
+              alt="TelaHUB"
+              className="max-h-[40vh] max-w-[60vw] object-contain"
+            />
+          ) : logoUrl ? (
             <img src={logoUrl} alt="" className="max-h-[40vh] max-w-[60vw] object-contain" />
           ) : (
             <p className="font-display text-5xl font-bold text-white/90">
