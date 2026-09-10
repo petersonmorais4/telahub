@@ -25,12 +25,12 @@ import { MEDIA_BUCKET, type MediaRow, type SettingsRow } from "@/lib/signage";
 export const Route = createFileRoute("/_authenticated/painel/anuncios")({
   head: () => ({
     meta: [
-      { title: "Anúncios — SinalIndoor" },
+      { title: "TelaHUB — Anúncios" },
       {
         name: "description",
         content: "Envie imagens e vídeos, defina duração, período de veiculação e ative ou pause cada anúncio.",
       },
-      { property: "og:title", content: "Anúncios — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Anúncios" },
       { property: "og:description", content: "Biblioteca de anúncios em imagem e vídeo." },
       { name: "robots", content: "noindex" },
     ],

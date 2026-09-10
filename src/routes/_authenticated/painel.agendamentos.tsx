@@ -23,12 +23,12 @@ import { WEEKDAY_LABELS, type MediaRow, type PlaylistRow, type ScheduleRow } fro
 export const Route = createFileRoute("/_authenticated/painel/agendamentos")({
   head: () => ({
     meta: [
-      { title: "Agendamentos — SinalIndoor" },
+      { title: "TelaHUB — Agendamentos" },
       {
         name: "description",
         content: "Programe dias da semana e horários em que cada playlist ou anúncio deve aparecer.",
       },
-      { property: "og:title", content: "Agendamentos — SinalIndoor" },
+      { property: "og:title", content: "TelaHUB — Agendamentos" },
       { property: "og:description", content: "Programação semanal das campanhas nas telas." },
       { name: "robots", content: "noindex" },
     ],
