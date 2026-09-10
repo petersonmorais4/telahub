@@ -225,33 +225,35 @@ function PlayerPage() {
     if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.();
   }
 
+  const exitAnimation = settings?.transition === "slide" ? "signage-slide-out" : "signage-fade-out";
+
+  function onExitEnd() {
+    setPreviousItem(null);
+    setPreviousUrl(null);
+  }
+
   return (
     <div
       onClick={goFullscreen}
       className="fixed inset-0 flex cursor-none items-center justify-center overflow-hidden"
       style={{ backgroundColor: background }}
     >
-      {current && url ? (
-        current.media.type === "video" ? (
-          <video
-            key={`${current.itemId}-${currentIndex}`}
-            src={url}
-            className={`h-full w-full object-contain ${animation}`}
-            autoPlay
-            muted
-            playsInline
-            onEnded={advance}
-            onError={advance}
-          />
-        ) : (
-          <img
-            key={`${current.itemId}-${currentIndex}`}
-            src={url}
-            alt=""
-            className={`h-full w-full object-contain ${animation}`}
-            onError={advance}
-          />
-        )
+      {previousItem && previousUrl && (
+        <MediaElement
+          item={previousItem}
+          url={previousUrl}
+          animation={exitAnimation}
+          advance={advance}
+          onAnimationEnd={onExitEnd}
+        />
+      )}
+      {currentItem && currentUrl ? (
+        <MediaElement
+          item={currentItem}
+          url={currentUrl}
+          animation={animation}
+          advance={advance}
+        />
       ) : (
         <div className="flex flex-col items-center gap-6 px-10 text-center">
           {logoUrl ? (
@@ -269,5 +271,42 @@ function PlayerPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function MediaElement({
+  item,
+  url,
+  animation,
+  advance,
+  onAnimationEnd,
+}: {
+  item: PlayableItem;
+  url: string;
+  animation: string;
+  advance: () => void;
+  onAnimationEnd?: () => void;
+}) {
+  return item.media.type === "video" ? (
+    <video
+      key={item.itemId}
+      src={url}
+      className={`absolute inset-0 h-full w-full object-contain ${animation}`}
+      autoPlay
+      muted
+      playsInline
+      onEnded={advance}
+      onError={advance}
+      onAnimationEnd={onAnimationEnd}
+    />
+  ) : (
+    <img
+      key={item.itemId}
+      src={url}
+      alt=""
+      className={`absolute inset-0 h-full w-full object-contain ${animation}`}
+      onError={advance}
+      onAnimationEnd={onAnimationEnd}
+    />
   );
 }
