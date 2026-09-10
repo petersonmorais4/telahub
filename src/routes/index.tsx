@@ -89,9 +89,7 @@ function Index() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg">
-            <a href="mailto:contato@telahub.com.br?subject=Quero%20anunciar%20na%20TelaHub">
-              Quero anunciar
-            </a>
+            <Link to="/anunciar">Quero anunciar</Link>
           </Button>
           <Button asChild variant="outline" size="lg">
             <Link to="/parceiro">Seja Parceiro</Link>
@@ -111,19 +109,6 @@ function Index() {
           </div>
         </div>
 
-        <div className="mt-20 rounded-2xl border border-border bg-muted/40 p-8 sm:p-12">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold sm:text-3xl">Quer reservar um espaço?</h2>
-            <p className="mt-3 text-muted-foreground">
-              Conte para a gente sua marca, público-alvo e região. Montamos uma proposta sob medida.
-            </p>
-            <Button asChild size="lg" className="mt-6">
-              <a href="mailto:contato@telahub.com.br?subject=Quero%20anunciar%20na%20TelaHub">
-                Solicitar proposta
-              </a>
-            </Button>
-          </div>
-        </div>
       </section>
     </main>
   );
