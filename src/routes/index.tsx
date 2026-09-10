@@ -5,6 +5,10 @@ import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
+import academiaTv from "@/assets/home-gallery/academia-tv.png.asset.json";
+import farmaciaTv from "@/assets/home-gallery/farmacia-tv.png.asset.json";
+import elevadorTv from "@/assets/home-gallery/elevador-tv.png.asset.json";
+import mercadoTv from "@/assets/home-gallery/mercado-tv.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,6 +25,8 @@ export const Route = createFileRoute("/")({
         content:
           "Alcance seu público em locais de alta circulação com anúncios em tela cheia.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -49,8 +55,16 @@ const benefits = [
   },
 ];
 
+const showcaseImages = [
+  { src: academiaTv.url, alt: "Anúncio exibido em uma TV de academia", position: "object-[44%_center]" },
+  { src: farmaciaTv.url, alt: "Anúncio exibido em uma TV de farmácia", position: "object-[38%_center]" },
+  { src: elevadorTv.url, alt: "Anúncio exibido em uma tela de elevador", position: "object-[52%_center]" },
+  { src: mercadoTv.url, alt: "Anúncio exibido em uma TV de supermercado", position: "object-center" },
+];
+
 function Index() {
   const [signedIn, setSignedIn] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -60,6 +74,17 @@ function Index() {
     return () => {
       alive = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reducedMotion.matches) return;
+
+    const rotation = window.setInterval(() => {
+      setActiveImage((current) => (current + 1) % showcaseImages.length);
+    }, 5000);
+
+    return () => window.clearInterval(rotation);
   }, []);
 
   return (
@@ -76,27 +101,46 @@ function Index() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
-          Mídia indoor
-        </p>
-        <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl">
-          Sua marca onde as pessoas realmente estão
-        </h1>
-        <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-          Anuncie em recepções, elevadores, academias e áreas comuns de condomínios.
-          Seu vídeo ou imagem em tela cheia, no momento e no local certo para ser lembrado.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild size="lg">
-            <Link to="/anunciar">Quero anunciar</Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/parceiro">Seja Parceiro</Link>
-          </Button>
+      <section className="relative isolate flex min-h-[min(680px,calc(100svh-5.5rem))] items-end overflow-hidden">
+        <div className="absolute inset-0 -z-20 bg-background" aria-hidden>
+          {showcaseImages.map((image, index) => (
+            <img
+              key={image.src}
+              src={image.src}
+              alt=""
+              className={`absolute inset-0 h-full w-full object-cover ${image.position} transition-opacity duration-1000 motion-reduce:transition-none ${
+                index === activeImage ? "opacity-100" : "opacity-0"
+              }`}
+              loading={index === 0 ? "eager" : "lazy"}
+            />
+          ))}
         </div>
+        <div className="absolute inset-0 -z-10 bg-background/65" aria-hidden />
 
-        <div id="como-funciona" className="mt-24 scroll-mt-24">
+        <div className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-20">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
+            Mídia indoor
+          </p>
+          <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-5xl">
+            Sua marca onde as pessoas realmente estão
+          </h1>
+          <p className="mt-5 max-w-xl text-lg text-foreground/85">
+            Anuncie em recepções, elevadores, academias e áreas comuns de condomínios.
+            Seu vídeo ou imagem em tela cheia, no momento e no local certo para ser lembrado.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg">
+              <Link to="/anunciar">Quero anunciar</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="bg-background/70 backdrop-blur-sm">
+              <Link to="/parceiro">Seja Parceiro</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <div id="como-funciona" className="scroll-mt-24">
           <h2 className="text-2xl font-bold">Por que anunciar na TelaHub?</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {benefits.map((b) => (
@@ -108,7 +152,6 @@ function Index() {
             ))}
           </div>
         </div>
-
       </section>
     </main>
   );
