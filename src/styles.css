@@ -156,8 +156,8 @@
   box-shadow: var(--shadow-panel);
 }
 
-/* Player: transições suaves entre itens */
-@keyframes signage-fade {
+/* Player: transições suaves entre itens (crossfade sem piscadas) */
+@keyframes signage-fade-in {
   from {
     opacity: 0;
   }
@@ -166,7 +166,16 @@
   }
 }
 
-@keyframes signage-slide {
+@keyframes signage-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes signage-slide-in {
   from {
     opacity: 0;
     transform: translate3d(4%, 0, 0);
@@ -177,10 +186,31 @@
   }
 }
 
+@keyframes signage-slide-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(-4%, 0, 0);
+  }
+}
+
 @utility signage-fade-in {
-  animation: signage-fade 900ms ease both;
+  animation: signage-fade-in 900ms ease both;
+}
+
+@utility signage-fade-out {
+  animation: signage-fade-out 900ms ease both;
+  pointer-events: none;
 }
 
 @utility signage-slide-in {
-  animation: signage-slide 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: signage-slide-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility signage-slide-out {
+  animation: signage-slide-out 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: none;
 }
