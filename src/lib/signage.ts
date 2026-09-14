@@ -1,6 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type MediaType = "image" | "video";
+import type { Json } from "@/integrations/supabase/types";
+
+export type MediaType = "image" | "video" | "weather" | "market";
 
 export interface MediaRow {
   id: string;
@@ -12,6 +14,11 @@ export interface MediaRow {
   start_date: string | null;
   end_date: string | null;
   created_at: string;
+  content_config: Json;
+}
+
+export function isDynamicMedia(media: Pick<MediaRow, "type">): boolean {
+  return media.type === "weather" || media.type === "market";
 }
 
 export interface PlaylistRow {

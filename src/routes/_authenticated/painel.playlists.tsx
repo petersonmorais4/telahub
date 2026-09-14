@@ -21,6 +21,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { MediaRow, PlaylistItemRow, PlaylistRow, ScreenRow } from "@/lib/signage";
 
+function mediaKind(media: MediaRow | undefined) {
+  if (!media) return "";
+  if (media.type === "video") return "Vídeo completo";
+  if (media.type === "weather") return `Clima · ${media.duration}s`;
+  if (media.type === "market") return `Ibovespa · ${media.duration}s`;
+  return `Imagem · ${media.duration}s`;
+}
+
 export const Route = createFileRoute("/_authenticated/painel/playlists")({
   head: () => ({
     meta: [
@@ -306,7 +314,7 @@ function PlaylistsPage() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium">{media?.title ?? "Anúncio removido"}</p>
                         <p className="text-xs text-muted-foreground">
-                          {media?.type === "video" ? "Vídeo completo" : `${media?.duration ?? 0}s`}
+                           {mediaKind(media)}
                           {media && !media.active ? " · pausado" : ""}
                         </p>
                       </div>
