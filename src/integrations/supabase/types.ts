@@ -77,6 +77,7 @@ export type Database = {
       media: {
         Row: {
           active: boolean
+          content_config: Json
           created_at: string
           duration: number
           end_date: string | null
@@ -88,6 +89,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          content_config?: Json
           created_at?: string
           duration?: number
           end_date?: string | null
@@ -99,6 +101,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          content_config?: Json
           created_at?: string
           duration?: number
           end_date?: string | null
