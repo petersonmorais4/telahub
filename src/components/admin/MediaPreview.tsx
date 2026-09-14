@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { FileVideo, ImageIcon } from "lucide-react";
 
-import { getSignedUrl, type MediaRow } from "@/lib/signage";
+import { DynamicMedia } from "@/components/DynamicMedia";
+import { getSignedUrl, isDynamicMedia, type MediaRow } from "@/lib/signage";
 import { cn } from "@/lib/utils";
 
 export function MediaPreview({
@@ -9,11 +10,15 @@ export function MediaPreview({
   className,
   controls = false,
 }: {
-  media: Pick<MediaRow, "type" | "storage_path" | "title">;
+  media: Pick<MediaRow, "type" | "storage_path" | "title" | "content_config">;
   className?: string;
   controls?: boolean;
 }) {
   const [url, setUrl] = useState<string | null>(null);
+
+  if (isDynamicMedia(media)) {
+    return <DynamicMedia media={media} compact className={className} />;
+  }
 
   useEffect(() => {
     let alive = true;
