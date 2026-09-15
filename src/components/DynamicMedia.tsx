@@ -9,10 +9,22 @@ import { cn } from "@/lib/utils";
 function configCity(media: Pick<MediaRow, "content_config">) {
   const config = media.content_config;
   if (config && typeof config === "object" && !Array.isArray(config)) {
-    const city = (config as Record<string, unknown>).city;
+    const city = (config as Record<string, unknown>)["city"];
     if (typeof city === "string" && city.trim()) return city.trim();
   }
   return "São Paulo";
+}
+
+function weatherLabel(code: number) {
+  if (code === 0) return "Céu limpo";
+  if (code <= 3) return "Parcialmente nublado";
+  if (code === 45 || code === 48) return "Neblina";
+  if (code <= 57) return "Garoa";
+  if (code <= 67) return "Chuva";
+  if (code <= 77) return "Neve";
+  if (code <= 82) return "Pancadas de chuva";
+  if (code <= 86) return "Pancadas de neve";
+  return "Trovoadas";
 }
 
 export function DynamicMedia({
@@ -22,7 +34,7 @@ export function DynamicMedia({
 }: {
   media: Pick<MediaRow, "type" | "title" | "content_config">;
   compact?: boolean;
-  className?: string;
+  className?: string | undefined;
 }) {
   const fetchLiveContent = useServerFn(getLiveContent);
   const isWeather = media.type === "weather";
@@ -61,6 +73,7 @@ export function DynamicMedia({
             <p className="text-[clamp(1.5rem,3vw,3rem)] text-muted-foreground">Clima agora</p>
             <p className="mt-3 font-display text-[clamp(3rem,8vw,8rem)] font-bold leading-none">{Math.round(data.temperature)}°</p>
             <h2 className="mt-5 text-[clamp(2rem,4vw,4rem)] font-semibold">{data.city}</h2>
+            <p className="mt-2 text-[clamp(1.25rem,2.5vw,2.5rem)] text-primary">{weatherLabel(data.weatherCode)}</p>
             <div className="mt-6 flex flex-wrap gap-x-10 gap-y-3 text-[clamp(1rem,2vw,2rem)] text-muted-foreground">
               <span>Sensação {Math.round(data.apparentTemperature)}°</span>
               <span className="inline-flex items-center gap-2"><Wind className="h-[1em] w-[1em]" /> {Math.round(data.windSpeed)} km/h</span>

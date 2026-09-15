@@ -3,10 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import telahubLogo from "@/assets/telahub-logo.png.asset.json";
+import { DynamicMedia } from "@/components/DynamicMedia";
 import { supabase } from "@/integrations/supabase/client";
 import {
   buildPlaylistQueue,
   getSignedUrl,
+  isDynamicMedia,
   type MediaRow,
   type PlayableItem,
   type PlaylistItemRow,
@@ -164,7 +166,10 @@ function PlayerPage() {
     if (currentItem?.itemId === current.itemId) return;
 
     let alive = true;
-    getSignedUrl(current.media.storage_path).then((value) => {
+    const loadUrl = isDynamicMedia(current.media)
+      ? Promise.resolve("dynamic")
+      : getSignedUrl(current.media.storage_path);
+    loadUrl.then((value) => {
       if (!alive) return;
       setPreviousItem(currentItem);
       setPreviousUrl(currentUrl);
@@ -180,7 +185,7 @@ function PlayerPage() {
   useEffect(() => {
     if (queue.length < 2) return;
     const next = queue[(currentIndex + 1) % queue.length];
-    if (next) void getSignedUrl(next.media.storage_path);
+    if (next && !isDynamicMedia(next.media)) void getSignedUrl(next.media.storage_path);
   }, [queue, currentIndex]);
 
   // Tempo de exibição das imagens
@@ -299,6 +304,18 @@ function MediaElement({
   advance: () => void;
   onAnimationEnd?: () => void;
 }) {
+  if (isDynamicMedia(item.media)) {
+    return (
+      <div
+        key={item.itemId}
+        className={`absolute inset-0 h-full w-full ${animation}`}
+        onAnimationEnd={onAnimationEnd}
+      >
+        <DynamicMedia media={item.media} />
+      </div>
+    );
+  }
+
   return item.media.type === "video" ? (
     <video
       key={item.itemId}

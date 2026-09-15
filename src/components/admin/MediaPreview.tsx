@@ -16,11 +16,11 @@ export function MediaPreview({
 }) {
   const [url, setUrl] = useState<string | null>(null);
 
-  if (isDynamicMedia(media)) {
-    return <DynamicMedia media={media} compact className={className} />;
-  }
-
   useEffect(() => {
+    if (isDynamicMedia(media)) {
+      setUrl(null);
+      return;
+    }
     let alive = true;
     getSignedUrl(media.storage_path).then((value) => {
       if (alive) setUrl(value);
@@ -29,6 +29,10 @@ export function MediaPreview({
       alive = false;
     };
   }, [media.storage_path]);
+
+  if (isDynamicMedia(media)) {
+    return <DynamicMedia media={media} compact className={className} />;
+  }
 
   if (!url) {
     return (

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { CloudSun, ImageIcon, Plus, TrendingUp, Trash2 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MediaPreview } from "@/components/admin/MediaPreview";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { MEDIA_BUCKET, type MediaRow, type SettingsRow } from "@/lib/signage";
+import { MEDIA_BUCKET, isDynamicMedia, type MediaRow, type MediaType, type SettingsRow } from "@/lib/signage";
 
 export const Route = createFileRoute("/_authenticated/painel/anuncios")({
   head: () => ({
@@ -47,6 +48,8 @@ function AnunciosPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [creationType, setCreationType] = useState<"file" | "weather" | "market">("file");
+  const [city, setCity] = useState("São Paulo");
 
   const { data, isLoading } = useQuery({
     queryKey: ["anuncios"],
@@ -66,26 +69,44 @@ function AnunciosPage() {
 
   const createMedia = useMutation({
     mutationFn: async () => {
-      if (!file) throw new Error("Escolha um arquivo de imagem ou vídeo.");
-      const type = file.type.startsWith("video") ? "video" : "image";
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
-      const path = `${crypto.randomUUID()}.${ext}`;
+      let type: MediaType;
+      let path = "";
+      let fallbackTitle = "";
+      let contentConfig: { city?: string } = {};
 
-      setUploading(true);
-      const upload = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
-        cacheControl: "3600",
-        contentType: file.type || "application/octet-stream",
-      });
-      setUploading(false);
-      if (upload.error) throw upload.error;
+      if (creationType === "file") {
+        if (!file) throw new Error("Escolha um arquivo de imagem ou vídeo.");
+        type = file.type.startsWith("video") ? "video" : "image";
+        const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
+        path = `${crypto.randomUUID()}.${ext}`;
+        fallbackTitle = file.name;
+        setUploading(true);
+        const upload = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
+          cacheControl: "3600",
+          contentType: file.type || "application/octet-stream",
+        });
+        setUploading(false);
+        if (upload.error) throw upload.error;
+      } else if (creationType === "weather") {
+        if (city.trim().length < 2) throw new Error("Informe uma cidade válida.");
+        type = "weather";
+        path = `dynamic/weather/${crypto.randomUUID()}`;
+        fallbackTitle = `Clima — ${city.trim()}`;
+        contentConfig = { city: city.trim() };
+      } else {
+        type = "market";
+        path = `dynamic/market/${crypto.randomUUID()}`;
+        fallbackTitle = "Ibovespa";
+      }
 
       const { error } = await supabase.from("media").insert({
-        title: title.trim() || file.name,
+        title: title.trim() || fallbackTitle,
         type,
         storage_path: path,
         duration: type === "video" ? 0 : Number(duration) || defaultDuration,
         start_date: startDate || null,
         end_date: endDate || null,
+        content_config: contentConfig,
       });
       if (error) throw error;
     },
@@ -97,6 +118,8 @@ function AnunciosPage() {
       setDuration(defaultDuration);
       setStartDate("");
       setEndDate("");
+      setCreationType("file");
+      setCity("São Paulo");
       queryClient.invalidateQueries({ queryKey: ["anuncios"] });
     },
     onError: (error: Error) => {
@@ -116,7 +139,9 @@ function AnunciosPage() {
 
   const deleteMedia = useMutation({
     mutationFn: async (media: MediaRow) => {
-      await supabase.storage.from(MEDIA_BUCKET).remove([media.storage_path]);
+      if (!isDynamicMedia(media)) {
+        await supabase.storage.from(MEDIA_BUCKET).remove([media.storage_path]);
+      }
       const { error } = await supabase.from("media").delete().eq("id", media.id);
       if (error) throw error;
     },
@@ -130,10 +155,17 @@ function AnunciosPage() {
   const previewUrl = file ? URL.createObjectURL(file) : null;
   const isVideo = file?.type.startsWith("video") ?? false;
 
+  function mediaDescription(media: MediaRow) {
+    if (media.type === "video") return "Vídeo · duração do arquivo";
+    if (media.type === "weather") return `Clima atualizado · ${media.duration}s`;
+    if (media.type === "market") return `Ibovespa atualizado · ${media.duration}s`;
+    return `Imagem · ${media.duration}s`;
+  }
+
   return (
     <AdminShell
       title="Anúncios"
-      description="Imagens e vídeos que entram nas playlists."
+      description="Imagens, vídeos, clima e Ibovespa que entram nas playlists."
       actions={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -145,36 +177,43 @@ function AnunciosPage() {
             <DialogHeader>
               <DialogTitle>Novo anúncio</DialogTitle>
               <DialogDescription>
-                Imagens JPG ou PNG e vídeos MP4. Vídeos tocam por completo.
+                Escolha um arquivo ou um conteúdo que se atualiza automaticamente.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="arquivo">Arquivo</Label>
-                <Input
-                  id="arquivo"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,video/mp4"
-                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                />
-              </div>
-
-              {previewUrl ? (
-                <div className="overflow-hidden rounded-md border border-border bg-black">
-                  {isVideo ? (
-                    <video src={previewUrl} className="h-48 w-full object-contain" controls muted />
-                  ) : (
-                    <img src={previewUrl} alt="Pré-visualização" className="h-48 w-full object-contain" />
-                  )}
-                </div>
-              ) : null}
+              <Tabs value={creationType} onValueChange={(value) => setCreationType(value as typeof creationType)}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="file"><ImageIcon className="mr-2 h-4 w-4" />Arquivo</TabsTrigger>
+                  <TabsTrigger value="weather"><CloudSun className="mr-2 h-4 w-4" />Clima</TabsTrigger>
+                  <TabsTrigger value="market"><TrendingUp className="mr-2 h-4 w-4" />Ibovespa</TabsTrigger>
+                </TabsList>
+                <TabsContent value="file" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="arquivo">Imagem ou vídeo</Label>
+                    <Input id="arquivo" type="file" accept="image/jpeg,image/png,image/webp,video/mp4" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+                  </div>
+                  {previewUrl ? (
+                    <div className="overflow-hidden rounded-md border border-border bg-background">
+                      {isVideo ? <video src={previewUrl} className="h-48 w-full object-contain" controls muted /> : <img src={previewUrl} alt="Pré-visualização" className="h-48 w-full object-contain" />}
+                    </div>
+                  ) : null}
+                </TabsContent>
+                <TabsContent value="weather" className="space-y-2">
+                  <Label htmlFor="cidade">Cidade exibida</Label>
+                  <Input id="cidade" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Ex.: São Paulo" />
+                  <p className="text-xs text-muted-foreground">Temperatura, sensação, condição do tempo e vento são atualizados automaticamente.</p>
+                </TabsContent>
+                <TabsContent value="market">
+                  <p className="text-sm text-muted-foreground">Exibe pontos e variação diária do Ibovespa. A fonte gratuita pode apresentar atraso.</p>
+                </TabsContent>
+              </Tabs>
 
               <div className="space-y-2">
                 <Label htmlFor="titulo">Título</Label>
                 <Input id="titulo" value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
 
-              {!isVideo ? (
+              {creationType !== "file" || !isVideo ? (
                 <div className="space-y-2">
                   <Label htmlFor="duracao">Duração na tela (segundos)</Label>
                   <Input
@@ -209,7 +248,7 @@ function AnunciosPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={() => createMedia.mutate()} disabled={!file || uploading || createMedia.isPending}>
+              <Button onClick={() => createMedia.mutate()} disabled={(creationType === "file" && !file) || (creationType === "weather" && city.trim().length < 2) || uploading || createMedia.isPending}>
                 {uploading ? "Enviando…" : "Publicar"}
               </Button>
             </DialogFooter>
@@ -228,7 +267,7 @@ function AnunciosPage() {
                 <div className="min-w-0">
                   <h2 className="truncate font-medium">{media.title}</h2>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {media.type === "video" ? "Vídeo · duração do arquivo" : `Imagem · ${media.duration}s`}
+                    {mediaDescription(media)}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {media.start_date || media.end_date
@@ -264,7 +303,7 @@ function AnunciosPage() {
 
       {!isLoading && (data?.media.length ?? 0) === 0 ? (
         <p className="text-sm text-muted-foreground">
-          Nenhum anúncio ainda. Envie a primeira imagem ou vídeo.
+           Nenhum anúncio ainda. Publique um arquivo, clima ou Ibovespa.
         </p>
       ) : null}
     </AdminShell>

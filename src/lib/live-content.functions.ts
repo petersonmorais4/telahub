@@ -1,4 +1,4 @@
-import { createServerFn, setResponseHeader } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const liveContentInput = z.discriminatedUnion("type", [
@@ -67,8 +67,6 @@ interface YahooChartResponse {
 export const getLiveContent = createServerFn({ method: "GET" })
   .inputValidator((input) => liveContentInput.parse(input))
   .handler(async ({ data }): Promise<LiveContent> => {
-    setResponseHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
-
     if (data.type === "weather") {
       const geoUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
       geoUrl.search = new URLSearchParams({
@@ -130,7 +128,7 @@ export const getLiveContent = createServerFn({ method: "GET" })
       change,
       changePercent: previous === 0 ? 0 : (change / previous) * 100,
       currency: "BRL",
-      observedAt: new Date((meta.regularMarketTime ?? Date.now() / 1000) * 1000).toISOString(),
+      observedAt: new Date((meta?.regularMarketTime ?? Date.now() / 1000) * 1000).toISOString(),
       delayed: true,
     };
   });
