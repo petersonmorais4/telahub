@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 function configCity(media: Pick<MediaRow, "content_config">) {
   const config = media.content_config;
   if (config && typeof config === "object" && !Array.isArray(config)) {
-    const city = (config as Record<string, unknown>).city;
+    const city = (config as Record<string, unknown>)["city"];
     if (typeof city === "string" && city.trim()) return city.trim();
   }
   return "São Paulo";
@@ -34,7 +34,7 @@ export function DynamicMedia({
 }: {
   media: Pick<MediaRow, "type" | "title" | "content_config">;
   compact?: boolean;
-  className?: string;
+  className?: string | undefined;
 }) {
   const fetchLiveContent = useServerFn(getLiveContent);
   const isWeather = media.type === "weather";
