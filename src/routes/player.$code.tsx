@@ -53,7 +53,7 @@ function PlayerPage() {
   const [previousUrl, setPreviousUrl] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastPlayRef = useRef<{ key: string; startedAt: number } | null>(null);
+  const lastLoggedPlayRef = useRef<string | null>(null);
 
   const { data } = useQuery<PlayerData>({
     queryKey: ["player", code],
@@ -212,9 +212,9 @@ function PlayerPage() {
     if (!currentItem || !currentUrl || !data?.screen) return;
 
     const screenId = data.screen.id;
-    const playKey = `${screenId}:${currentItem.itemId}`;
-    if (lastPlayRef.current?.key === playKey && Date.now() - lastPlayRef.current.startedAt < 2_000) return;
-    lastPlayRef.current = { key: playKey, startedAt: Date.now() };
+    const playKey = `${screenId}:${index}:${currentItem.itemId}:${currentItem.media.id}`;
+    if (lastLoggedPlayRef.current === playKey) return;
+    lastLoggedPlayRef.current = playKey;
     let active = true;
     let retryId: ReturnType<typeof setTimeout> | null = null;
     const recordPlay = async () => {
@@ -223,7 +223,6 @@ function PlayerPage() {
         media_id: currentItem.media.id,
       });
       if (error && active) {
-        lastPlayRef.current = null;
         retryId = setTimeout(() => void recordPlay(), 5_000);
       }
     };
@@ -233,7 +232,7 @@ function PlayerPage() {
       active = false;
       if (retryId) clearTimeout(retryId);
     };
-  }, [currentItem, currentUrl, data?.screen]);
+  }, [currentItem, currentUrl, data?.screen, index]);
 
   // Logo para a tela padrão
   useEffect(() => {
