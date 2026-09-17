@@ -285,6 +285,7 @@ function PlayerPage() {
       <div className="absolute inset-x-0 top-0 bottom-11 overflow-hidden md:bottom-14">
         {previousItem && previousUrl && (
           <MediaElement
+            key={`previous-${previousItem.itemId}`}
             item={previousItem}
             url={previousUrl}
             animation={exitAnimation}
@@ -294,6 +295,7 @@ function PlayerPage() {
         )}
         {currentItem && currentUrl ? (
           <MediaElement
+            key={`current-${currentItem.itemId}`}
             item={currentItem}
             url={currentUrl}
             animation={animation}
