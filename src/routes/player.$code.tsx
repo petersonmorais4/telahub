@@ -324,7 +324,7 @@ function MediaElement({
     <video
       key={item.itemId}
       src={url}
-      className={`absolute inset-0 h-full w-full object-contain ${animation}`}
+      className={`absolute inset-0 h-full w-full object-cover ${animation}`}
       autoPlay
       muted
       playsInline
@@ -337,7 +337,7 @@ function MediaElement({
       key={item.itemId}
       src={url}
       alt=""
-      className={`absolute inset-0 h-full w-full object-contain ${animation}`}
+      className={`absolute inset-0 h-full w-full object-cover ${animation}`}
       onError={advance}
       onAnimationEnd={onAnimationEnd}
     />
