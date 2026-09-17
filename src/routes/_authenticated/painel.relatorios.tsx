@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, Download, FileBarChart, Images, MonitorPlay } from "lucide-react";
 import { toast } from "sonner";
 
+import telahubLogo from "@/assets/telahub-logo.png.asset.json";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -175,6 +176,17 @@ function RelatoriosPage() {
         import("jspdf-autotable"),
       ]);
       const document = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const logoResponse = await fetch(telahubLogo.url);
+      if (!logoResponse.ok) throw new Error("Não foi possível carregar o logo da TelaHUB.");
+      const logoBlob = await logoResponse.blob();
+      const logoDataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === "string"
+          ? resolve(reader.result)
+          : reject(new Error("Formato de logo inválido."));
+        reader.onerror = () => reject(new Error("Não foi possível ler o logo da TelaHUB."));
+        reader.readAsDataURL(logoBlob);
+      });
       const selectedMedia = data?.media.find((item) => item.id === mediaId)?.title ?? "Todos";
       const selectedScreen = data?.screens.find((item) => item.id === screenId)?.name ?? "Todas";
       const generatedAt = new Intl.DateTimeFormat("pt-BR", {
@@ -183,16 +195,21 @@ function RelatoriosPage() {
         timeStyle: "short",
       }).format(new Date());
 
+      document.setFillColor(5, 12, 11);
+      document.rect(0, 0, 297, 23, "F");
+      document.addImage(logoDataUrl, "PNG", 12, 2.5, 35, 17.5);
+      document.setTextColor(255, 255, 255);
       document.setFont("helvetica", "bold");
       document.setFontSize(18);
-      document.text("TelaHUB - Relatório de exibições", 14, 16);
+      document.text("Relatório de exibições", 52, 14);
+      document.setTextColor(31, 41, 39);
       document.setFont("helvetica", "normal");
       document.setFontSize(9);
-      document.text(`Período: ${periodNames[period]}  |  Anúncio: ${selectedMedia}  |  Tela: ${selectedScreen}`, 14, 23);
-      document.text(`Exibições: ${logs.length}  |  Anúncios: ${uniqueMedia}  |  Telas: ${uniqueScreens}  |  Gerado em: ${generatedAt}`, 14, 28);
+      document.text(`Período: ${periodNames[period]}  |  Anúncio: ${selectedMedia}  |  Tela: ${selectedScreen}`, 14, 29);
+      document.text(`Exibições: ${logs.length}  |  Anúncios: ${uniqueMedia}  |  Telas: ${uniqueScreens}  |  Gerado em: ${generatedAt}`, 14, 34);
 
       autoTable(document, {
-        startY: 34,
+        startY: 40,
         head: [["Anúncio", "Tela", "Local", "Data", "Horário"]],
         body: logs.map((log) => {
           const played = formatPlayedAt(log.played_at);
