@@ -2,7 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CloudSun, TrendingDown, TrendingUp } from "lucide-react";
 
-import { getLiveContent } from "@/lib/live-content.functions";
+import {
+  getLiveContent,
+  type LiveContent,
+  type MarketContent,
+  type WeatherContent,
+} from "@/lib/live-content.functions";
 import { cn } from "@/lib/utils";
 
 function weatherLabel(code: number) {
@@ -13,6 +18,14 @@ function weatherLabel(code: number) {
   if (code <= 67) return "Chuva";
   if (code <= 82) return "Pancadas de chuva";
   return "Trovoadas";
+}
+
+function isWeatherContent(data: LiveContent | undefined): data is WeatherContent {
+  return data?.type === "weather";
+}
+
+function isMarketContent(data: LiveContent | undefined): data is MarketContent {
+  return data?.type === "market";
 }
 
 export function LiveInfoFooter() {
@@ -32,8 +45,8 @@ export function LiveInfoFooter() {
     retry: 2,
   });
 
-  const weatherData = weather.data?.type === "weather" ? weather.data : null;
-  const marketData = market.data?.type === "market" ? market.data : null;
+  const weatherData = isWeatherContent(weather.data) ? weather.data : null;
+  const marketData = isMarketContent(market.data) ? market.data : null;
   const positive = (marketData?.change ?? 0) >= 0;
   const TrendIcon = positive ? TrendingUp : TrendingDown;
 
