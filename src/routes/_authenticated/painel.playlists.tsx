@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import type { MediaRow, PlaylistItemRow, PlaylistRow, ScreenRow } from "@/lib/signage";
+import { isDynamicMedia, type MediaRow, type PlaylistItemRow, type PlaylistRow, type ScreenRow } from "@/lib/signage";
 
 function mediaKind(media: MediaRow | undefined) {
   if (!media) return "";
@@ -271,7 +271,7 @@ function PlaylistsPage() {
                       <SelectValue placeholder="Escolher anúncio" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(data?.media ?? []).map((media) => (
+                      {(data?.media ?? []).filter((media) => !isDynamicMedia(media)).map((media) => (
                         <SelectItem key={media.id} value={media.id}>
                           {media.title}
                         </SelectItem>

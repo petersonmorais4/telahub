@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import telahubLogo from "@/assets/telahub-logo.png.asset.json";
 import { DynamicMedia } from "@/components/DynamicMedia";
+import { LiveInfoFooter } from "@/components/LiveInfoFooter";
 import { supabase } from "@/integrations/supabase/client";
 import {
   buildPlaylistQueue,
@@ -245,48 +246,51 @@ function PlayerPage() {
       className="fixed inset-0 flex cursor-none items-center justify-center overflow-hidden"
       style={{ backgroundColor: background }}
     >
-      {previousItem && previousUrl && (
-        <MediaElement
-          item={previousItem}
-          url={previousUrl}
-          animation={exitAnimation}
-          advance={advance}
-          onAnimationEnd={onExitEnd}
-        />
-      )}
-      {currentItem && currentUrl ? (
-        <MediaElement
-          item={currentItem}
-          url={currentUrl}
-          animation={animation}
-          advance={advance}
-        />
-      ) : (
-        <div className="flex flex-col items-center gap-6 px-10 text-center">
-          {!data || queue.length > 0 ? (
-            <img
-              src={telahubLogo.url}
-              alt="TelaHUB"
-              className="max-h-[40vh] max-w-[60vw] object-contain"
-            />
-          ) : logoUrl ? (
-            <img src={logoUrl} alt="" className="max-h-[40vh] max-w-[60vw] object-contain" />
-          ) : (
-            <p className="font-display text-5xl font-bold text-white/90">
-              {settings?.company_name ?? "TelaHUB"}
+      <div className="absolute inset-x-0 top-0 bottom-16 overflow-hidden md:bottom-20">
+        {previousItem && previousUrl && (
+          <MediaElement
+            item={previousItem}
+            url={previousUrl}
+            animation={exitAnimation}
+            advance={advance}
+            onAnimationEnd={onExitEnd}
+          />
+        )}
+        {currentItem && currentUrl ? (
+          <MediaElement
+            item={currentItem}
+            url={currentUrl}
+            animation={animation}
+            advance={advance}
+          />
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center gap-6 px-10 text-center">
+            {!data || queue.length > 0 ? (
+              <img
+                src={telahubLogo.url}
+                alt="TelaHUB"
+                className="max-h-[40vh] max-w-[60vw] object-contain"
+              />
+            ) : logoUrl ? (
+              <img src={logoUrl} alt="" className="max-h-[40vh] max-w-[60vw] object-contain" />
+            ) : (
+              <p className="font-display text-5xl font-bold text-white/90">
+                {settings?.company_name ?? "TelaHUB"}
+              </p>
+            )}
+            <p className="text-2xl text-white/60">
+              {!data
+                ? "Carregando conteúdo"
+                : !data.screen
+                  ? "Tela não encontrada"
+                  : queue.length === 0
+                    ? (settings?.idle_message ?? "Em breve novos conteúdos")
+                    : "Carregando conteúdo"}
             </p>
-          )}
-          <p className="text-2xl text-white/60">
-            {!data
-              ? "Carregando conteúdo"
-              : !data.screen
-                ? "Tela não encontrada"
-                : queue.length === 0
-                  ? (settings?.idle_message ?? "Em breve novos conteúdos")
-                  : "Carregando conteúdo"}
-          </p>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
+      <LiveInfoFooter />
     </div>
   );
 }
