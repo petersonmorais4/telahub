@@ -205,13 +205,27 @@ function PlayerPage() {
     };
   }, [current, queue.length, advance, settings?.default_duration]);
 
-  // Histórico de exibições
+  // Histórico de exibições: registra quando o conteúdo efetivamente fica pronto.
+  // Em uma falha temporária, tenta novamente sem exigir recarregar o player.
   useEffect(() => {
-    if (!current || !data?.screen) return;
-    void supabase
-      .from("play_logs")
-      .insert({ screen_id: data.screen.id, media_id: current.media.id });
-  }, [current, data?.screen]);
+    if (!currentItem || !currentUrl || !data?.screen) return;
+
+    let active = true;
+    let retryId: ReturnType<typeof setTimeout> | null = null;
+    const recordPlay = async () => {
+      const { error } = await supabase.from("play_logs").insert({
+        screen_id: data.screen.id,
+        media_id: currentItem.media.id,
+      });
+      if (error && active) retryId = setTimeout(() => void recordPlay(), 5_000);
+    };
+
+    void recordPlay();
+    return () => {
+      active = false;
+      if (retryId) clearTimeout(retryId);
+    };
+  }, [currentItem, currentUrl, data?.screen]);
 
   // Logo para a tela padrão
   useEffect(() => {
