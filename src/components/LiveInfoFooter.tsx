@@ -30,12 +30,17 @@ function isMarketContent(data: LiveContent | undefined): data is MarketContent {
   return data?.type === "market";
 }
 
-export function LiveInfoFooter({ city }: { city: string }) {
+export function LiveInfoFooter({ city }: { city: string | null }) {
   const [visibleInfo, setVisibleInfo] = useState<"weather" | "market">("weather");
   const fetchLiveContent = useServerFn(getLiveContent);
+  const selectedCity = city?.trim() || null;
   const weather = useQuery({
-    queryKey: ["live-footer", "weather", city],
-    queryFn: () => fetchLiveContent({ data: { type: "weather", city } }),
+    queryKey: ["live-footer", "weather", selectedCity],
+    queryFn: () => {
+      if (!selectedCity) throw new Error("Cidade ainda não carregada.");
+      return fetchLiveContent({ data: { type: "weather", city: selectedCity } });
+    },
+    enabled: Boolean(selectedCity),
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
@@ -53,13 +58,28 @@ export function LiveInfoFooter({ city }: { city: string }) {
   const marketData = isMarketContent(market.data) ? market.data : null;
   const positive = (marketData?.change ?? 0) >= 0;
   const TrendIcon = positive ? TrendingUp : TrendingDown;
+  const weatherUnavailable = weather.isError && !weatherData;
+  const marketUnavailable = market.isError && !marketData;
 
   useEffect(() => {
+    if (weatherData && !marketData) {
+      setVisibleInfo("weather");
+      return;
+    }
+    if (marketData && !weatherData) {
+      setVisibleInfo("market");
+      return;
+    }
+    if (!weatherData || !marketData) return;
+
     const id = window.setInterval(() => {
       setVisibleInfo((current) => (current === "weather" ? "market" : "weather"));
     }, 8_000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [marketData, weatherData]);
+
+  const showWeather = visibleInfo === "weather" && !weatherUnavailable;
+  const allUnavailable = weatherUnavailable && marketUnavailable;
 
   return (
     <footer className="absolute inset-x-0 bottom-0 z-30 flex h-11 items-center border-t border-border bg-background px-3 text-foreground shadow-panel md:h-14 md:px-6">
@@ -67,7 +87,9 @@ export function LiveInfoFooter({ city }: { city: string }) {
         <BrandLogo className="h-7 w-auto shrink-0 md:h-9" />
 
         <div className="min-w-0 overflow-hidden" aria-live="polite">
-          {visibleInfo === "weather" ? (
+          {allUnavailable ? (
+            <span className="text-xs text-muted-foreground md:text-sm">Informações temporariamente indisponíveis</span>
+          ) : showWeather ? (
             <div key="weather" className="live-info-enter flex min-w-0 items-center justify-end gap-2 md:gap-3">
               <CloudSun className="h-4 w-4 shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
               {weatherData ? (
@@ -105,6 +127,8 @@ export function LiveInfoFooter({ city }: { city: string }) {
                   </span>
                   <span className="hidden text-[0.65rem] text-muted-foreground lg:inline">possível atraso</span>
                 </div>
+              ) : marketUnavailable ? (
+                <span className="text-xs text-muted-foreground md:text-sm">Clima temporariamente indisponível</span>
               ) : (
                 <span className="text-xs text-muted-foreground md:text-sm">Atualizando Ibovespa…</span>
               )}
