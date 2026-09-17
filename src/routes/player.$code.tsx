@@ -210,11 +210,12 @@ function PlayerPage() {
   useEffect(() => {
     if (!currentItem || !currentUrl || !data?.screen) return;
 
+    const screenId = data.screen.id;
     let active = true;
     let retryId: ReturnType<typeof setTimeout> | null = null;
     const recordPlay = async () => {
       const { error } = await supabase.from("play_logs").insert({
-        screen_id: data.screen.id,
+        screen_id: screenId,
         media_id: currentItem.media.id,
       });
       if (error && active) retryId = setTimeout(() => void recordPlay(), 5_000);
