@@ -98,17 +98,21 @@ function PlayerPage() {
 
   // Batimento: marca a tela como online
   useEffect(() => {
-    let cancelled = false;
-    const beat = () => {
-      if (!cancelled) void supabase.rpc("touch_screen", { p_code: code });
+    const screenCode = data?.screen?.code;
+    if (!screenCode) return;
+
+    let active = true;
+    const beat = async () => {
+      if (!active) return;
+      await supabase.rpc("touch_screen", { p_code: screenCode });
     };
-    beat();
-    const id = setInterval(beat, 60_000);
+    void beat();
+    const id = window.setInterval(() => void beat(), 30_000);
     return () => {
-      cancelled = true;
-      clearInterval(id);
+      active = false;
+      window.clearInterval(id);
     };
-  }, [code]);
+  }, [data?.screen?.code]);
 
   // Atualização em tempo real quando o admin publica ou reordena
   useEffect(() => {
