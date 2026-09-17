@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { CalendarDays, Download, FileBarChart, Images, MonitorPlay } from "lucide-react";
+import { CalendarDays, Download, FileBarChart, Images, MonitorPlay, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import telahubLogo from "@/assets/telahub-logo.png.asset.json";
@@ -118,7 +118,7 @@ function RelatoriosPage() {
   const [exporting, setExporting] = useState(false);
   const range = useMemo(() => getPeriodRange(period), [period]);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["reports", period, mediaId, screenId],
     refetchInterval: 10_000,
     refetchOnWindowFocus: true,
@@ -244,10 +244,16 @@ function RelatoriosPage() {
       title="Relatórios"
       description="Histórico de exibições registrado pelas TVs."
       actions={
-        <Button onClick={exportPdf} disabled={logs.length === 0 || exporting || isLoading}>
-          <Download className="mr-2 h-4 w-4" />
-          {exporting ? "Gerando…" : "Exportar PDF"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => void refetch()} disabled={isFetching}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+            {isFetching ? "Atualizando…" : "Atualizar agora"}
+          </Button>
+          <Button onClick={exportPdf} disabled={logs.length === 0 || exporting || isLoading}>
+            <Download className="mr-2 h-4 w-4" />
+            {exporting ? "Gerando…" : "Exportar PDF"}
+          </Button>
+        </div>
       }
     >
       <section className="panel p-5">
