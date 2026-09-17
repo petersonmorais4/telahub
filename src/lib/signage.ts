@@ -133,7 +133,7 @@ export function buildPlaylistQueue(
     .sort((a, b) => a.position - b.position)
     .flatMap<PlayableItem>((item) => {
       const media = mediaById.get(item.media_id);
-      if (!media || !media.active || !withinDateRange(media, now)) return [];
+      if (!media || isDynamicMedia(media) || !media.active || !withinDateRange(media, now)) return [];
       const mediaSchedules = schedules.filter((s) => s.media_id === media.id);
       if (mediaSchedules.length > 0 && !mediaSchedules.some((s) => scheduleMatches(s, now))) return [];
       return [{ itemId: item.id, media }];
