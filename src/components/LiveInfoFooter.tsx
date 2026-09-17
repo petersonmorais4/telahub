@@ -36,6 +36,7 @@ export function LiveInfoFooter({ city }: { city: string }) {
   const weather = useQuery({
     queryKey: ["live-footer", "weather", city],
     queryFn: () => fetchLiveContent({ data: { type: "weather", city } }),
+    placeholderData: (previousData) => previousData,
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
     retry: 2,
