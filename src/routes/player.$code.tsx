@@ -246,7 +246,7 @@ function PlayerPage() {
       className="fixed inset-0 flex cursor-none items-center justify-center overflow-hidden"
       style={{ backgroundColor: background }}
     >
-      <div className="absolute inset-x-0 top-0 bottom-16 overflow-hidden md:bottom-20">
+      <div className="absolute inset-x-0 top-0 bottom-11 overflow-hidden md:bottom-14">
         {previousItem && previousUrl && (
           <MediaElement
             item={previousItem}

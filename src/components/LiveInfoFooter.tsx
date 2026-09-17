@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { CloudSun, TrendingDown, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import { BrandLogo } from "@/components/BrandLogo";
 import {
   getLiveContent,
   type LiveContent,
@@ -29,6 +31,7 @@ function isMarketContent(data: LiveContent | undefined): data is MarketContent {
 }
 
 export function LiveInfoFooter() {
+  const [visibleInfo, setVisibleInfo] = useState<"weather" | "market">("weather");
   const fetchLiveContent = useServerFn(getLiveContent);
   const weather = useQuery({
     queryKey: ["live-footer", "weather", "São Paulo"],
@@ -50,50 +53,61 @@ export function LiveInfoFooter() {
   const positive = (marketData?.change ?? 0) >= 0;
   const TrendIcon = positive ? TrendingUp : TrendingDown;
 
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setVisibleInfo((current) => (current === "weather" ? "market" : "weather"));
+    }, 8_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   return (
-    <footer className="absolute inset-x-0 bottom-0 z-30 flex h-16 items-center border-t border-border bg-background px-4 text-foreground shadow-panel md:h-20 md:px-8">
-      <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4 md:gap-10">
-        <div className="flex min-w-0 items-center gap-3 md:gap-4" aria-live="polite">
-          <CloudSun className="h-7 w-7 shrink-0 text-primary md:h-9 md:w-9" aria-hidden />
-          {weatherData ? (
-            <div className="flex min-w-0 items-baseline gap-2 md:gap-4">
-              <span className="font-display text-2xl font-bold tabular-nums md:text-4xl">
-                {Math.round(weatherData.temperature)}°
-              </span>
-              <span className="truncate text-sm md:text-xl">São Paulo</span>
-              <span className="hidden text-muted-foreground lg:inline">
-                {weatherLabel(weatherData.weatherCode)}
-              </span>
+    <footer className="absolute inset-x-0 bottom-0 z-30 flex h-11 items-center border-t border-border bg-background px-3 text-foreground shadow-panel md:h-14 md:px-6">
+      <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4">
+        <BrandLogo className="h-7 w-auto shrink-0 md:h-9" />
+
+        <div className="min-w-0 overflow-hidden" aria-live="polite">
+          {visibleInfo === "weather" ? (
+            <div key="weather" className="live-info-enter flex min-w-0 items-center justify-end gap-2 md:gap-3">
+              <CloudSun className="h-4 w-4 shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
+              {weatherData ? (
+                <div className="flex min-w-0 items-baseline gap-2 text-xs md:text-base">
+                  <span className="font-display font-bold tabular-nums md:text-lg">
+                    {Math.round(weatherData.temperature)}°
+                  </span>
+                  <span className="truncate">São Paulo</span>
+                  <span className="hidden text-muted-foreground sm:inline">
+                    {weatherLabel(weatherData.weatherCode)}
+                  </span>
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground md:text-sm">Atualizando clima…</span>
+              )}
             </div>
           ) : (
-            <span className="text-sm text-muted-foreground md:text-lg">Atualizando clima…</span>
-          )}
-        </div>
-
-        <div className="h-8 w-px shrink-0 bg-border md:h-10" aria-hidden />
-
-        <div className="flex min-w-0 items-center justify-end gap-3 md:gap-4" aria-live="polite">
-          <TrendIcon
-            className={cn("h-7 w-7 shrink-0 md:h-9 md:w-9", positive ? "text-primary" : "text-destructive")}
-            aria-hidden
-          />
-          {marketData ? (
-            <div className="flex min-w-0 items-baseline gap-2 md:gap-4">
-              <span className="text-sm font-semibold md:text-xl">IBOV</span>
-              <span className="font-display text-xl font-bold tabular-nums md:text-3xl">
-                {marketData.value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}
-              </span>
-              <span className={cn("text-sm font-semibold tabular-nums md:text-xl", positive ? "text-primary" : "text-destructive")}>
-                {positive ? "+" : ""}
-                {marketData.changePercent.toLocaleString("pt-BR", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}%
-              </span>
-              <span className="hidden text-xs text-muted-foreground xl:inline">possível atraso</span>
+            <div key="market" className="live-info-enter flex min-w-0 items-center justify-end gap-2 md:gap-3">
+              <TrendIcon
+                className={cn("h-4 w-4 shrink-0 md:h-5 md:w-5", positive ? "text-primary" : "text-destructive")}
+                aria-hidden
+              />
+              {marketData ? (
+                <div className="flex min-w-0 items-baseline gap-2 text-xs md:text-base">
+                  <span className="font-semibold">IBOV</span>
+                  <span className="font-display font-bold tabular-nums md:text-lg">
+                    {marketData.value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}
+                  </span>
+                  <span className={cn("font-semibold tabular-nums", positive ? "text-primary" : "text-destructive")}>
+                    {positive ? "+" : ""}
+                    {marketData.changePercent.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}%
+                  </span>
+                  <span className="hidden text-[0.65rem] text-muted-foreground lg:inline">possível atraso</span>
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground md:text-sm">Atualizando Ibovespa…</span>
+              )}
             </div>
-          ) : (
-            <span className="text-sm text-muted-foreground md:text-lg">Atualizando Ibovespa…</span>
           )}
         </div>
       </div>

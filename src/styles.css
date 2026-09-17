@@ -214,3 +214,24 @@
   animation: signage-slide-out 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
   pointer-events: none;
 }
+
+@keyframes live-info-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(12px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@utility live-info-enter {
+  animation: live-info-enter 500ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-info-enter {
+    animation: none;
+  }
+}
