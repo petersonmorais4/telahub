@@ -21,13 +21,25 @@ import {
 
 export const Route = createFileRoute("/player/$code")({
   ssr: false,
-  head: () => ({
+  head: ({ params }) => ({
     meta: [
       { title: "TelaHUB — Exibição" },
       { name: "description", content: "Exibição em tela cheia dos anúncios programados para esta tela." },
       { property: "og:title", content: "TelaHUB — Exibição" },
       { property: "og:description", content: "Exibição em tela cheia dos anúncios desta tela." },
+      { name: "theme-color", content: "#040c0b" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black" },
+      { name: "apple-mobile-web-app-title", content: "TelaHUB" },
       { name: "robots", content: "noindex" },
+    ],
+    links: [
+      {
+        rel: "manifest",
+        href: `/api/public/player-manifest?code=${encodeURIComponent(params.code)}`,
+      },
+      { rel: "apple-touch-icon", href: "/icons/telahub-192.png" },
     ],
   }),
   component: PlayerPage,
