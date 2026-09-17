@@ -49,13 +49,16 @@ function PlayerPage() {
   const [tick, setTick] = useState(0);
   const [currentItem, setCurrentItem] = useState<PlayableItem | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  const [currentPlayKey, setCurrentPlayKey] = useState<string | null>(null);
   const [previousItem, setPreviousItem] = useState<PlayableItem | null>(null);
   const [previousUrl, setPreviousUrl] = useState<string | null>(null);
+  const [previousPlayKey, setPreviousPlayKey] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingPlayLogsRef = useRef<Array<{ screenId: string; mediaId: string }>>([]);
   const isFlushingLogsRef = useRef(false);
   const logRetryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const preparedPlayRef = useRef<string | null>(null);
 
   const { data } = useQuery<PlayerData>({
     queryKey: ["player", code],
@@ -167,11 +170,16 @@ function PlayerPage() {
     if (!current) {
       setCurrentItem(null);
       setCurrentUrl(null);
+      setCurrentPlayKey(null);
       setPreviousItem(null);
       setPreviousUrl(null);
+      setPreviousPlayKey(null);
+      preparedPlayRef.current = null;
       return;
     }
-    if (currentItem?.itemId === current.itemId) return;
+    const playKey = `${index}:${current.itemId}:${current.media.id}`;
+    if (preparedPlayRef.current === playKey) return;
+    preparedPlayRef.current = playKey;
 
     let alive = true;
     const loadUrl = isDynamicMedia(current.media)
@@ -181,13 +189,15 @@ function PlayerPage() {
       if (!alive) return;
       setPreviousItem(currentItem);
       setPreviousUrl(currentUrl);
+      setPreviousPlayKey(currentPlayKey);
       setCurrentItem(current);
       setCurrentUrl(value);
+      setCurrentPlayKey(playKey);
     });
     return () => {
       alive = false;
     };
-  }, [current, currentItem, currentUrl]);
+  }, [current, currentItem, currentPlayKey, currentUrl, index]);
 
   // Pré-carrega o link do próximo item para evitar espera na transição
   useEffect(() => {
@@ -206,7 +216,7 @@ function PlayerPage() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [current, queue.length, advance, settings?.default_duration]);
+  }, [current, queue.length, advance, index, settings?.default_duration]);
 
   const flushPlayLogs = useCallback(async () => {
     if (isFlushingLogsRef.current || pendingPlayLogsRef.current.length === 0) return;
@@ -274,6 +284,7 @@ function PlayerPage() {
   function onExitEnd() {
     setPreviousItem(null);
     setPreviousUrl(null);
+    setPreviousPlayKey(null);
   }
 
   return (
@@ -283,9 +294,9 @@ function PlayerPage() {
       style={{ backgroundColor: background }}
     >
       <div className="absolute inset-x-0 top-0 bottom-11 overflow-hidden md:bottom-14">
-        {previousItem && previousUrl && (
+        {previousItem && previousUrl && previousPlayKey && (
           <MediaElement
-            key={`previous-${previousItem.itemId}`}
+            key={`previous-${previousPlayKey}`}
             item={previousItem}
             url={previousUrl}
             animation={exitAnimation}
@@ -293,9 +304,9 @@ function PlayerPage() {
             onAnimationEnd={onExitEnd}
           />
         )}
-        {currentItem && currentUrl ? (
+        {currentItem && currentUrl && currentPlayKey ? (
           <MediaElement
-            key={`current-${currentItem.itemId}`}
+            key={`current-${currentPlayKey}`}
             item={currentItem}
             url={currentUrl}
             animation={animation}
