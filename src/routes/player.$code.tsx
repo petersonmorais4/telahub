@@ -212,7 +212,7 @@ function PlayerPage() {
     if (!currentItem || !currentUrl || !data?.screen) return;
 
     const screenId = data.screen.id;
-    const playKey = `${screenId}:${index}:${currentItem.itemId}:${currentItem.media.id}`;
+    const playKey = `${screenId}:${currentItem.itemId}:${currentItem.media.id}`;
     if (lastLoggedPlayRef.current === playKey) return;
     lastLoggedPlayRef.current = playKey;
     let active = true;
@@ -232,7 +232,7 @@ function PlayerPage() {
       active = false;
       if (retryId) clearTimeout(retryId);
     };
-  }, [currentItem, currentUrl, data?.screen, index]);
+  }, [currentItem, currentUrl, data?.screen]);
 
   // Logo para a tela padrão
   useEffect(() => {
