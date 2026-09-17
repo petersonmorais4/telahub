@@ -49,11 +49,16 @@ function PlayerPage() {
   const [tick, setTick] = useState(0);
   const [currentItem, setCurrentItem] = useState<PlayableItem | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  const [currentPlayKey, setCurrentPlayKey] = useState<string | null>(null);
   const [previousItem, setPreviousItem] = useState<PlayableItem | null>(null);
   const [previousUrl, setPreviousUrl] = useState<string | null>(null);
+  const [previousPlayKey, setPreviousPlayKey] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastLoggedPlayRef = useRef<string | null>(null);
+  const pendingPlayLogsRef = useRef<Array<{ screenId: string; mediaId: string }>>([]);
+  const isFlushingLogsRef = useRef(false);
+  const logRetryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const preparedPlayRef = useRef<string | null>(null);
 
   const { data } = useQuery<PlayerData>({
     queryKey: ["player", code],
@@ -165,11 +170,16 @@ function PlayerPage() {
     if (!current) {
       setCurrentItem(null);
       setCurrentUrl(null);
+      setCurrentPlayKey(null);
       setPreviousItem(null);
       setPreviousUrl(null);
+      setPreviousPlayKey(null);
+      preparedPlayRef.current = null;
       return;
     }
-    if (currentItem?.itemId === current.itemId) return;
+    const playKey = `${index}:${current.itemId}:${current.media.id}`;
+    if (preparedPlayRef.current === playKey) return;
+    preparedPlayRef.current = playKey;
 
     let alive = true;
     const loadUrl = isDynamicMedia(current.media)
@@ -179,13 +189,15 @@ function PlayerPage() {
       if (!alive) return;
       setPreviousItem(currentItem);
       setPreviousUrl(currentUrl);
+      setPreviousPlayKey(currentPlayKey);
       setCurrentItem(current);
       setCurrentUrl(value);
+      setCurrentPlayKey(playKey);
     });
     return () => {
       alive = false;
     };
-  }, [current, currentItem, currentUrl]);
+  }, [current, currentItem, currentPlayKey, currentUrl, index]);
 
   // Pré-carrega o link do próximo item para evitar espera na transição
   useEffect(() => {
@@ -204,35 +216,44 @@ function PlayerPage() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [current, queue.length, advance, settings?.default_duration]);
+  }, [current, queue.length, advance, index, settings?.default_duration]);
 
-  // Histórico de exibições: registra quando o conteúdo efetivamente fica pronto.
-  // Em uma falha temporária, tenta novamente sem exigir recarregar o player.
-  useEffect(() => {
-    if (!currentItem || !currentUrl || !data?.screen) return;
+  const flushPlayLogs = useCallback(async () => {
+    if (isFlushingLogsRef.current || pendingPlayLogsRef.current.length === 0) return;
+    isFlushingLogsRef.current = true;
 
-    const screenId = data.screen.id;
-    const playKey = `${screenId}:${currentItem.itemId}:${currentItem.media.id}`;
-    if (lastLoggedPlayRef.current === playKey) return;
-    lastLoggedPlayRef.current = playKey;
-    let active = true;
-    let retryId: ReturnType<typeof setTimeout> | null = null;
-    const recordPlay = async () => {
+    while (pendingPlayLogsRef.current.length > 0) {
+      const pending = pendingPlayLogsRef.current[0];
+      if (!pending) break;
       const { error } = await supabase.from("play_logs").insert({
-        screen_id: screenId,
-        media_id: currentItem.media.id,
+        screen_id: pending.screenId,
+        media_id: pending.mediaId,
       });
-      if (error && active) {
-        retryId = setTimeout(() => void recordPlay(), 5_000);
-      }
-    };
+      if (error) break;
+      pendingPlayLogsRef.current.shift();
+    }
 
-    void recordPlay();
-    return () => {
-      active = false;
-      if (retryId) clearTimeout(retryId);
-    };
-  }, [currentItem, currentUrl, data?.screen]);
+    isFlushingLogsRef.current = false;
+    if (pendingPlayLogsRef.current.length > 0 && !logRetryRef.current) {
+      logRetryRef.current = setTimeout(() => {
+        logRetryRef.current = null;
+        void flushPlayLogs();
+      }, 5_000);
+    }
+  }, []);
+
+  // Registra somente quando a imagem carregou ou o vídeo começou a tocar.
+  // Falhas ficam na fila e continuam sendo reenviadas mesmo após a troca do anúncio.
+  const recordPresentedMedia = useCallback((mediaId: string) => {
+    const screenId = data?.screen?.id;
+    if (!screenId) return;
+    pendingPlayLogsRef.current.push({ screenId, mediaId });
+    void flushPlayLogs();
+  }, [data?.screen?.id, flushPlayLogs]);
+
+  useEffect(() => () => {
+    if (logRetryRef.current) clearTimeout(logRetryRef.current);
+  }, []);
 
   // Logo para a tela padrão
   useEffect(() => {
@@ -263,6 +284,7 @@ function PlayerPage() {
   function onExitEnd() {
     setPreviousItem(null);
     setPreviousUrl(null);
+    setPreviousPlayKey(null);
   }
 
   return (
@@ -272,8 +294,9 @@ function PlayerPage() {
       style={{ backgroundColor: background }}
     >
       <div className="absolute inset-x-0 top-0 bottom-11 overflow-hidden md:bottom-14">
-        {previousItem && previousUrl && (
+        {previousItem && previousUrl && previousPlayKey && (
           <MediaElement
+            key={`previous-${previousPlayKey}`}
             item={previousItem}
             url={previousUrl}
             animation={exitAnimation}
@@ -281,12 +304,14 @@ function PlayerPage() {
             onAnimationEnd={onExitEnd}
           />
         )}
-        {currentItem && currentUrl ? (
+        {currentItem && currentUrl && currentPlayKey ? (
           <MediaElement
+            key={`current-${currentPlayKey}`}
             item={currentItem}
             url={currentUrl}
             animation={animation}
             advance={advance}
+            onPresented={recordPresentedMedia}
           />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-6 px-10 text-center">
@@ -326,13 +351,22 @@ function MediaElement({
   animation,
   advance,
   onAnimationEnd,
+  onPresented,
 }: {
   item: PlayableItem;
   url: string;
   animation: string;
   advance: () => void;
   onAnimationEnd?: () => void;
+  onPresented?: (mediaId: string) => void;
 }) {
+  const hasReportedRef = useRef(false);
+  const reportPresented = () => {
+    if (hasReportedRef.current || !onPresented) return;
+    hasReportedRef.current = true;
+    onPresented(item.media.id);
+  };
+
   if (isDynamicMedia(item.media)) {
     return (
       <div
@@ -353,6 +387,7 @@ function MediaElement({
       autoPlay
       muted
       playsInline
+      onPlaying={reportPresented}
       onEnded={advance}
       onError={advance}
       onAnimationEnd={onAnimationEnd}
@@ -363,6 +398,7 @@ function MediaElement({
       src={url}
       alt=""
       className={`absolute inset-0 h-full w-full object-cover ${animation}`}
+      onLoad={reportPresented}
       onError={advance}
       onAnimationEnd={onAnimationEnd}
     />
