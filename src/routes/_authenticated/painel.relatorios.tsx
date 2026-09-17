@@ -118,6 +118,8 @@ function RelatoriosPage() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["reports", period, mediaId, screenId],
+    refetchInterval: 10_000,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const [mediaResult, screensResult] = await Promise.all([
         supabase.from("media").select("*").in("type", ["image", "video"]).order("title"),
@@ -134,7 +136,7 @@ function RelatoriosPage() {
           .from("play_logs")
           .select(selection)
           .gte("played_at", range.start)
-          .lte("played_at", range.end)
+          .lte("played_at", new Date().toISOString())
           .order("played_at", { ascending: false })
           .range(from, from + 999);
         if (mediaId !== ALL) query = query.eq("media_id", mediaId);

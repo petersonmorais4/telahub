@@ -53,6 +53,7 @@ function PlayerPage() {
   const [previousUrl, setPreviousUrl] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastPlayRef = useRef<{ key: string; startedAt: number } | null>(null);
 
   const { data } = useQuery<PlayerData>({
     queryKey: ["player", code],
@@ -205,13 +206,34 @@ function PlayerPage() {
     };
   }, [current, queue.length, advance, settings?.default_duration]);
 
-  // Histórico de exibições
+  // Histórico de exibições: registra quando o conteúdo efetivamente fica pronto.
+  // Em uma falha temporária, tenta novamente sem exigir recarregar o player.
   useEffect(() => {
-    if (!current || !data?.screen) return;
-    void supabase
-      .from("play_logs")
-      .insert({ screen_id: data.screen.id, media_id: current.media.id });
-  }, [current, data?.screen]);
+    if (!currentItem || !currentUrl || !data?.screen) return;
+
+    const screenId = data.screen.id;
+    const playKey = `${screenId}:${currentItem.itemId}`;
+    if (lastPlayRef.current?.key === playKey && Date.now() - lastPlayRef.current.startedAt < 2_000) return;
+    lastPlayRef.current = { key: playKey, startedAt: Date.now() };
+    let active = true;
+    let retryId: ReturnType<typeof setTimeout> | null = null;
+    const recordPlay = async () => {
+      const { error } = await supabase.from("play_logs").insert({
+        screen_id: screenId,
+        media_id: currentItem.media.id,
+      });
+      if (error && active) {
+        lastPlayRef.current = null;
+        retryId = setTimeout(() => void recordPlay(), 5_000);
+      }
+    };
+
+    void recordPlay();
+    return () => {
+      active = false;
+      if (retryId) clearTimeout(retryId);
+    };
+  }, [currentItem, currentUrl, data?.screen]);
 
   // Logo para a tela padrão
   useEffect(() => {
