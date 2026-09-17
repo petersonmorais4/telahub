@@ -30,12 +30,13 @@ function isMarketContent(data: LiveContent | undefined): data is MarketContent {
   return data?.type === "market";
 }
 
-export function LiveInfoFooter() {
+export function LiveInfoFooter({ city }: { city: string }) {
   const [visibleInfo, setVisibleInfo] = useState<"weather" | "market">("weather");
   const fetchLiveContent = useServerFn(getLiveContent);
   const weather = useQuery({
-    queryKey: ["live-footer", "weather", "São Paulo"],
-    queryFn: () => fetchLiveContent({ data: { type: "weather", city: "São Paulo" } }),
+    queryKey: ["live-footer", "weather", city],
+    queryFn: () => fetchLiveContent({ data: { type: "weather", city } }),
+    placeholderData: (previousData) => previousData,
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
     retry: 2,
@@ -74,7 +75,7 @@ export function LiveInfoFooter() {
                   <span className="font-display font-bold tabular-nums md:text-lg">
                     {Math.round(weatherData.temperature)}°
                   </span>
-                  <span className="truncate">São Paulo</span>
+                  <span className="truncate">{weatherData.city}</span>
                   <span className="hidden text-muted-foreground sm:inline">
                     {weatherLabel(weatherData.weatherCode)}
                   </span>

@@ -65,6 +65,7 @@ export interface SettingsRow {
   transition: string;
   default_duration: number;
   idle_message: string;
+  weather_city: string;
 }
 
 export const WEEKDAY_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];

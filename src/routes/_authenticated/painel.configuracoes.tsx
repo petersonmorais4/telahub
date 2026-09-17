@@ -82,9 +82,13 @@ function ConfiguracoesPage() {
 
   const save = useMutation({
     mutationFn: async (values: Partial<SettingsRow>) => {
+      const weatherCity = values.weather_city?.trim();
+      if (!weatherCity || weatherCity.length < 2) {
+        throw new Error("Informe uma cidade válida para a temperatura.");
+      }
       const { error } = await supabase
         .from("app_settings")
-        .update({ ...values, updated_at: new Date().toISOString() })
+        .update({ ...values, weather_city: weatherCity, updated_at: new Date().toISOString() })
         .eq("id", 1);
       if (error) throw error;
     },
@@ -155,6 +159,20 @@ function ConfiguracoesPage() {
               value={form.idle_message ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, idle_message: e.target.value }))}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cidade-temperatura">Cidade da temperatura</Label>
+            <Input
+              id="cidade-temperatura"
+              value={form.weather_city ?? "São Paulo"}
+              placeholder="Ex.: São Paulo"
+              maxLength={80}
+              onChange={(e) => setForm((f) => ({ ...f, weather_city: e.target.value }))}
+            />
+            <p className="text-xs text-muted-foreground">
+              Esta cidade aparecerá no rodapé de todas as telas.
+            </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

@@ -51,6 +51,7 @@ export type Database = {
           player_bg: string
           transition: string
           updated_at: string
+          weather_city: string
         }
         Insert: {
           company_name?: string
@@ -61,6 +62,7 @@ export type Database = {
           player_bg?: string
           transition?: string
           updated_at?: string
+          weather_city?: string
         }
         Update: {
           company_name?: string
@@ -71,6 +73,7 @@ export type Database = {
           player_bg?: string
           transition?: string
           updated_at?: string
+          weather_city?: string
         }
         Relationships: []
       }

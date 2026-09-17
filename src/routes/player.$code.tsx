@@ -290,7 +290,7 @@ function PlayerPage() {
           </div>
         )}
       </div>
-      <LiveInfoFooter />
+      <LiveInfoFooter city={settings?.weather_city?.trim() || "São Paulo"} />
     </div>
   );
 }
