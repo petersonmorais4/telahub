@@ -7,6 +7,7 @@ import {
   Images,
   ListOrdered,
   CalendarClock,
+  FileBarChart,
   Settings,
   LogOut,
   Menu,
@@ -23,6 +24,7 @@ const nav = [
   { to: "/painel/anuncios", label: "Anúncios", icon: Images, exact: false },
   { to: "/painel/playlists", label: "Playlists", icon: ListOrdered, exact: false },
   { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock, exact: false },
+  { to: "/painel/relatorios", label: "Relatórios", icon: FileBarChart, exact: false },
   { to: "/painel/configuracoes", label: "Configurações", icon: Settings, exact: false },
 ] as const;
 

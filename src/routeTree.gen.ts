@@ -21,6 +21,7 @@ import { Route as AuthenticatedPainelAgendamentosRouteImport } from './routes/_a
 import { Route as AuthenticatedPainelAnunciosRouteImport } from './routes/_authenticated/painel.anuncios'
 import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_authenticated/painel.configuracoes'
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
+import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
 
 const IndexRoute = IndexRouteImport.update({
@@ -87,6 +88,12 @@ const AuthenticatedPainelPlaylistsRoute =
     path: '/playlists',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const AuthenticatedPainelRelatoriosRoute =
+  AuthenticatedPainelRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
 const AuthenticatedPainelTelasRoute =
   AuthenticatedPainelTelasRouteImport.update({
     id: '/telas',
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
+  '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
 }
@@ -118,6 +126,7 @@ export interface FileRoutesByTo {
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
+  '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
 }
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/_authenticated/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
+  '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
 }
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/painel/anuncios'
     | '/painel/configuracoes'
     | '/painel/playlists'
+    | '/painel/relatorios'
     | '/painel/telas'
     | '/painel/'
   fileRoutesByTo: FileRoutesByTo
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/painel/anuncios'
     | '/painel/configuracoes'
     | '/painel/playlists'
+    | '/painel/relatorios'
     | '/painel/telas'
     | '/painel'
   id:
@@ -178,6 +190,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/anuncios'
     | '/_authenticated/painel/configuracoes'
     | '/_authenticated/painel/playlists'
+    | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
     | '/_authenticated/painel/'
   fileRoutesById: FileRoutesById
@@ -277,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelPlaylistsRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/_authenticated/painel/relatorios': {
+      id: '/_authenticated/painel/relatorios'
+      path: '/relatorios'
+      fullPath: '/painel/relatorios'
+      preLoaderRoute: typeof AuthenticatedPainelRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
     '/_authenticated/painel/telas': {
       id: '/_authenticated/painel/telas'
       path: '/telas'
@@ -292,6 +312,7 @@ interface AuthenticatedPainelRouteChildren {
   AuthenticatedPainelAnunciosRoute: typeof AuthenticatedPainelAnunciosRoute
   AuthenticatedPainelConfiguracoesRoute: typeof AuthenticatedPainelConfiguracoesRoute
   AuthenticatedPainelPlaylistsRoute: typeof AuthenticatedPainelPlaylistsRoute
+  AuthenticatedPainelRelatoriosRoute: typeof AuthenticatedPainelRelatoriosRoute
   AuthenticatedPainelTelasRoute: typeof AuthenticatedPainelTelasRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
 }
@@ -301,6 +322,7 @@ const AuthenticatedPainelRouteChildren: AuthenticatedPainelRouteChildren = {
   AuthenticatedPainelAnunciosRoute: AuthenticatedPainelAnunciosRoute,
   AuthenticatedPainelConfiguracoesRoute: AuthenticatedPainelConfiguracoesRoute,
   AuthenticatedPainelPlaylistsRoute: AuthenticatedPainelPlaylistsRoute,
+  AuthenticatedPainelRelatoriosRoute: AuthenticatedPainelRelatoriosRoute,
   AuthenticatedPainelTelasRoute: AuthenticatedPainelTelasRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,
 }
