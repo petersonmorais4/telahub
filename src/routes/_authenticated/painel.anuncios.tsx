@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MediaPreview } from "@/components/admin/MediaPreview";
@@ -47,6 +47,11 @@ function AnunciosPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [editingMedia, setEditingMedia] = useState<MediaRow | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDuration, setEditDuration] = useState(10);
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
   const { data, isLoading } = useQuery({
     queryKey: ["anuncios"],
     queryFn: async () => {
@@ -109,7 +114,9 @@ function AnunciosPage() {
       const { error } = await supabase.from("media").update(values).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["anuncios"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["anuncios"] });
+    },
     onError: (error: Error) => toast.error("Não foi possível atualizar", { description: error.message }),
   });
 
@@ -132,6 +139,45 @@ function AnunciosPage() {
   function mediaDescription(media: MediaRow) {
     if (media.type === "video") return "Vídeo · duração do arquivo";
     return `Imagem · ${media.duration}s`;
+  }
+
+  function openEditor(media: MediaRow) {
+    setEditingMedia(media);
+    setEditTitle(media.title);
+    setEditDuration(media.duration || defaultDuration);
+    setEditStartDate(media.start_date ?? "");
+    setEditEndDate(media.end_date ?? "");
+  }
+
+  function saveEdit() {
+    if (!editingMedia) return;
+    const normalizedTitle = editTitle.trim();
+    if (!normalizedTitle) {
+      toast.error("Informe o título do anúncio");
+      return;
+    }
+    if (editingMedia.type === "image" && editDuration < 1) {
+      toast.error("A duração deve ser de pelo menos 1 segundo");
+      return;
+    }
+
+    updateMedia.mutate(
+      {
+        id: editingMedia.id,
+        values: {
+          title: normalizedTitle,
+          ...(editingMedia.type === "image" ? { duration: Math.round(editDuration) } : {}),
+          start_date: editStartDate || null,
+          end_date: editEndDate || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Anúncio atualizado");
+          setEditingMedia(null);
+        },
+      },
+    );
   }
 
   return (
@@ -230,14 +276,26 @@ function AnunciosPage() {
                       : "Sem período definido"}
                   </p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Remover anúncio"
-                  onClick={() => deleteMedia.mutate(media)}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Editar ${media.title}`}
+                    title="Editar anúncio"
+                    onClick={() => openEditor(media)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Remover anúncio"
+                    title="Remover anúncio"
+                    onClick={() => deleteMedia.mutate(media)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
@@ -261,6 +319,54 @@ function AnunciosPage() {
            Nenhum anúncio ainda. Publique uma imagem ou um vídeo.
         </p>
       ) : null}
+
+      <Dialog open={Boolean(editingMedia)} onOpenChange={(nextOpen) => { if (!nextOpen) setEditingMedia(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar anúncio</DialogTitle>
+            <DialogDescription>
+              Ajuste o título, o tempo de exibição e o período de veiculação.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Título</Label>
+              <Input id="edit-title" value={editTitle} onChange={(event) => setEditTitle(event.target.value)} />
+            </div>
+            {editingMedia?.type === "image" ? (
+              <div className="space-y-2">
+                <Label htmlFor="edit-duration">Duração na tela (segundos)</Label>
+                <Input
+                  id="edit-duration"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={editDuration}
+                  onChange={(event) => setEditDuration(Number(event.target.value))}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">O vídeo usa a duração do próprio arquivo.</p>
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="edit-start">Início da veiculação</Label>
+                <Input id="edit-start" type="date" value={editStartDate} onChange={(event) => setEditStartDate(event.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-end">Fim da veiculação</Label>
+                <Input id="edit-end" type="date" value={editEndDate} onChange={(event) => setEditEndDate(event.target.value)} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingMedia(null)}>Cancelar</Button>
+            <Button onClick={saveEdit} disabled={updateMedia.isPending}>
+              {updateMedia.isPending ? "Salvando…" : "Salvar alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }

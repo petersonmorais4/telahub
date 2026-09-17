@@ -198,20 +198,20 @@
 }
 
 @utility signage-fade-in {
-  animation: signage-fade-in 900ms ease both;
+  animation: signage-fade-in 300ms ease both;
 }
 
 @utility signage-fade-out {
-  animation: signage-fade-out 900ms ease both;
+  animation: signage-fade-out 300ms ease both;
   pointer-events: none;
 }
 
 @utility signage-slide-in {
-  animation: signage-slide-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: signage-slide-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @utility signage-slide-out {
-  animation: signage-slide-out 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: signage-slide-out 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   pointer-events: none;
 }
 
