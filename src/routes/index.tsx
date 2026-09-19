@@ -118,10 +118,6 @@ function Index() {
           <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-5xl">
             Sua marca onde as pessoas realmente estão
           </h1>
-          <p className="mt-5 max-w-xl text-lg text-foreground/85">
-            Anuncie em recepções, elevadores, academias e áreas comuns de condomínios.
-            Seu vídeo ou imagem em tela cheia, no momento e no local certo para ser lembrado.
-          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link to="/anunciar">Quero anunciar</Link>
