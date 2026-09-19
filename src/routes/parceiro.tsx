@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { Building2, MapPin, Hash, CheckCircle2 } from "lucide-react";
+import {
+  BadgeDollarSign,
+  Building2,
+  CheckCircle2,
+  Hash,
+  MapPin,
+  Network,
+  Store,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,14 +25,16 @@ export const Route = createFileRoute("/parceiro")({
       {
         name: "description",
         content:
-          "Tenha uma tela TelaHub no seu estabelecimento. Cadastre seu negócio e nossa equipe entra em contato.",
+          "Seja parceiro TelaHub e divulgue seus produtos ou serviços gratuitamente em diversos pontos da rede.",
       },
       { property: "og:title", content: "Seja Parceiro — TelaHub" },
       {
         property: "og:description",
         content:
-          "Cadastre seu negócio e tenha uma tela de anúncios no seu estabelecimento.",
+          "Divulgue seus produtos ou serviços gratuitamente em diversos estabelecimentos parceiros TelaHub.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Parceiro,
@@ -48,6 +58,24 @@ const partnerSchema = z.object({
 });
 
 type PartnerForm = z.infer<typeof partnerSchema>;
+
+const partnerBenefits = [
+  {
+    icon: Network,
+    title: "Divulgação em toda a rede",
+    text: "Seus produtos e serviços podem aparecer nas telas de diversos estabelecimentos parceiros.",
+  },
+  {
+    icon: BadgeDollarSign,
+    title: "Sem custo de divulgação",
+    text: "Você ganha espaço para apresentar seu negócio em outros pontos parceiros sem pagar pela mídia.",
+  },
+  {
+    icon: Store,
+    title: "Mais alcance para o seu negócio",
+    text: "Sua marca chega a novos públicos enquanto a tela do seu estabelecimento também valoriza a rede.",
+  },
+];
 
 function maskCnpj(value: string) {
   const digits = value.replace(/\D/g, "").slice(0, 14);
@@ -102,9 +130,9 @@ function Parceiro() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-lg px-6 py-16">
+      <section className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
         {sent ? (
-          <div className="panel p-10 text-center">
+          <div className="panel mx-auto max-w-lg p-10 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden />
             <h1 className="mt-4 text-2xl font-bold">Cadastro recebido!</h1>
             <p className="mt-2 text-muted-foreground">
@@ -116,15 +144,42 @@ function Parceiro() {
             </Button>
           </div>
         ) : (
-          <>
-            <h1 className="text-3xl font-bold">Seja Parceiro</h1>
-            <p className="mt-3 text-muted-foreground">
-              Tem um estabelecimento com circulação de pessoas? Tenha uma tela
-              TelaHub no seu local. Preencha os dados abaixo e nossa equipe
-              entra em contato.
-            </p>
+          <div className="grid items-start gap-12 lg:grid-cols-[1fr_26rem] lg:gap-20">
+            <div>
+              <p className="text-sm font-semibold uppercase text-primary">
+                Rede de parceiros TelaHub
+              </p>
+              <h1 className="mt-3 max-w-2xl text-3xl font-bold sm:text-4xl">
+                Seu negócio divulgado em diversos pontos parceiros, sem custo
+              </h1>
+              <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+                Ao receber uma tela TelaHub, seus produtos ou serviços também ganham
+                espaço de divulgação em outros estabelecimentos da nossa rede.
+              </p>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
+              <div className="mt-10 grid gap-6 sm:grid-cols-3 lg:grid-cols-1">
+                {partnerBenefits.map((benefit) => (
+                  <div key={benefit.title} className="flex gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <benefit.icon className="h-5 w-5" aria-hidden />
+                    </div>
+                    <div>
+                      <h2 className="font-semibold">{benefit.title}</h2>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                        {benefit.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="panel p-6 sm:p-8">
+              <h2 className="text-xl font-bold">Cadastre seu estabelecimento</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Preencha os dados e nossa equipe entrará em contato.
+              </p>
+              <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>
               <div className="space-y-2">
                 <Label htmlFor="cnpj">CNPJ</Label>
                 <div className="relative">
@@ -186,8 +241,9 @@ function Parceiro() {
               <Button type="submit" size="lg" className="w-full" disabled={submitting}>
                 {submitting ? "Enviando..." : "Enviar cadastro"}
               </Button>
-            </form>
-          </>
+              </form>
+            </div>
+          </div>
         )}
       </section>
     </main>
