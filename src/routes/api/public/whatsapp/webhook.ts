@@ -24,6 +24,14 @@ interface WebhookEnvelope {
   }>;
 }
 
+type IncomingMessage = {
+  id?: string;
+  from?: string;
+  timestamp?: string;
+  type?: string;
+  text?: { body?: string };
+};
+
 const STATUS_RANK: Record<string, number> = { accepted: 0, sent: 1, delivered: 2, read: 3, failed: 4 };
 
 function timestampFromUnix(value?: string) {
@@ -31,7 +39,7 @@ function timestampFromUnix(value?: string) {
   return Number.isFinite(seconds) && seconds > 0 ? new Date(seconds * 1000).toISOString() : new Date().toISOString();
 }
 
-function messageBody(message: NonNullable<NonNullable<NonNullable<WebhookEnvelope["entry"]>[number]["changes"]>[number]["value"]>["messages"] extends Array<infer T> ? T : never) {
+function messageBody(message: IncomingMessage) {
   if (message.type === "text") return message.text?.body?.trim() || "Mensagem sem texto";
   const labels: Record<string, string> = {
     image: "Imagem recebida",
@@ -97,7 +105,9 @@ async function processPayload(payload: WebhookEnvelope, deliveryId: string) {
   for (const statusEvent of value.statuses ?? []) {
     if (!statusEvent.id || !statusEvent.status || !(statusEvent.status in STATUS_RANK)) continue;
     const occurredAt = timestampFromUnix(statusEvent.timestamp);
-    const errorDetails = statusEvent.errors?.length ? statusEvent.errors : null;
+    const errorDetails = statusEvent.errors?.length
+      ? (JSON.parse(JSON.stringify(statusEvent.errors)) as import("@/integrations/supabase/types").Json)
+      : null;
     const { error: statusError } = await supabaseAdmin.from("whatsapp_message_statuses").upsert(
       {
         provider_message_id: statusEvent.id,
@@ -118,11 +128,14 @@ async function processPayload(payload: WebhookEnvelope, deliveryId: string) {
     if (!stored) continue;
     if (statusEvent.status !== "failed" && (STATUS_RANK[statusEvent.status] ?? 0) < (STATUS_RANK[stored.status] ?? 0)) continue;
 
-    const updates: Record<string, unknown> = { status: statusEvent.status, error_details: errorDetails };
-    if (statusEvent.status === "sent" && !stored.sent_at) updates.sent_at = occurredAt;
-    if (statusEvent.status === "delivered" && !stored.delivered_at) updates.delivered_at = occurredAt;
-    if (statusEvent.status === "read" && !stored.read_at) updates.read_at = occurredAt;
-    if (statusEvent.status === "failed" && !stored.failed_at) updates.failed_at = occurredAt;
+    const updates: import("@/integrations/supabase/types").Database["public"]["Tables"]["whatsapp_messages"]["Update"] = {
+      status: statusEvent.status,
+      error_details: errorDetails,
+    };
+    if (statusEvent.status === "sent" && !stored.sent_at) updates["sent_at"] = occurredAt;
+    if (statusEvent.status === "delivered" && !stored.delivered_at) updates["delivered_at"] = occurredAt;
+    if (statusEvent.status === "read" && !stored.read_at) updates["read_at"] = occurredAt;
+    if (statusEvent.status === "failed" && !stored.failed_at) updates["failed_at"] = occurredAt;
     const { error: updateError } = await supabaseAdmin.from("whatsapp_messages").update(updates).eq("id", stored.id);
     if (updateError) throw updateError;
   }
@@ -169,7 +182,14 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: stored, error: storeError } = await supabaseAdmin
           .from("whatsapp_webhook_events")
-          .upsert({ delivery_id: deliveryId, event, payload }, { onConflict: "delivery_id", ignoreDuplicates: true })
+          .upsert(
+            {
+              delivery_id: deliveryId,
+              event,
+              payload: JSON.parse(JSON.stringify(payload)) as import("@/integrations/supabase/types").Json,
+            },
+            { onConflict: "delivery_id", ignoreDuplicates: true },
+          )
           .select("id, processed_at, attempts")
           .maybeSingle();
         if (storeError) return new Response("Storage failed", { status: 500 });
