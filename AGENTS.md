@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- WhatsApp events are durably ingested at `/api/public/whatsapp/webhook`; admin reads use RLS and sends use authenticated server functions because provider credentials must remain server-only.
