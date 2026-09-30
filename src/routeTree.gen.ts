@@ -23,7 +23,9 @@ import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
 import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
+import { Route as AuthenticatedPainelWhatsappRouteImport } from './routes/_authenticated/painel.whatsapp'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
+import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -101,11 +103,23 @@ const AuthenticatedPainelTelasRoute =
     path: '/telas',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const AuthenticatedPainelWhatsappRoute =
+  AuthenticatedPainelWhatsappRouteImport.update({
+    id: '/whatsapp',
+    path: '/whatsapp',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
 const ApiPublicPlayerManifestRoute = ApiPublicPlayerManifestRouteImport.update({
   id: '/api/public/player-manifest',
   path: '/api/public/player-manifest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhatsappWebhookRoute =
+  ApiPublicWhatsappWebhookRouteImport.update({
+    id: '/api/public/whatsapp/webhook',
+    path: '/api/public/whatsapp/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -120,8 +134,10 @@ export interface FileRoutesByFullPath {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/painel/whatsapp': typeof AuthenticatedPainelWhatsappRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
+  '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -135,8 +151,10 @@ export interface FileRoutesByTo {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/painel/whatsapp': typeof AuthenticatedPainelWhatsappRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
+  '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -153,8 +171,10 @@ export interface FileRoutesById {
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/_authenticated/painel/whatsapp': typeof AuthenticatedPainelWhatsappRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
+  '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,8 +191,10 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/painel/whatsapp'
     | '/api/public/player-manifest'
     | '/painel/'
+    | '/api/public/whatsapp/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -186,8 +208,10 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/painel/whatsapp'
     | '/api/public/player-manifest'
     | '/painel'
+    | '/api/public/whatsapp/webhook'
   id:
     | '__root__'
     | '/'
@@ -203,8 +227,10 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/playlists'
     | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
+    | '/_authenticated/painel/whatsapp'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
+    | '/api/public/whatsapp/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -215,6 +241,7 @@ export interface RootRouteChildren {
   ParceiroRoute: typeof ParceiroRoute
   PlayerCodeRoute: typeof PlayerCodeRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
+  ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -317,11 +344,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelTelasRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/_authenticated/painel/whatsapp': {
+      id: '/_authenticated/painel/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/painel/whatsapp'
+      preLoaderRoute: typeof AuthenticatedPainelWhatsappRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
     '/api/public/player-manifest': {
       id: '/api/public/player-manifest'
       path: '/api/public/player-manifest'
       fullPath: '/api/public/player-manifest'
       preLoaderRoute: typeof ApiPublicPlayerManifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/whatsapp/webhook': {
+      id: '/api/public/whatsapp/webhook'
+      path: '/api/public/whatsapp/webhook'
+      fullPath: '/api/public/whatsapp/webhook'
+      preLoaderRoute: typeof ApiPublicWhatsappWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -334,6 +375,7 @@ interface AuthenticatedPainelRouteChildren {
   AuthenticatedPainelPlaylistsRoute: typeof AuthenticatedPainelPlaylistsRoute
   AuthenticatedPainelRelatoriosRoute: typeof AuthenticatedPainelRelatoriosRoute
   AuthenticatedPainelTelasRoute: typeof AuthenticatedPainelTelasRoute
+  AuthenticatedPainelWhatsappRoute: typeof AuthenticatedPainelWhatsappRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
 }
 
@@ -344,6 +386,7 @@ const AuthenticatedPainelRouteChildren: AuthenticatedPainelRouteChildren = {
   AuthenticatedPainelPlaylistsRoute: AuthenticatedPainelPlaylistsRoute,
   AuthenticatedPainelRelatoriosRoute: AuthenticatedPainelRelatoriosRoute,
   AuthenticatedPainelTelasRoute: AuthenticatedPainelTelasRoute,
+  AuthenticatedPainelWhatsappRoute: AuthenticatedPainelWhatsappRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,
 }
 
@@ -369,6 +412,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParceiroRoute: ParceiroRoute,
   PlayerCodeRoute: PlayerCodeRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
+  ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

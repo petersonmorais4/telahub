@@ -8,6 +8,7 @@ import {
   ListOrdered,
   CalendarClock,
   FileBarChart,
+  MessageCircle,
   Settings,
   LogOut,
   Menu,
@@ -25,6 +26,7 @@ const nav = [
   { to: "/painel/playlists", label: "Playlists", icon: ListOrdered, exact: false },
   { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock, exact: false },
   { to: "/painel/relatorios", label: "Relatórios", icon: FileBarChart, exact: false },
+  { to: "/painel/whatsapp", label: "WhatsApp", icon: MessageCircle, exact: false },
   { to: "/painel/configuracoes", label: "Configurações", icon: Settings, exact: false },
 ] as const;
 
