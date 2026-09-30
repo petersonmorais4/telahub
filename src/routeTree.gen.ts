@@ -23,6 +23,7 @@ import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
 import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
+import { Route as AuthenticatedPainelWhatsappRouteImport } from './routes/_authenticated/painel.whatsapp'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
 import { Route as ApiPublicWhatsappWebhookRouteImport } from './routes/api/public/whatsapp/webhook'
 
@@ -102,6 +103,12 @@ const AuthenticatedPainelTelasRoute =
     path: '/telas',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const AuthenticatedPainelWhatsappRoute =
+  AuthenticatedPainelWhatsappRouteImport.update({
+    id: '/whatsapp',
+    path: '/whatsapp',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
 const ApiPublicPlayerManifestRoute = ApiPublicPlayerManifestRouteImport.update({
   id: '/api/public/player-manifest',
   path: '/api/public/player-manifest',
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/painel/whatsapp': typeof AuthenticatedPainelWhatsappRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
@@ -143,6 +151,7 @@ export interface FileRoutesByTo {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/painel/whatsapp': typeof AuthenticatedPainelWhatsappRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
@@ -162,6 +171,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/_authenticated/painel/whatsapp': typeof AuthenticatedPainelWhatsappRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
   '/api/public/whatsapp/webhook': typeof ApiPublicWhatsappWebhookRoute
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/painel/whatsapp'
     | '/api/public/player-manifest'
     | '/painel/'
     | '/api/public/whatsapp/webhook'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/painel/whatsapp'
     | '/api/public/player-manifest'
     | '/painel'
     | '/api/public/whatsapp/webhook'
@@ -215,6 +227,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/playlists'
     | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
+    | '/_authenticated/painel/whatsapp'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
     | '/api/public/whatsapp/webhook'
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelTelasRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/_authenticated/painel/whatsapp': {
+      id: '/_authenticated/painel/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/painel/whatsapp'
+      preLoaderRoute: typeof AuthenticatedPainelWhatsappRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
     '/api/public/player-manifest': {
       id: '/api/public/player-manifest'
       path: '/api/public/player-manifest'
@@ -355,6 +375,7 @@ interface AuthenticatedPainelRouteChildren {
   AuthenticatedPainelPlaylistsRoute: typeof AuthenticatedPainelPlaylistsRoute
   AuthenticatedPainelRelatoriosRoute: typeof AuthenticatedPainelRelatoriosRoute
   AuthenticatedPainelTelasRoute: typeof AuthenticatedPainelTelasRoute
+  AuthenticatedPainelWhatsappRoute: typeof AuthenticatedPainelWhatsappRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
 }
 
@@ -365,6 +386,7 @@ const AuthenticatedPainelRouteChildren: AuthenticatedPainelRouteChildren = {
   AuthenticatedPainelPlaylistsRoute: AuthenticatedPainelPlaylistsRoute,
   AuthenticatedPainelRelatoriosRoute: AuthenticatedPainelRelatoriosRoute,
   AuthenticatedPainelTelasRoute: AuthenticatedPainelTelasRoute,
+  AuthenticatedPainelWhatsappRoute: AuthenticatedPainelWhatsappRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,
 }
 
