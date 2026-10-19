@@ -9,6 +9,5 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- WhatsApp events are durably ingested at `/api/public/whatsapp/webhook`; admin reads use RLS and sends use authenticated server functions because provider credentials must remain server-only.
 - The app exposes an MCP server (`/mcp`, Supabase OAuth, name `telahub`); tools live in `src/lib/mcp/tools/` (one `defineTool` per file) and are registered in `src/lib/mcp/index.ts` — never hand-edit the generated `src/routes/mcp.ts` or `.well-known` routes.
 - The Android TV APK is a Capacitor shell built only in CI (`.github/workflows/build-apk.yml` + `scripts/patch-android.mjs`); `android/` is generated per build and never committed, because the APK just loads the published `/app` route.
