@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { describe, expect, test } from "bun:test";
 import { QueryClient, QueryObserver, onlineManager } from "@tanstack/react-query";
 import { liveQueryPolicy, liveRefetchInterval } from "./live-query-policy";
