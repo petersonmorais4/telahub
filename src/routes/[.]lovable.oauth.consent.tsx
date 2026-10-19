@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   // SSR has no localStorage session and would redirect signed-in users.
   ssr: false,
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (search: Record<string, unknown>) => ({
     authorization_id: typeof search["authorization_id"] === "string" ? search["authorization_id"] : "",
   }),
   beforeLoad: async ({ search, location }) => {
@@ -48,7 +48,7 @@ function Consent() {
       setError(error.message);
       return;
     }
-    const target = data && "redirect_url" in data ? data.redirect_url : data && "redirect_uri" in data ? data.redirect_uri : undefined;
+    const target = data && "redirect_url" in data ? data.redirect_url : undefined;
     if (!target) {
       setBusy(false);
       setError("Nenhum redirecionamento devolvido pelo servidor de autorização.");
