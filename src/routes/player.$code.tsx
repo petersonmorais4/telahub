@@ -74,8 +74,12 @@ function PlayerPage() {
 
   const { data } = useQuery<PlayerData>({
     queryKey: ["player", code],
-    refetchInterval: 60_000,
+    // TV boxes (WebView) podem reportar a página como oculta/offline;
+    // força a atualização periódica mesmo assim.
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
+    networkMode: "always",
     retry: true,
     queryFn: async () => {
       const screenRes = await supabase.from("screens").select("*").eq("code", code).maybeSingle();
@@ -134,17 +138,40 @@ function PlayerPage() {
 
   // Atualização em tempo real quando o admin publica ou reordena
   useEffect(() => {
-    const channel = supabase
-      .channel(`player-${code}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "media" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "playlist_items" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "playlists" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "screens" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "schedules" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "app_settings" }, refresh)
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let retry: ReturnType<typeof setTimeout> | null = null;
+    let alive = true;
+    const subscribe = () => {
+      if (!alive) return;
+      channel = supabase
+        .channel(`player-${code}-${Date.now()}`)
+        .on("postgres_changes", { event: "*", schema: "public", table: "media" }, refresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "playlist_items" }, refresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "playlists" }, refresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "screens" }, refresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "schedules" }, refresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "app_settings" }, refresh)
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") refresh();
+          if ((status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") && alive && !retry) {
+            const old = channel;
+            channel = null;
+            if (old) void supabase.removeChannel(old);
+            retry = setTimeout(() => {
+              retry = null;
+              subscribe();
+            }, 5_000);
+          }
+        });
+    };
+    subscribe();
+    // Recarrega a página a cada 6 h para pegar novas versões do player
+    const reload = setTimeout(() => window.location.reload(), 6 * 60 * 60 * 1000);
     return () => {
-      void supabase.removeChannel(channel);
+      alive = false;
+      if (retry) clearTimeout(retry);
+      clearTimeout(reload);
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [code, refresh]);
 
