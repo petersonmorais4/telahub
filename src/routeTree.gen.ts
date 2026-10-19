@@ -27,6 +27,7 @@ import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
 import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
+import { Route as ApiPublicLiveContentRouteImport } from './routes/api/public/live-content'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
 
 const IndexRoute = IndexRouteImport.update({
@@ -126,6 +127,11 @@ const AuthenticatedPainelTelasRoute =
     path: '/telas',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const ApiPublicLiveContentRoute = ApiPublicLiveContentRouteImport.update({
+  id: '/api/public/live-content',
+  path: '/api/public/live-content',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPlayerManifestRoute = ApiPublicPlayerManifestRouteImport.update({
   id: '/api/public/player-manifest',
   path: '/api/public/player-manifest',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
 }
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
 }
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
 }
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel/'
   fileRoutesByTo: FileRoutesByTo
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel'
   id:
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/playlists'
     | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
+    | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
   fileRoutesById: FileRoutesById
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   PlayerCodeRoute: typeof PlayerCodeRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicLiveContentRoute: typeof ApiPublicLiveContentRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
 }
 
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelTelasRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/api/public/live-content': {
+      id: '/api/public/live-content'
+      path: '/api/public/live-content'
+      fullPath: '/api/public/live-content'
+      preLoaderRoute: typeof ApiPublicLiveContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/player-manifest': {
       id: '/api/public/player-manifest'
       path: '/api/public/player-manifest'
@@ -454,6 +474,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   PlayerCodeRoute: PlayerCodeRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicLiveContentRoute: ApiPublicLiveContentRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
 }
 export const routeTree = rootRouteImport
