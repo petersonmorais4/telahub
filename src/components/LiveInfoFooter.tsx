@@ -1,17 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { CloudSun, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { BrandLogo } from "@/components/BrandLogo";
 import {
-  getLiveContent,
   type LiveContent,
   type MarketContent,
   type WeatherContent,
 } from "@/lib/live-content.functions";
 import { cn } from "@/lib/utils";
 import { liveQueryPolicy, liveRefetchInterval } from "@/lib/live-query-policy";
+import { requestLiveContent } from "@/lib/live-content-request";
 
 function weatherLabel(code: number) {
   if (code === 0) return "Céu limpo";
@@ -33,14 +32,13 @@ function isMarketContent(data: LiveContent | undefined): data is MarketContent {
 
 export function LiveInfoFooter({ city }: { city: string | null }) {
   const [visibleInfo, setVisibleInfo] = useState<"weather" | "market">("weather");
-  const fetchLiveContent = useServerFn(getLiveContent);
   const selectedCity = city?.trim() || null;
   const weather = useQuery({
     ...liveQueryPolicy,
     queryKey: ["live-footer", "weather", selectedCity],
     queryFn: () => {
       if (!selectedCity) throw new Error("Cidade ainda não carregada.");
-      return fetchLiveContent({ data: { type: "weather", city: selectedCity } });
+      return requestLiveContent({ type: "weather", city: selectedCity });
     },
     enabled: Boolean(selectedCity),
     placeholderData: (previousData) => previousData,
@@ -50,7 +48,7 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
   const market = useQuery({
     ...liveQueryPolicy,
     queryKey: ["live-footer", "market"],
-    queryFn: () => fetchLiveContent({ data: { type: "market" } }),
+    queryFn: () => requestLiveContent({ type: "market" }),
     staleTime: 5 * 60_000,
     refetchInterval: (query) => liveRefetchInterval(Boolean(query.state.data)),
   });
