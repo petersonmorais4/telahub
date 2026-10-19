@@ -33,7 +33,7 @@ export const listTeamUsers = createServerFn({ method: "GET" })
     const roleOf = new Map<string, Role>();
     for (const r of roles.data ?? []) {
       const cur = roleOf.get(r.user_id);
-      if (!cur || rank[r.role] > rank[cur]) roleOf.set(r.user_id, r.role as Role);
+      if (!cur || (rank[r.role] ?? 0) > (rank[cur] ?? 0)) roleOf.set(r.user_id, r.role as Role);
     }
     return (profiles.data ?? []).map<TeamUser>((p) => ({
       id: p.id, name: p.name, email: p.email, role: roleOf.get(p.id) ?? null, createdAt: p.created_at,

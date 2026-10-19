@@ -40,7 +40,7 @@ const roleLabels: Record<Role, { label: string; hint: string }> = {
 
 function RoleSelect({ value, onChange, disabled }: { value: Role; onChange: (r: Role) => void; disabled?: boolean }) {
   return (
-    <Select value={value} onValueChange={(v) => onChange(v as Role)} disabled={disabled}>
+    <Select value={value} onValueChange={(v) => onChange(v as Role)} disabled={disabled ?? false}>
       <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
       <SelectContent>
         {(Object.keys(roleLabels) as Role[]).map((r) => (
