@@ -234,7 +234,7 @@ function ConfiguracoesPage() {
                     <p className="text-xs text-muted-foreground">{profile.email}</p>
                   </div>
                   <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-                    {role === "admin" ? "Admin geral" : "Operador"}
+                    {role === "admin" ? "Administrador" : role === "operator" ? "Operador" : "Visualizador"}
                   </span>
                 </li>
               );

@@ -27,6 +27,7 @@ import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
 import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
+import { Route as AuthenticatedPainelUsuariosRouteImport } from './routes/_authenticated/painel.usuarios'
 import { Route as ApiPublicLiveContentRouteImport } from './routes/api/public/live-content'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
 
@@ -127,6 +128,12 @@ const AuthenticatedPainelTelasRoute =
     path: '/telas',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const AuthenticatedPainelUsuariosRoute =
+  AuthenticatedPainelUsuariosRouteImport.update({
+    id: '/usuarios',
+    path: '/usuarios',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
 const ApiPublicLiveContentRoute = ApiPublicLiveContentRouteImport.update({
   id: '/api/public/live-content',
   path: '/api/public/live-content',
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
+  '/_authenticated/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/painel/usuarios'
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel/'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
+    | '/painel/usuarios'
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel'
@@ -263,6 +275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/playlists'
     | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
+    | '/_authenticated/painel/usuarios'
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
@@ -411,6 +424,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelTelasRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/_authenticated/painel/usuarios': {
+      id: '/_authenticated/painel/usuarios'
+      path: '/usuarios'
+      fullPath: '/painel/usuarios'
+      preLoaderRoute: typeof AuthenticatedPainelUsuariosRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
     '/api/public/live-content': {
       id: '/api/public/live-content'
       path: '/api/public/live-content'
@@ -435,6 +455,7 @@ interface AuthenticatedPainelRouteChildren {
   AuthenticatedPainelPlaylistsRoute: typeof AuthenticatedPainelPlaylistsRoute
   AuthenticatedPainelRelatoriosRoute: typeof AuthenticatedPainelRelatoriosRoute
   AuthenticatedPainelTelasRoute: typeof AuthenticatedPainelTelasRoute
+  AuthenticatedPainelUsuariosRoute: typeof AuthenticatedPainelUsuariosRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
 }
 
@@ -445,6 +466,7 @@ const AuthenticatedPainelRouteChildren: AuthenticatedPainelRouteChildren = {
   AuthenticatedPainelPlaylistsRoute: AuthenticatedPainelPlaylistsRoute,
   AuthenticatedPainelRelatoriosRoute: AuthenticatedPainelRelatoriosRoute,
   AuthenticatedPainelTelasRoute: AuthenticatedPainelTelasRoute,
+  AuthenticatedPainelUsuariosRoute: AuthenticatedPainelUsuariosRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,
 }
 
