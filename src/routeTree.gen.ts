@@ -13,9 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AnunciarRouteImport } from './routes/anunciar'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ParceiroRouteImport } from './routes/parceiro'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as PlayerCodeRouteImport } from './routes/player.$code'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated/painel.index'
 import { Route as AuthenticatedPainelAgendamentosRouteImport } from './routes/_authenticated/painel.agendamentos'
 import { Route as AuthenticatedPainelAnunciosRouteImport } from './routes/_authenticated/painel.anuncios'
@@ -46,11 +49,22 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParceiroRoute = ParceiroRouteImport.update({
   id: '/parceiro',
   path: '/parceiro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
@@ -59,6 +73,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
 const PlayerCodeRoute = PlayerCodeRouteImport.update({
   id: '/player/$code',
   path: '/player/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedPainelIndexRoute =
@@ -125,9 +144,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/painel': typeof AuthenticatedPainelRouteWithChildren
   '/player/$code': typeof PlayerCodeRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
@@ -143,8 +165,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/player/$code': typeof PlayerCodeRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
@@ -162,9 +187,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/anunciar': typeof AnunciarRoute
   '/auth': typeof AuthRoute
+  '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRouteWithChildren
   '/player/$code': typeof PlayerCodeRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/_authenticated/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/_authenticated/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
@@ -182,9 +210,12 @@ export interface FileRouteTypes {
     | '/'
     | '/anunciar'
     | '/auth'
+    | '/mcp'
     | '/parceiro'
+    | '/.well-known/oauth-protected-resource'
     | '/painel'
     | '/player/$code'
+    | '/.lovable/oauth/consent'
     | '/painel/agendamentos'
     | '/painel/anuncios'
     | '/painel/configuracoes'
@@ -200,8 +231,11 @@ export interface FileRouteTypes {
     | '/'
     | '/anunciar'
     | '/auth'
+    | '/mcp'
     | '/parceiro'
+    | '/.well-known/oauth-protected-resource'
     | '/player/$code'
+    | '/.lovable/oauth/consent'
     | '/painel/agendamentos'
     | '/painel/anuncios'
     | '/painel/configuracoes'
@@ -218,9 +252,12 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/anunciar'
     | '/auth'
+    | '/mcp'
     | '/parceiro'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/painel'
     | '/player/$code'
+    | '/.lovable/oauth/consent'
     | '/_authenticated/painel/agendamentos'
     | '/_authenticated/painel/anuncios'
     | '/_authenticated/painel/configuracoes'
@@ -238,8 +275,11 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AnunciarRoute: typeof AnunciarRoute
   AuthRoute: typeof AuthRoute
+  McpRoute: typeof McpRoute
   ParceiroRoute: typeof ParceiroRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   PlayerCodeRoute: typeof PlayerCodeRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
   ApiPublicWhatsappWebhookRoute: typeof ApiPublicWhatsappWebhookRoute
 }
@@ -274,11 +314,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parceiro': {
       id: '/parceiro'
       path: '/parceiro'
       fullPath: '/parceiro'
       preLoaderRoute: typeof ParceiroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/painel': {
@@ -293,6 +347,13 @@ declare module '@tanstack/react-router' {
       path: '/player/$code'
       fullPath: '/player/$code'
       preLoaderRoute: typeof PlayerCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/painel/': {
@@ -409,8 +470,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AnunciarRoute: AnunciarRoute,
   AuthRoute: AuthRoute,
+  McpRoute: McpRoute,
   ParceiroRoute: ParceiroRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   PlayerCodeRoute: PlayerCodeRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
   ApiPublicWhatsappWebhookRoute: ApiPublicWhatsappWebhookRoute,
 }

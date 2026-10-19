@@ -9,8 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { oauthReturnPath } from "@/lib/oauth-return-path";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: typeof search["next"] === "string" ? search["next"] : "",
+  }),
   head: () => ({
     meta: [
       { title: "Entrar no painel — TelaHub" },
@@ -28,6 +32,9 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const returnTo = oauthReturnPath(next);
+  const target = returnTo === "/" ? "/painel" : returnTo;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -36,12 +43,12 @@ function AuthPage() {
   useEffect(() => {
     let alive = true;
     supabase.auth.getSession().then(({ data }) => {
-      if (alive && data.session) navigate({ to: "/painel", replace: true });
+      if (alive && data.session) navigate({ href: target, replace: true });
     });
     return () => {
       alive = false;
     };
-  }, [navigate]);
+  }, [navigate, target]);
 
   async function signIn(event: React.FormEvent) {
     event.preventDefault();
@@ -52,7 +59,7 @@ function AuthPage() {
       toast.error("Não foi possível entrar", { description: error.message });
       return;
     }
-    navigate({ to: "/painel", replace: true });
+    navigate({ href: target, replace: true });
   }
 
   async function signUp(event: React.FormEvent) {
@@ -61,7 +68,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name }, emailRedirectTo: `${window.location.origin}/painel` },
+      options: { data: { name }, emailRedirectTo: new URL(target, window.location.origin).href },
     });
     setLoading(false);
     if (error) {
@@ -73,14 +80,14 @@ function AuthPage() {
 
   async function signInWithGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: new URL(target, window.location.origin).href,
     });
     if (result.error) {
       toast.error("Falha no acesso com Google");
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/painel", replace: true });
+    navigate({ href: target, replace: true });
   }
 
   return (
