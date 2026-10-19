@@ -1,5 +1,5 @@
 # Roadmap
 
-- [x] Reproduzir o bloqueio do clima ao abrir o player após um aviso de desconexão.
-- [x] Corrigir consultas de informações ao vivo para TV boxes e recuperação após falhas.
-- [x] Verificar o fluxo de abertura do app, rotação do rodapé e testes da correção.
+- [x] Reproduzir consultas recusadas sem metadados de origem do navegador.
+- [x] Usar consulta pública somente de leitura para clima e mercado sem enfraquecer a proteção do painel.
+- [ ] Verificar clima e rotação no fluxo do aplicativo com os cabeçalhos ausentes.

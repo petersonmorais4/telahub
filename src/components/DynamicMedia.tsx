@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { CloudSun, TrendingDown, TrendingUp, Wind } from "lucide-react";
 
-import { getLiveContent } from "@/lib/live-content.functions";
+import { requestLiveContent } from "@/lib/live-content-request";
 import type { MediaRow } from "@/lib/signage";
 import { cn } from "@/lib/utils";
 import { liveQueryPolicy, liveRefetchInterval } from "@/lib/live-query-policy";
@@ -37,13 +36,12 @@ export function DynamicMedia({
   compact?: boolean;
   className?: string | undefined;
 }) {
-  const fetchLiveContent = useServerFn(getLiveContent);
   const isWeather = media.type === "weather";
   const city = configCity(media);
   const { data, isError } = useQuery({
     ...liveQueryPolicy,
     queryKey: ["live-content", media.type, city],
-    queryFn: () => fetchLiveContent({ data: isWeather ? { type: "weather", city } : { type: "market" } }),
+    queryFn: () => requestLiveContent(isWeather ? { type: "weather", city } : { type: "market" }),
     staleTime: 5 * 60_000,
     refetchInterval: (query) => liveRefetchInterval(Boolean(query.state.data)),
   });
