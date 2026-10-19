@@ -12,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { markWhatsAppConversationRead, sendWhatsAppMessage } from "@/lib/whatsapp.functions";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
+import { useWebMCP } from "use-webmcp-tool";
 
 export const Route = createFileRoute("/_authenticated/painel/whatsapp")({
   head: () => ({
@@ -95,6 +97,24 @@ function WhatsAppPage() {
       if (error) throw error;
       return data as Conversation[];
     },
+  });
+
+  useWebMCP({
+    name: "list_conversations",
+    description: "List the WhatsApp conversations currently shown in the admin panel, with unread counts.",
+    annotations: { readOnlyHint: true, untrustedContentHint: true },
+    execute: () =>
+      runWebMCPTool("list_conversations", () => {
+        const items = conversationsQuery.data ?? [];
+        return items.length === 0
+          ? "Nenhuma conversa."
+          : items
+              .map(
+                (c) =>
+                  `${c.contact_name ?? c.phone} — ${c.last_message ?? "(sem mensagem)"}${c.unread_count > 0 ? ` — ${c.unread_count} não lidas` : ""}`,
+              )
+              .join("\n");
+      }),
   });
 
   useEffect(() => {

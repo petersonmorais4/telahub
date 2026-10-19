@@ -12,6 +12,8 @@ import {
   type ScreenRow,
 } from "@/lib/signage";
 import { Button } from "@/components/ui/button";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
+import { useWebMCP } from "use-webmcp-tool";
 
 export const Route = createFileRoute("/_authenticated/painel/")({
   head: () => ({
@@ -56,6 +58,20 @@ function Dashboard() {
         logs: (logs.data ?? []) as unknown as LogRow[],
       };
     },
+  });
+
+  useWebMCP({
+    name: "list_screens_status",
+    description: "List the screens currently shown on the dashboard with online/offline status.",
+    annotations: { readOnlyHint: true },
+    execute: () =>
+      runWebMCPTool("list_screens_status", () => {
+        const items = data?.screens ?? [];
+        if (items.length === 0) return "Nenhuma tela cadastrada ainda.";
+        return items
+          .map((s) => `${s.name} (${s.location ?? "Sem local"}) — ${isOnline(s.last_seen) ? "Online" : "Offline"}`)
+          .join("\n");
+      }),
   });
 
   const today = new Date().toISOString().slice(0, 10);
