@@ -62,21 +62,6 @@ function AuthPage() {
     navigate({ href: target, replace: true });
   }
 
-  async function signUp(event: React.FormEvent) {
-    event.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name }, emailRedirectTo: new URL(target, window.location.origin).href },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error("Não foi possível criar a conta", { description: error.message });
-      return;
-    }
-    toast.success("Conta criada", { description: "Você já pode entrar com esse e-mail e senha." });
-  }
 
   async function signInWithGoogle() {
     const result = await lovable.auth.signInWithOAuth("google", {
@@ -102,14 +87,7 @@ function AuthPage() {
         </div>
 
         <div className="panel p-6">
-          <Tabs defaultValue="entrar">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="entrar">Entrar</TabsTrigger>
-              <TabsTrigger value="criar">Criar conta</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="entrar">
-              <form className="space-y-4 pt-4" onSubmit={signIn}>
+              <form className="space-y-4" onSubmit={signIn}>
                 <div className="space-y-2">
                   <Label htmlFor="email">E-mail</Label>
                   <Input
@@ -133,42 +111,10 @@ function AuthPage() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   Entrar
                 </Button>
+                <p className="text-center text-xs text-muted-foreground">
+                  Não tem acesso? Peça ao administrador para criar seu login.
+                </p>
               </form>
-            </TabsContent>
-
-            <TabsContent value="criar">
-              <form className="space-y-4 pt-4" onSubmit={signUp}>
-                <div className="space-y-2">
-                  <Label htmlFor="nome">Nome</Label>
-                  <Input id="nome" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email-novo">E-mail</Label>
-                  <Input
-                    id="email-novo"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="senha-nova">Senha</Label>
-                  <Input
-                    id="senha-nova"
-                    type="password"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  Criar conta
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
 
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
