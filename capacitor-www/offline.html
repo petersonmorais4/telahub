@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TelaHUB — Sem conexão</title>
+    <style>
+      html,body{margin:0;height:100%;background:#040c0b;color:#e6fff7;font-family:system-ui,sans-serif}
+      body{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.5rem}
+      h1{font-size:3.5rem;margin:0}
+      p{font-size:1.75rem;margin:0;color:#00E5A0}
+    </style>
+  </head>
+  <body>
+    <h1>Sem conexão. Tentando novamente…</h1>
+    <p id="next">Nova tentativa em 10 s</p>
+    <script>
+      var TARGET = "https://telahub.lovable.app/app";
+      var left = 10;
+      function attempt() {
+        fetch(TARGET, { method: "HEAD", mode: "no-cors", cache: "no-store" })
+          .then(function () { location.replace(TARGET); })
+          .catch(function () { left = 10; });
+      }
+      setInterval(function () {
+        left -= 1;
+        if (left <= 0) { left = 10; attempt(); }
+        document.getElementById("next").textContent = "Nova tentativa em " + left + " s";
+      }, 1000);
+    </script>
+  </body>
+</html>

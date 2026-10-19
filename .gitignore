@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Capacitor Android (generated in CI)
+android/
+telahub.apk
