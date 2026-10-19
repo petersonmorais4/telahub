@@ -1,0 +1,76 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile || bun install
+
+      - name: Ensure ImageMagick
+        run: command -v magick || command -v convert || (sudo apt-get update && sudo apt-get install -y imagemagick)
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Patch Android project
+        run: node scripts/patch-android.mjs
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Collect APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk telahub.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: telahub-apk
+          path: telahub.apk
+
+      - name: Publish release apk-latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag -f apk-latest
+          git push -f origin apk-latest
+          if gh release view apk-latest >/dev/null 2>&1; then
+            gh release upload apk-latest telahub.apk --clobber
+            gh release edit apk-latest --title "TelaHUB APK (build ${{ github.run_number }})" --notes "Versão 1.0.${{ github.run_number }} — commit ${{ github.sha }}"
+          else
+            gh release create apk-latest telahub.apk --title "TelaHUB APK (build ${{ github.run_number }})" --notes "Versão 1.0.${{ github.run_number }} — commit ${{ github.sha }}" --latest
+          fi
