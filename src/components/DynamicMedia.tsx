@@ -5,6 +5,7 @@ import { CloudSun, TrendingDown, TrendingUp, Wind } from "lucide-react";
 import { getLiveContent } from "@/lib/live-content.functions";
 import type { MediaRow } from "@/lib/signage";
 import { cn } from "@/lib/utils";
+import { liveQueryPolicy, liveRefetchInterval } from "@/lib/live-query-policy";
 
 function configCity(media: Pick<MediaRow, "content_config">) {
   const config = media.content_config;
@@ -40,11 +41,11 @@ export function DynamicMedia({
   const isWeather = media.type === "weather";
   const city = configCity(media);
   const { data, isError } = useQuery({
+    ...liveQueryPolicy,
     queryKey: ["live-content", media.type, city],
     queryFn: () => fetchLiveContent({ data: isWeather ? { type: "weather", city } : { type: "market" } }),
     staleTime: 5 * 60_000,
-    refetchInterval: 10 * 60_000,
-    retry: 2,
+    refetchInterval: (query) => liveRefetchInterval(Boolean(query.state.data)),
   });
 
   if (compact) {

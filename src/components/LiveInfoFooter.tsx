@@ -11,6 +11,7 @@ import {
   type WeatherContent,
 } from "@/lib/live-content.functions";
 import { cn } from "@/lib/utils";
+import { liveQueryPolicy, liveRefetchInterval } from "@/lib/live-query-policy";
 
 function weatherLabel(code: number) {
   if (code === 0) return "Céu limpo";
@@ -35,6 +36,7 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
   const fetchLiveContent = useServerFn(getLiveContent);
   const selectedCity = city?.trim() || null;
   const weather = useQuery({
+    ...liveQueryPolicy,
     queryKey: ["live-footer", "weather", selectedCity],
     queryFn: () => {
       if (!selectedCity) throw new Error("Cidade ainda não carregada.");
@@ -43,17 +45,14 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
     enabled: Boolean(selectedCity),
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60_000,
-    refetchInterval: 10 * 60_000,
-    retry: 3,
-    retryDelay: 5_000,
+    refetchInterval: (query) => liveRefetchInterval(Boolean(query.state.data)),
   });
   const market = useQuery({
+    ...liveQueryPolicy,
     queryKey: ["live-footer", "market"],
     queryFn: () => fetchLiveContent({ data: { type: "market" } }),
     staleTime: 5 * 60_000,
-    refetchInterval: 10 * 60_000,
-    retry: 3,
-    retryDelay: 5_000,
+    refetchInterval: (query) => liveRefetchInterval(Boolean(query.state.data)),
   });
 
   const weatherData = isWeatherContent(weather.data) ? weather.data : null;
@@ -62,23 +61,25 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
   const TrendIcon = positive ? TrendingUp : TrendingDown;
   const weatherUnavailable = weather.isError && !weatherData;
   const marketUnavailable = market.isError && !marketData;
+  const hasWeather = Boolean(weatherData);
+  const hasMarket = Boolean(marketData);
 
   useEffect(() => {
-    if (weatherData && !marketData) {
+    if (hasWeather && !hasMarket) {
       setVisibleInfo("weather");
       return;
     }
-    if (marketData && !weatherData) {
+    if (hasMarket && !hasWeather) {
       setVisibleInfo("market");
       return;
     }
-    if (!weatherData || !marketData) return;
+    if (!hasWeather || !hasMarket) return;
 
     const id = window.setInterval(() => {
       setVisibleInfo((current) => (current === "weather" ? "market" : "weather"));
     }, 8_000);
     return () => window.clearInterval(id);
-  }, [marketData, weatherData]);
+  }, [hasMarket, hasWeather]);
 
   const showWeather = visibleInfo === "weather" && !weatherUnavailable;
   const allUnavailable = weatherUnavailable && marketUnavailable;
@@ -130,7 +131,7 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
                   <span className="hidden text-[0.65rem] text-muted-foreground lg:inline">possível atraso</span>
                 </div>
               ) : marketUnavailable ? (
-                <span className="text-xs text-muted-foreground md:text-sm">Clima temporariamente indisponível</span>
+                <span className="text-xs text-muted-foreground md:text-sm">Ibovespa temporariamente indisponível</span>
               ) : (
                 <span className="text-xs text-muted-foreground md:text-sm">Atualizando Ibovespa…</span>
               )}
