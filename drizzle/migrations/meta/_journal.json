@@ -15,6 +15,13 @@
       "when": 1792446668179,
       "tag": "0001_staff_only_media_file_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792446814395,
+      "tag": "0002_add_viewer_role",
+      "breakpoints": true
     }
   ]
 }
