@@ -1,5 +1,5 @@
-/// <reference types="bun" />
-import { describe, expect, test } from "bun:test";
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
 import { QueryClient, QueryObserver, onlineManager } from "@tanstack/react-query";
 import { liveQueryPolicy, liveRefetchInterval } from "./live-query-policy";
 
@@ -19,9 +19,9 @@ describe("TV live information recovery", () => {
     const unsubscribe = observer.subscribe(() => {});
     try {
       const result = await observer.refetch();
-      expect(requests).toBeGreaterThan(0);
-      expect(result.data?.temperature).toBe(20.1);
-      expect(result.fetchStatus).toBe("idle");
+      assert.ok(requests > 0);
+      assert.equal(result.data?.temperature, 20.1);
+      assert.equal(result.fetchStatus, "idle");
     } finally {
       unsubscribe();
       client.clear();
@@ -30,7 +30,7 @@ describe("TV live information recovery", () => {
   });
 
   test("retries missing information promptly instead of waiting ten minutes", () => {
-    expect(liveRefetchInterval(false)).toBe(5_000);
-    expect(liveRefetchInterval(true)).toBe(600_000);
+    assert.equal(liveRefetchInterval(false), 5_000);
+    assert.equal(liveRefetchInterval(true), 600_000);
   });
 });
