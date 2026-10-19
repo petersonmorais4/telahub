@@ -44,14 +44,16 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
-    retry: 2,
+    retry: 3,
+    retryDelay: 5_000,
   });
   const market = useQuery({
     queryKey: ["live-footer", "market"],
     queryFn: () => fetchLiveContent({ data: { type: "market" } }),
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
-    retry: 2,
+    retry: 3,
+    retryDelay: 5_000,
   });
 
   const weatherData = isWeatherContent(weather.data) ? weather.data : null;
