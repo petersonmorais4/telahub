@@ -537,6 +537,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_member: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       touch_screen: { Args: { p_code: string }; Returns: undefined }
     }
