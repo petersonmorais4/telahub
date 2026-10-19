@@ -182,6 +182,32 @@ function PlayerPage() {
     return () => window.removeEventListener("online", onOnline);
   }, [refresh]);
 
+  // Detecta nova versão publicada e recarrega sozinho (evita rodar código antigo em cache)
+  useEffect(() => {
+    const collectAssets = (doc: Document) =>
+      Array.from(doc.querySelectorAll("script[src], link[rel=stylesheet]"))
+        .map((el) => el.getAttribute("src") ?? el.getAttribute("href"))
+        .filter(Boolean)
+        .sort()
+        .join("|");
+
+    const checkForUpdate = async () => {
+      try {
+        const res = await fetch(window.location.href, { cache: "no-store" });
+        if (!res.ok) return;
+        const html = await res.text();
+        const incoming = collectAssets(new DOMParser().parseFromString(html, "text/html"));
+        const current = collectAssets(document);
+        if (incoming && current && incoming !== current) window.location.reload();
+      } catch {
+        // sem rede agora — tenta de novo no próximo ciclo
+      }
+    };
+
+    const interval = window.setInterval(checkForUpdate, 10 * 60_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const queue = useMemo(() => {
     if (!data) return [];
     const mediaById = new Map(data.media.map((m) => [m.id, m]));
