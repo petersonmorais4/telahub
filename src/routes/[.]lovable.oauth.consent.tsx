@@ -6,7 +6,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   // SSR has no localStorage session and would redirect signed-in users.
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({
-    authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
+    authorization_id: typeof search["authorization_id"] === "string" ? search["authorization_id"] : "",
   }),
   beforeLoad: async ({ search, location }) => {
     if (!search.authorization_id) throw new Error("Missing authorization_id");
@@ -18,8 +18,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     const authorizationId = new URLSearchParams(location.search).get("authorization_id")!;
     const { data, error } = await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
     if (error) throw error;
-    const immediate = data?.redirect_url ?? data?.redirect_to;
-    if (immediate && !data?.client) throw redirect({ href: immediate });
+    if (data && "redirect_url" in data) throw redirect({ href: data.redirect_url });
     return data;
   },
   component: Consent,
@@ -34,6 +33,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
 
 function Consent() {
   const details = Route.useLoaderData();
+  const client = details && "client" in details ? details.client : undefined;
   const { authorization_id } = Route.useSearch();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ function Consent() {
       setError(error.message);
       return;
     }
-    const target = data?.redirect_url ?? data?.redirect_to;
+    const target = data && "redirect_url" in data ? data.redirect_url : data && "redirect_uri" in data ? data.redirect_uri : undefined;
     if (!target) {
       setBusy(false);
       setError("Nenhum redirecionamento devolvido pelo servidor de autorização.");
@@ -60,9 +60,9 @@ function Consent() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md text-center">
-        <h1 className="text-2xl font-bold">Conectar {details?.client?.name ?? "um aplicativo"} à sua conta</h1>
+        <h1 className="text-2xl font-bold">Conectar {client?.name ?? "um aplicativo"} à sua conta</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Isso permite que {details?.client?.name ?? "o cliente"} use este aplicativo com a sua conta.
+          Isso permite que {client?.name ?? "o cliente"} use este aplicativo com a sua conta.
         </p>
         {error ? <p role="alert" className="mt-3 text-sm text-destructive">{error}</p> : null}
         <div className="mt-6 flex justify-center gap-3">
