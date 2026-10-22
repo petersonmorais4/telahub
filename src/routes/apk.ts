@@ -29,21 +29,37 @@ export const Route = createFileRoute("/apk")({
         const asset = release.assets?.find((a) => a.name.endsWith(".apk"));
         if (!asset) return new Response("APK não encontrado", { status: 404 });
 
-        const file = await fetch(`${GATEWAY_URL}/repos/${REPO}/releases/assets/${asset.id}`, {
-          headers: { ...headers, Accept: "application/octet-stream" },
-          redirect: "follow",
-        });
+        const assetUrl = `${GATEWAY_URL}/repos/${REPO}/releases/assets/${asset.id}`;
+        const assetHeaders = { ...headers, Accept: "application/octet-stream" };
+
+        // Prefer sending the device straight to GitHub's short-lived signed file URL,
+        // so large downloads are not cut off while being relayed through the edge.
+        const probe = await fetch(assetUrl, { headers: assetHeaders, redirect: "manual" });
+        const location = probe.headers.get("location");
+        if (probe.status >= 300 && probe.status < 400 && location) {
+          return new Response(null, {
+            status: 302,
+            headers: { Location: location, "Cache-Control": "no-store" },
+          });
+        }
+
+        // Fallback: relay the file, passing its size so downloaders can resume/verify.
+        const file =
+          probe.ok && probe.body
+            ? probe
+            : await fetch(assetUrl, { headers: assetHeaders, redirect: "follow" });
         if (!file.ok || !file.body) {
           console.error(`APK download failed [${file.status}]: ${await file.text()}`);
           return new Response("Falha ao baixar o APK", { status: 502 });
         }
-        return new Response(file.body, {
-          headers: {
-            "Content-Type": "application/vnd.android.package-archive",
-            "Content-Disposition": 'attachment; filename="telahub.apk"',
-            "Cache-Control": "no-store",
-          },
+        const out = new Headers({
+          "Content-Type": "application/vnd.android.package-archive",
+          "Content-Disposition": 'attachment; filename="telahub.apk"',
+          "Cache-Control": "no-store",
         });
+        const len = file.headers.get("content-length");
+        if (len) out.set("Content-Length", len);
+        return new Response(file.body, { headers: out });
       },
     },
   },
