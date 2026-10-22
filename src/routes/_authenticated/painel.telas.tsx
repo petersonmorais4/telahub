@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Copy, ExternalLink, Plus, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
@@ -240,6 +240,19 @@ function TelasPage() {
             </div>
 
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                aria-label="Renomear tela"
+                onClick={() => {
+                  const next = window.prompt("Novo nome da tela", screen.name)?.trim();
+                  if (next && next !== screen.name) {
+                    updateScreen.mutate({ id: screen.id, values: { name: next } });
+                  }
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
               <Button
                 variant="outline"
                 size="icon"
