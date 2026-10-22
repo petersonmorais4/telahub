@@ -78,7 +78,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setShown(e.isIntersecting), { threshold: 0.2 });
+    const io = new IntersectionObserver(([e]) => setShown(Boolean(e?.isIntersecting)), { threshold: 0.2 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -110,7 +110,7 @@ function Apresentacao() {
       ev.preventDefault();
       setActive((cur) => {
         const next = Math.max(0, Math.min(slideIds.length - 1, cur + (ev.key === "ArrowDown" || ev.key === "PageDown" ? 1 : -1)));
-        document.getElementById(slideIds[next])?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById(slideIds[next] ?? "")?.scrollIntoView({ behavior: "smooth" });
         return next;
       });
     };
@@ -118,7 +118,7 @@ function Apresentacao() {
     return () => { io.disconnect(); window.removeEventListener("keydown", onKey); };
   }, []);
 
-  const go = (i: number) => document.getElementById(slideIds[i])?.scrollIntoView({ behavior: "smooth" });
+  const go = (i: number) => document.getElementById(slideIds[i] ?? "")?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <main ref={mainRef} className="h-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden scroll-smooth bg-background">
