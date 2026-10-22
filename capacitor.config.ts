@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "TelaHUB",
   webDir: "capacitor-www",
   server: {
-    url: "https://telahub.lovable.app/app",
+    url: "https://telahub.app/app",
     cleartext: false,
     errorPath: "offline.html",
   },
