@@ -122,7 +122,7 @@ function Apresentacao() {
 
   return (
     <main ref={mainRef} className="h-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden scroll-smooth bg-background">
-      <nav className="fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 sm:flex" aria-label="Slides">
+      <nav className="fixed left-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 sm:flex" aria-label="Slides">
         {slideIds.map((id, i) => (
           <button
             key={id}
@@ -150,13 +150,10 @@ function Apresentacao() {
           }}
           aria-hidden
         />
-        <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <Link to="/" aria-label="Página inicial">
-            <BrandLogo className="h-14 w-auto" />
+        <header className="mx-auto flex max-w-6xl items-center px-6 py-6">
+          <Link to="/" aria-label="Página inicial" className="inline-block transition-transform hover:scale-[1.02]">
+            <BrandLogo className="h-24 w-auto sm:h-28" />
           </Link>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/parceiro">Quero ser parceiro</Link>
-          </Button>
         </header>
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 lg:grid-cols-2 lg:pt-16">
