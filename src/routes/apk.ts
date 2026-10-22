@@ -9,8 +9,8 @@ export const Route = createFileRoute("/apk")({
   server: {
     handlers: {
       GET: async () => {
-        const lovableKey = process.env.LOVABLE_API_KEY;
-        const githubKey = process.env.GITHUB_API_KEY;
+        const lovableKey = process.env["LOVABLE_API_KEY"];
+        const githubKey = process.env["GITHUB_API_KEY"];
         if (!lovableKey || !githubKey) {
           return new Response("Download indisponível", { status: 503 });
         }
