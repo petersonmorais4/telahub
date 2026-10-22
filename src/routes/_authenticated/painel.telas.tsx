@@ -52,7 +52,7 @@ function TelasPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["telas"],
-    refetchInterval: 30_000,
+    refetchInterval: 10_000,
     queryFn: async () => {
       const [screens, playlists] = await Promise.all([
         supabase.from("screens").select("*").order("created_at", { ascending: false }),

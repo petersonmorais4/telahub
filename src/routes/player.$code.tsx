@@ -129,7 +129,7 @@ function PlayerPage() {
       await supabase.rpc("touch_screen", { p_code: screenCode });
     };
     void beat();
-    const id = window.setInterval(() => void beat(), 30_000);
+    const id = window.setInterval(() => void beat(), 15_000);
     return () => {
       active = false;
       window.clearInterval(id);
