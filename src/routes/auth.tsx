@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
 
 export const Route = createFileRoute("/auth")({
@@ -62,27 +60,12 @@ function AuthPage() {
   }
 
 
-  async function signInWithGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: new URL(target, window.location.origin).href,
-    });
-    if (result.error) {
-      toast.error("Falha no acesso com Google");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ href: target, replace: true });
-  }
-
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <BrandLogo className="mx-auto h-20 w-auto max-w-full" />
           <h1 className="mt-3 text-2xl font-bold">Painel administrativo</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            O player das TVs é público — o login vale só para a gestão.
-          </p>
         </div>
 
         <div className="panel p-6">
@@ -110,20 +93,7 @@ function AuthPage() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   Entrar
                 </Button>
-                <p className="text-center text-xs text-muted-foreground">
-                  Não tem acesso? Peça ao administrador para criar seu login.
-                </p>
               </form>
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            ou
-            <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" className="w-full" onClick={signInWithGoogle}>
-            Continuar com Google
-          </Button>
         </div>
       </div>
     </main>
