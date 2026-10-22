@@ -122,7 +122,7 @@ function Apresentacao() {
 
   return (
     <main ref={mainRef} className="h-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden scroll-smooth bg-background">
-      <nav className="fixed right-5 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 sm:flex" aria-label="Slides">
+      <nav className="fixed left-4 top-1/2 z-50 hidden -translate-y-1/2 flex-col gap-3 sm:flex" aria-label="Slides">
         {slideIds.map((id, i) => (
           <button
             key={id}
@@ -132,6 +132,13 @@ function Apresentacao() {
           />
         ))}
       </nav>
+      <Link
+        to="/parceiro"
+        className="fixed right-0 top-1/2 z-50 hidden -translate-y-1/2 items-center gap-2 rounded-l-xl bg-primary px-3.5 py-6 font-display text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-[var(--shadow-lift)] transition-all duration-300 hover:px-5 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:flex"
+        style={{ writingMode: "vertical-rl" }}
+      >
+        Quero ser parceiro
+      </Link>
       <div className="fixed bottom-5 right-6 z-50 font-display text-sm text-muted-foreground">
         {String(active + 1).padStart(2, "0")} / {String(slideIds.length).padStart(2, "0")}
       </div>
@@ -150,13 +157,10 @@ function Apresentacao() {
           }}
           aria-hidden
         />
-        <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <Link to="/" aria-label="Página inicial">
-            <BrandLogo className="h-14 w-auto" />
+        <header className="mx-auto flex max-w-6xl items-center px-6 py-6">
+          <Link to="/" aria-label="Página inicial" className="inline-block transition-transform hover:scale-[1.02]">
+            <BrandLogo className="h-16 w-auto sm:h-28" />
           </Link>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/parceiro">Quero ser parceiro</Link>
-          </Button>
         </header>
 
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 lg:grid-cols-2 lg:pt-16">
