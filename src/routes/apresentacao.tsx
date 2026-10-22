@@ -132,6 +132,13 @@ function Apresentacao() {
           />
         ))}
       </nav>
+      <Link
+        to="/parceiro"
+        className="fixed right-0 top-1/2 z-50 hidden -translate-y-1/2 items-center gap-2 rounded-l-xl bg-primary px-3.5 py-6 font-display text-sm font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-[var(--shadow-lift)] transition-all duration-300 hover:px-5 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:flex"
+        style={{ writingMode: "vertical-rl" }}
+      >
+        Quero ser parceiro
+      </Link>
       <div className="fixed bottom-5 right-6 z-50 font-display text-sm text-muted-foreground">
         {String(active + 1).padStart(2, "0")} / {String(slideIds.length).padStart(2, "0")}
       </div>
