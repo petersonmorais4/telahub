@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AnunciarRouteImport } from './routes/anunciar'
 import { Route as ApkRouteImport } from './routes/apk'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ParceiroRouteImport } from './routes/parceiro'
@@ -54,6 +55,11 @@ const ApkRoute = ApkRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApresentacaoRoute = ApresentacaoRouteImport.update({
+  id: '/apresentacao',
+  path: '/apresentacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/anunciar': typeof AnunciarRoute
   '/apk': typeof ApkRoute
   '/app': typeof AppRoute
+  '/apresentacao': typeof ApresentacaoRoute
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/anunciar': typeof AnunciarRoute
   '/apk': typeof ApkRoute
   '/app': typeof AppRoute
+  '/apresentacao': typeof ApresentacaoRoute
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/anunciar': typeof AnunciarRoute
   '/apk': typeof ApkRoute
   '/app': typeof AppRoute
+  '/apresentacao': typeof ApresentacaoRoute
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/anunciar'
     | '/apk'
     | '/app'
+    | '/apresentacao'
     | '/auth'
     | '/mcp'
     | '/parceiro'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/anunciar'
     | '/apk'
     | '/app'
+    | '/apresentacao'
     | '/auth'
     | '/mcp'
     | '/parceiro'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/anunciar'
     | '/apk'
     | '/app'
+    | '/apresentacao'
     | '/auth'
     | '/mcp'
     | '/parceiro'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   AnunciarRoute: typeof AnunciarRoute
   ApkRoute: typeof ApkRoute
   AppRoute: typeof AppRoute
+  ApresentacaoRoute: typeof ApresentacaoRoute
   AuthRoute: typeof AuthRoute
   McpRoute: typeof McpRoute
   ParceiroRoute: typeof ParceiroRoute
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apresentacao': {
+      id: '/apresentacao'
+      path: '/apresentacao'
+      fullPath: '/apresentacao'
+      preLoaderRoute: typeof ApresentacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -510,6 +530,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnunciarRoute: AnunciarRoute,
   ApkRoute: ApkRoute,
   AppRoute: AppRoute,
+  ApresentacaoRoute: ApresentacaoRoute,
   AuthRoute: AuthRoute,
   McpRoute: McpRoute,
   ParceiroRoute: ParceiroRoute,
