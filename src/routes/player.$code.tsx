@@ -479,28 +479,41 @@ function MediaElement({
     );
   }
 
-  return item.media.type === "video" ? (
-    <video
+  const isVideo = item.media.type === "video";
+  return (
+    <div
       key={item.itemId}
-      src={url}
-      className={`absolute inset-0 h-full w-full object-contain ${animation}`}
-      autoPlay
-      muted
-      playsInline
-      onPlaying={reportPresented}
-      onEnded={advance}
-      onError={advance}
+      className={`absolute inset-0 h-full w-full overflow-hidden bg-black ${animation}`}
       onAnimationEnd={onAnimationEnd}
-    />
-  ) : (
-    <img
-      key={item.itemId}
-      src={url}
-      alt=""
-      className={`absolute inset-0 h-full w-full object-contain ${animation}`}
-      onLoad={reportPresented}
-      onError={advance}
-      onAnimationEnd={onAnimationEnd}
-    />
+    >
+      {!isVideo && (
+        <img
+          src={url}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
+        />
+      )}
+      {isVideo ? (
+        <video
+          src={url}
+          className="absolute inset-0 h-full w-full object-contain"
+          autoPlay
+          muted
+          playsInline
+          onPlaying={reportPresented}
+          onEnded={advance}
+          onError={advance}
+        />
+      ) : (
+        <img
+          src={url}
+          alt=""
+          className="absolute inset-0 h-full w-full object-contain"
+          onLoad={reportPresented}
+          onError={advance}
+        />
+      )}
+    </div>
   );
 }
