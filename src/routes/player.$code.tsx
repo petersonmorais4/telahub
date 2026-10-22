@@ -248,8 +248,10 @@ function PlayerPage() {
 
     let alive = true;
     const loadUrl = isDynamicMedia(current.media)
-      ? Promise.resolve("dynamic")
-      : getSignedUrl(current.media.storage_path);
+      ? Promise.resolve<string | null>("dynamic")
+      : getSignedUrl(current.media.storage_path).then((url) =>
+          url && current.media.type === "image" ? preloadImage(url).then(() => url) : url,
+        );
     loadUrl.then((value) => {
       if (!alive) return;
       setPreviousItem(currentItem);
@@ -264,11 +266,14 @@ function PlayerPage() {
     };
   }, [current, currentItem, currentPlayKey, currentUrl, index]);
 
-  // Pré-carrega o link do próximo item para evitar espera na transição
+  // Pré-carrega o próximo item (link + arquivo da imagem) para a troca ser imediata
   useEffect(() => {
     if (queue.length < 2) return;
     const next = queue[(currentIndex + 1) % queue.length];
-    if (next && !isDynamicMedia(next.media)) void getSignedUrl(next.media.storage_path);
+    if (!next || isDynamicMedia(next.media)) return;
+    void getSignedUrl(next.media.storage_path).then((url) => {
+      if (url && next.media.type === "image") void preloadImage(url);
+    });
   }, [queue, currentIndex]);
 
   // Tempo de exibição das imagens
@@ -408,6 +413,36 @@ function PlayerPage() {
       <LiveInfoFooter city={data ? settings?.weather_city?.trim() || "São Paulo" : null} />
     </div>
   );
+}
+
+const preloadedImages = new Map<string, Promise<void>>();
+
+/** Baixa e decodifica a imagem antes de exibi-la (máx. 4 s de espera). */
+function preloadImage(url: string): Promise<void> {
+  const cached = preloadedImages.get(url);
+  if (cached) return cached;
+  const promise = new Promise<void>((resolve) => {
+    const img = new Image();
+    const done = () => resolve();
+    const timeout = setTimeout(done, 4_000);
+    img.onload = () => {
+      clearTimeout(timeout);
+      if (img.decode) img.decode().then(done, done);
+      else done();
+    };
+    img.onerror = () => {
+      clearTimeout(timeout);
+      preloadedImages.delete(url);
+      done();
+    };
+    img.src = url;
+  });
+  preloadedImages.set(url, promise);
+  if (preloadedImages.size > 50) {
+    const first = preloadedImages.keys().next().value;
+    if (first) preloadedImages.delete(first);
+  }
+  return promise;
 }
 
 function MediaElement({
