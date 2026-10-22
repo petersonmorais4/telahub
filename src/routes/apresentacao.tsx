@@ -159,7 +159,7 @@ function Apresentacao() {
         />
         <header className="mx-auto flex max-w-6xl items-center px-6 py-6">
           <Link to="/" aria-label="Página inicial" className="inline-block transition-transform hover:scale-[1.02]">
-            <BrandLogo className="h-24 w-auto sm:h-28" />
+            <BrandLogo className="h-16 w-auto sm:h-28" />
           </Link>
         </header>
 
