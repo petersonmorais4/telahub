@@ -12,6 +12,7 @@ import {
   Users,
   LogOut,
   Menu,
+  Wallet,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const nav = [
   { to: "/painel/playlists", label: "Playlists", icon: ListOrdered, exact: false },
   { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock, exact: false },
   { to: "/painel/relatorios", label: "Relatórios", icon: FileBarChart, exact: false },
+  { to: "/painel/financeiro", label: "Financeiro", icon: Wallet, exact: false },
   { to: "/painel/usuarios", label: "Usuários", icon: Users, exact: false },
   { to: "/painel/configuracoes", label: "Configurações", icon: Settings, exact: false },
 ] as const;
