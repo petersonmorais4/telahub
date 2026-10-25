@@ -26,6 +26,7 @@ import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPainelAgendamentosRouteImport } from './routes/_authenticated/painel.agendamentos'
 import { Route as AuthenticatedPainelAnunciosRouteImport } from './routes/_authenticated/painel.anuncios'
 import { Route as AuthenticatedPainelConfiguracoesRouteImport } from './routes/_authenticated/painel.configuracoes'
+import { Route as AuthenticatedPainelFinanceiroRouteImport } from './routes/_authenticated/painel.financeiro'
 import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_authenticated/painel.playlists'
 import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
@@ -122,6 +123,12 @@ const AuthenticatedPainelConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const AuthenticatedPainelFinanceiroRoute =
+  AuthenticatedPainelFinanceiroRouteImport.update({
+    id: '/financeiro',
+    path: '/financeiro',
+    getParentRoute: () => AuthenticatedPainelRoute,
+  } as any)
 const AuthenticatedPainelPlaylistsRoute =
   AuthenticatedPainelPlaylistsRouteImport.update({
     id: '/playlists',
@@ -173,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
+  '/painel/financeiro': typeof AuthenticatedPainelFinanceiroRoute
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
@@ -196,6 +204,7 @@ export interface FileRoutesByTo {
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
+  '/painel/financeiro': typeof AuthenticatedPainelFinanceiroRoute
   '/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
@@ -222,6 +231,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
   '/_authenticated/painel/anuncios': typeof AuthenticatedPainelAnunciosRoute
   '/_authenticated/painel/configuracoes': typeof AuthenticatedPainelConfiguracoesRoute
+  '/_authenticated/painel/financeiro': typeof AuthenticatedPainelFinanceiroRoute
   '/_authenticated/painel/playlists': typeof AuthenticatedPainelPlaylistsRoute
   '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/painel/agendamentos'
     | '/painel/anuncios'
     | '/painel/configuracoes'
+    | '/painel/financeiro'
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/painel/agendamentos'
     | '/painel/anuncios'
     | '/painel/configuracoes'
+    | '/painel/financeiro'
     | '/painel/playlists'
     | '/painel/relatorios'
     | '/painel/telas'
@@ -296,6 +308,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/agendamentos'
     | '/_authenticated/painel/anuncios'
     | '/_authenticated/painel/configuracoes'
+    | '/_authenticated/painel/financeiro'
     | '/_authenticated/painel/playlists'
     | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/_authenticated/painel/financeiro': {
+      id: '/_authenticated/painel/financeiro'
+      path: '/financeiro'
+      fullPath: '/painel/financeiro'
+      preLoaderRoute: typeof AuthenticatedPainelFinanceiroRouteImport
+      parentRoute: typeof AuthenticatedPainelRoute
+    }
     '/_authenticated/painel/playlists': {
       id: '/_authenticated/painel/playlists'
       path: '/playlists'
@@ -492,6 +512,7 @@ interface AuthenticatedPainelRouteChildren {
   AuthenticatedPainelAgendamentosRoute: typeof AuthenticatedPainelAgendamentosRoute
   AuthenticatedPainelAnunciosRoute: typeof AuthenticatedPainelAnunciosRoute
   AuthenticatedPainelConfiguracoesRoute: typeof AuthenticatedPainelConfiguracoesRoute
+  AuthenticatedPainelFinanceiroRoute: typeof AuthenticatedPainelFinanceiroRoute
   AuthenticatedPainelPlaylistsRoute: typeof AuthenticatedPainelPlaylistsRoute
   AuthenticatedPainelRelatoriosRoute: typeof AuthenticatedPainelRelatoriosRoute
   AuthenticatedPainelTelasRoute: typeof AuthenticatedPainelTelasRoute
@@ -503,6 +524,7 @@ const AuthenticatedPainelRouteChildren: AuthenticatedPainelRouteChildren = {
   AuthenticatedPainelAgendamentosRoute: AuthenticatedPainelAgendamentosRoute,
   AuthenticatedPainelAnunciosRoute: AuthenticatedPainelAnunciosRoute,
   AuthenticatedPainelConfiguracoesRoute: AuthenticatedPainelConfiguracoesRoute,
+  AuthenticatedPainelFinanceiroRoute: AuthenticatedPainelFinanceiroRoute,
   AuthenticatedPainelPlaylistsRoute: AuthenticatedPainelPlaylistsRoute,
   AuthenticatedPainelRelatoriosRoute: AuthenticatedPainelRelatoriosRoute,
   AuthenticatedPainelTelasRoute: AuthenticatedPainelTelasRoute,
