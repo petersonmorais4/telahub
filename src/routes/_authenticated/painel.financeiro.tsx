@@ -62,14 +62,26 @@ const CATEGORIES = [
 ] as const;
 
 const COLORS = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-  "var(--primary)",
-  "var(--muted-foreground)",
+  "var(--chart-cat-1)",
+  "var(--chart-cat-2)",
+  "var(--chart-cat-3)",
+  "var(--chart-cat-4)",
+  "var(--chart-cat-5)",
+  "var(--chart-cat-6)",
+  "var(--chart-cat-7)",
+  "var(--chart-cat-8)",
 ];
+
+const tooltipStyle = {
+  contentStyle: {
+    background: "var(--card)",
+    border: "1px solid var(--border)",
+    borderRadius: 8,
+    color: "var(--foreground)",
+  },
+  labelStyle: { color: "var(--muted-foreground)", fontWeight: 600 },
+  itemStyle: { color: "var(--primary)", fontWeight: 600 },
+};
 
 const catLabel = (v: string) => CATEGORIES.find((c) => c.value === v)?.label ?? "Outros";
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -249,7 +261,7 @@ function FinancePage() {
                 <YAxis stroke="var(--muted-foreground)" fontSize={12} tickFormatter={(v) => `R$${v}`} />
                 <Tooltip
                   formatter={(v: number) => brl(v)}
-                  contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8 }}
+                  {...tooltipStyle}
                 />
                 <Bar dataKey="total" fill="var(--primary)" radius={[6, 6, 0, 0]} />
               </BarChart>
@@ -270,7 +282,7 @@ function FinancePage() {
                     </Pie>
                     <Tooltip
                       formatter={(v: number) => brl(v)}
-                      contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8 }}
+                      {...tooltipStyle}
                     />
                   </PieChart>
                 </ResponsiveContainer>
