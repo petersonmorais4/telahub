@@ -188,7 +188,8 @@ function FinancePage() {
     const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const arr = months.map((m) => ({ mes: m, total: 0 }));
     filtered.forEach((e) => {
-      arr[Number(e.expense_date.slice(5, 7)) - 1].total += e.amount;
+      const m = arr[Number(e.expense_date.slice(5, 7)) - 1];
+      if (m) m.total += e.amount;
     });
     return arr;
   }, [filtered]);
