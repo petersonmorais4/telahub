@@ -52,7 +52,8 @@ export const Route = createFileRoute("/_authenticated/painel/financeiro")({
 
 const CATEGORIES = [
   { value: "suporte_tv", label: "Suportes para TV" },
-  { value: "equipamento", label: "TV box / Fire Stick / TVs" },
+  { value: "tv", label: "TVs" },
+  { value: "tv_box", label: "TV box / Fire Stick" },
   { value: "plaquinha", label: "Plaquinhas para TV" },
   { value: "desenvolvimento", label: "Créditos de desenvolvimento" },
   { value: "patrocinado", label: "Patrocinado / anúncios" },
@@ -98,7 +99,7 @@ type Form = {
 const today = () => new Date().toISOString().slice(0, 10);
 const emptyForm = (): Form => ({
   description: "",
-  category: "equipamento",
+  category: "tv_box",
   amount: "",
   expense_date: today(),
   quantity: "1",
