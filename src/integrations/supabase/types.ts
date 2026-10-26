@@ -349,34 +349,64 @@ export type Database = {
       }
       screens: {
         Row: {
+          address_number: string | null
+          cep: string | null
+          city: string | null
           code: string
+          complement: string | null
           created_at: string
           id: string
           last_seen: string | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
           name: string
+          neighborhood: string | null
           playlist_id: string | null
+          show_on_map: boolean
+          state: string | null
           status: string
+          street: string | null
         }
         Insert: {
+          address_number?: string | null
+          cep?: string | null
+          city?: string | null
           code: string
+          complement?: string | null
           created_at?: string
           id?: string
           last_seen?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name: string
+          neighborhood?: string | null
           playlist_id?: string | null
+          show_on_map?: boolean
+          state?: string | null
           status?: string
+          street?: string | null
         }
         Update: {
+          address_number?: string | null
+          cep?: string | null
+          city?: string | null
           code?: string
+          complement?: string | null
           created_at?: string
           id?: string
           last_seen?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name?: string
+          neighborhood?: string | null
           playlist_id?: string | null
+          show_on_map?: boolean
+          state?: string | null
           status?: string
+          street?: string | null
         }
         Relationships: [
           {
