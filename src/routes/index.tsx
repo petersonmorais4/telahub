@@ -8,10 +8,10 @@ import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
-import academiaTv from "@/assets/home-gallery/academia-tv.png.asset.json";
-import farmaciaTv from "@/assets/home-gallery/farmacia-tv.png.asset.json";
-import elevadorTv from "@/assets/home-gallery/elevador-tv.png.asset.json";
-import mercadoTv from "@/assets/home-gallery/mercado-tv.png.asset.json";
+import academiaTv from "@/assets/home-gallery/academia-new.png.asset.json";
+import farmaciaTv from "@/assets/home-gallery/farmacia-new.png.asset.json";
+import barbeariaTv from "@/assets/home-gallery/barbearia-new.png.asset.json";
+import mercadoTv from "@/assets/home-gallery/mercado-new.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -59,9 +59,9 @@ const benefits = [
 ];
 
 const showcaseImages = [
-  { src: academiaTv.url, alt: "Anúncio exibido em uma TV de academia", position: "object-[44%_center]" },
-  { src: farmaciaTv.url, alt: "Anúncio exibido em uma TV de farmácia", position: "object-[38%_center]" },
-  { src: elevadorTv.url, alt: "Anúncio exibido em uma tela de elevador", position: "object-[52%_center]" },
+  { src: academiaTv.url, alt: "Anúncio exibido em uma TV de academia", position: "object-center" },
+  { src: farmaciaTv.url, alt: "Anúncio exibido em uma TV de farmácia", position: "object-center" },
+  { src: barbeariaTv.url, alt: "Anúncio exibido em uma TV de barbearia", position: "object-center" },
   { src: mercadoTv.url, alt: "Anúncio exibido em uma TV de supermercado", position: "object-center" },
 ];
 
