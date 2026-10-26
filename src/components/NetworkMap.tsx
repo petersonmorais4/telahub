@@ -38,9 +38,10 @@ export function NetworkMap() {
       setCount(points.length);
 
       map = L.map(el.current, { scrollWheelZoom: false, zoomControl: true }).setView([-15.8, -47.9], 4);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap',
-        maxZoom: 19, className: "network-tiles",
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        maxZoom: 20,
+        subdomains: "abcd",
       }).addTo(map);
 
       const icon = L.divIcon({
