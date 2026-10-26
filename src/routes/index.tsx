@@ -147,6 +147,18 @@ function Index() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <h2 className="text-2xl font-bold">Onde estamos</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Pontos da rede TelaHub onde sua marca pode aparecer.</p>
+        <div className="mt-6">
+          <ClientOnly fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+            <Suspense fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+              <NetworkMap />
+            </Suspense>
+          </ClientOnly>
+        </div>
+      </section>
+
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-center px-6 py-10 sm:justify-end">
           <Link
