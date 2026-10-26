@@ -269,3 +269,4 @@
 }
 .network-map .leaflet-popup-content strong { color: var(--primary); }
 .network-map.leaflet-container { background: var(--background); }
+.network-tiles { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6); }
