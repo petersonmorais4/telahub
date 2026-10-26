@@ -252,3 +252,21 @@
     animation: none;
   }
 }
+
+.network-pin {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--primary);
+  border: 3px solid var(--background);
+  box-shadow: 0 0 0 6px color-mix(in oklch, var(--primary) 30%, transparent);
+}
+.network-map .leaflet-popup-content-wrapper,
+.network-map .leaflet-popup-tip {
+  background: var(--card);
+  color: var(--foreground);
+}
+.network-map .leaflet-popup-content strong { color: var(--primary); }
+.network-map.leaflet-container { background: var(--background); }
+.network-tiles { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6); }

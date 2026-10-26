@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { ClientOnly } from "@tanstack/react-router";
+
+const NetworkMap = lazy(() => import("@/components/NetworkMap").then((m) => ({ default: m.NetworkMap })));
 import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -141,6 +144,18 @@ function Index() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <h2 className="text-2xl font-bold">Onde estamos</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Pontos da rede TelaHub onde sua marca pode aparecer.</p>
+        <div className="mt-6">
+          <ClientOnly fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+            <Suspense fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+              <NetworkMap />
+            </Suspense>
+          </ClientOnly>
         </div>
       </section>
 

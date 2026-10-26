@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Copy, ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { AddressFields } from "@/components/admin/AddressFields";
+import { addressToRow, emptyAddress, geocodeAddress, type AddressForm } from "@/lib/address";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
@@ -49,6 +51,8 @@ function TelasPage() {
   const [location, setLocation] = useState("");
   const [code, setCode] = useState(randomCode());
   const [playlistId, setPlaylistId] = useState<string>(NONE);
+  const [address, setAddress] = useState<AddressForm>(emptyAddress());
+  const [editing, setEditing] = useState<{ id: string; name: string; form: AddressForm } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["telas"],
@@ -67,21 +71,47 @@ function TelasPage() {
 
   const createScreen = useMutation({
     mutationFn: async () => {
+      const coords = await geocodeAddress(address).catch(() => null);
       const { error } = await supabase.from("screens").insert({
         name,
         location: location || null,
         code: code.trim().toUpperCase(),
         playlist_id: playlistId === NONE ? null : playlistId,
+        ...addressToRow(address),
+        latitude: coords?.latitude ?? null,
+        longitude: coords?.longitude ?? null,
       });
       if (error) throw error;
+      return coords;
     },
-    onSuccess: () => {
+    onSuccess: (coords) => {
       toast.success("Tela cadastrada");
+      if (address.show_on_map && !coords) toast.warning("Endereço não localizado no mapa — revise rua/CEP.");
       setOpen(false);
       setName("");
       setLocation("");
       setCode(randomCode());
       setPlaylistId(NONE);
+      setAddress(emptyAddress());
+      queryClient.invalidateQueries({ queryKey: ["telas"] });
+    },
+    onError: (error: Error) => toast.error("Não foi possível salvar", { description: error.message }),
+  });
+
+  const saveAddress = useMutation({
+    mutationFn: async ({ id, form }: { id: string; form: AddressForm }) => {
+      const coords = await geocodeAddress(form).catch(() => null);
+      const { error } = await supabase
+        .from("screens")
+        .update({ ...addressToRow(form), latitude: coords?.latitude ?? null, longitude: coords?.longitude ?? null })
+        .eq("id", id);
+      if (error) throw error;
+      return { coords, form };
+    },
+    onSuccess: ({ coords, form }) => {
+      if (form.show_on_map && !coords) toast.warning("Endereço salvo, mas não localizado no mapa — revise rua/CEP.");
+      else toast.success("Endereço salvo");
+      setEditing(null);
       queryClient.invalidateQueries({ queryKey: ["telas"] });
     },
     onError: (error: Error) => toast.error("Não foi possível salvar", { description: error.message }),
@@ -123,7 +153,7 @@ function TelasPage() {
               <Plus className="mr-2 h-4 w-4" /> Nova tela
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Nova tela</DialogTitle>
               <DialogDescription>
@@ -178,6 +208,7 @@ function TelasPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <AddressFields value={address} onChange={setAddress} />
             </div>
             <DialogFooter>
               <Button
@@ -243,6 +274,29 @@ function TelasPage() {
               <Button
                 variant="outline"
                 size="icon"
+                aria-label="Endereço e mapa"
+                onClick={() =>
+                  setEditing({
+                    id: screen.id,
+                    name: screen.name,
+                    form: {
+                      cep: screen.cep ?? "",
+                      street: screen.street ?? "",
+                      address_number: screen.address_number ?? "",
+                      complement: screen.complement ?? "",
+                      neighborhood: screen.neighborhood ?? "",
+                      city: screen.city ?? "",
+                      state: screen.state ?? "",
+                      show_on_map: screen.show_on_map ?? false,
+                    },
+                  })
+                }
+              >
+                <MapPin className={screen.show_on_map && screen.latitude != null ? "h-4 w-4 text-primary" : "h-4 w-4"} />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 aria-label="Renomear tela"
                 onClick={() => {
                   const next = window.prompt("Novo nome da tela", screen.name)?.trim();
@@ -286,6 +340,25 @@ function TelasPage() {
           </p>
         ) : null}
       </div>
+      <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Endereço — {editing?.name}</DialogTitle>
+            <DialogDescription>Digite o CEP para preencher o endereço. O ponto aparece no mapa da página inicial se marcado.</DialogDescription>
+          </DialogHeader>
+          {editing ? (
+            <AddressFields value={editing.form} onChange={(form) => setEditing({ ...editing, form })} />
+          ) : null}
+          <DialogFooter>
+            <Button
+              disabled={saveAddress.isPending}
+              onClick={() => editing && saveAddress.mutate({ id: editing.id, form: editing.form })}
+            >
+              {saveAddress.isPending ? "Localizando…" : "Salvar endereço"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }

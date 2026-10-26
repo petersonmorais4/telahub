@@ -44,6 +44,16 @@ export interface ScreenRow {
   status: string;
   last_seen: string | null;
   created_at: string;
+  cep?: string | null;
+  street?: string | null;
+  address_number?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  show_on_map?: boolean;
 }
 
 export interface ScheduleRow {
