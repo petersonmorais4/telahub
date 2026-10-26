@@ -42,8 +42,9 @@ async function nominatim(params: Record<string, string>) {
   });
   if (!res.ok) return null;
   const list = (await res.json()) as { lat: string; lon: string }[];
-  if (!list.length) return null;
-  return { latitude: Number(list[0].lat), longitude: Number(list[0].lon) };
+  const first = list[0];
+  if (!first) return null;
+  return { latitude: Number(first.lat), longitude: Number(first.lon) };
 }
 
 /** Find coordinates for an address, falling back to less precise searches. */

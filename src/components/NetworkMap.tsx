@@ -58,7 +58,7 @@ export function NetworkMap() {
           .bindPopup(`<strong>${escape(p.name)}</strong>${place ? `<br/><span>${escape(place)}</span>` : ""}`);
         bounds.push([p.latitude, p.longitude]);
       }
-      if (bounds.length === 1) map.setView(bounds[0], 14);
+      if (bounds.length === 1 && bounds[0]) map.setView(bounds[0], 14);
       else if (bounds.length > 1) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
     })();
 
