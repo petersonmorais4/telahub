@@ -153,7 +153,7 @@ function TelasPage() {
               <Plus className="mr-2 h-4 w-4" /> Nova tela
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Nova tela</DialogTitle>
               <DialogDescription>
@@ -208,6 +208,7 @@ function TelasPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <AddressFields value={address} onChange={setAddress} />
             </div>
             <DialogFooter>
               <Button
@@ -273,6 +274,29 @@ function TelasPage() {
               <Button
                 variant="outline"
                 size="icon"
+                aria-label="Endereço e mapa"
+                onClick={() =>
+                  setEditing({
+                    id: screen.id,
+                    name: screen.name,
+                    form: {
+                      cep: screen.cep ?? "",
+                      street: screen.street ?? "",
+                      address_number: screen.address_number ?? "",
+                      complement: screen.complement ?? "",
+                      neighborhood: screen.neighborhood ?? "",
+                      city: screen.city ?? "",
+                      state: screen.state ?? "",
+                      show_on_map: screen.show_on_map ?? false,
+                    },
+                  })
+                }
+              >
+                <MapPin className={screen.show_on_map && screen.latitude != null ? "h-4 w-4 text-primary" : "h-4 w-4"} />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 aria-label="Renomear tela"
                 onClick={() => {
                   const next = window.prompt("Novo nome da tela", screen.name)?.trim();
@@ -316,6 +340,25 @@ function TelasPage() {
           </p>
         ) : null}
       </div>
+      <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Endereço — {editing?.name}</DialogTitle>
+            <DialogDescription>Digite o CEP para preencher o endereço. O ponto aparece no mapa da página inicial se marcado.</DialogDescription>
+          </DialogHeader>
+          {editing ? (
+            <AddressFields value={editing.form} onChange={(form) => setEditing({ ...editing, form })} />
+          ) : null}
+          <DialogFooter>
+            <Button
+              disabled={saveAddress.isPending}
+              onClick={() => editing && saveAddress.mutate({ id: editing.id, form: editing.form })}
+            >
+              {saveAddress.isPending ? "Localizando…" : "Salvar endereço"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminShell>
   );
 }
