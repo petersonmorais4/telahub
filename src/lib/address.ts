@@ -54,15 +54,26 @@ export async function geocodeAddress(a: AddressForm) {
     const hit = await nominatim({ street, city: a.city, state: a.state });
     if (hit) return hit;
   }
+  if (a.neighborhood && a.city) {
+    const hit = await nominatim({ q: [a.neighborhood, a.city, a.state].filter(Boolean).join(", ") });
+    if (hit) return hit;
+  }
   const cep = a.cep.replace(/\D/g, "");
   if (cep.length === 8) {
+    try {
+      const r = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`);
+      if (r.ok) {
+        const j = await r.json();
+        const c = j?.location?.coordinates;
+        if (c?.latitude && c?.longitude) return { latitude: Number(c.latitude), longitude: Number(c.longitude) };
+      }
+    } catch {
+      /* try next source */
+    }
     const hit = await nominatim({ postalcode: `${cep.slice(0, 5)}-${cep.slice(5)}` });
     if (hit) return hit;
   }
-  if (a.city) {
-    const q = [a.neighborhood, a.city, a.state].filter(Boolean).join(", ");
-    return nominatim({ q });
-  }
+  if (a.city) return nominatim({ q: [a.city, a.state].filter(Boolean).join(", ") });
   return null;
 }
 
