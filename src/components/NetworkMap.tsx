@@ -38,10 +38,12 @@ export function NetworkMap() {
       setCount(points.length);
 
       map = L.map(el.current, { scrollWheelZoom: false, zoomControl: true }).setView([-15.8, -47.9], 4);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        maxZoom: 20,
-        subdomains: "abcd",
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+        maxZoom: 16,
+      }).addTo(map);
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 16,
       }).addTo(map);
 
       const icon = L.divIcon({
