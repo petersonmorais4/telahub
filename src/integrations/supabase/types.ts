@@ -296,6 +296,59 @@ export type Database = {
         }
         Relationships: []
       }
+      revenues: {
+        Row: {
+          amount: number
+          client_name: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          media_id: string | null
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          recurrence_days: number
+          recurring: boolean
+        }
+        Insert: {
+          amount: number
+          client_name: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          media_id?: string | null
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          recurrence_days?: number
+          recurring?: boolean
+        }
+        Update: {
+          amount?: number
+          client_name?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          media_id?: string | null
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          recurrence_days?: number
+          recurring?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenues_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedules: {
         Row: {
           active: boolean

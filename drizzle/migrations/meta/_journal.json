@@ -43,6 +43,13 @@
       "when": 1793025082256,
       "tag": "0005_screens_address_map",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793120859848,
+      "tag": "0006_create_revenues",
+      "breakpoints": true
     }
   ]
 }
