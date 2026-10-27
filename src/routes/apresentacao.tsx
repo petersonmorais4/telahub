@@ -270,7 +270,7 @@ function Apresentacao() {
       {/* Onde estamos */}
       <section id="locais" className="mx-auto w-full max-w-6xl px-6 py-20 snap-start min-h-screen flex flex-col justify-center">
         <h2 className="text-3xl font-bold sm:text-4xl">Onde a TelaHUB brilha</h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {places.map((p, i) => (
             <Reveal key={p.label} delay={i * 120} className="group relative overflow-hidden rounded-xl border border-border">
               <img
