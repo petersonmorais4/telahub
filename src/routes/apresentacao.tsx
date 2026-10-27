@@ -3,7 +3,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowRight,
   ChevronDown,
-  Building,
   Dumbbell,
   Handshake,
   MonitorSmartphone,
