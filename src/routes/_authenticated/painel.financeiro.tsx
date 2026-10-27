@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin/AdminShell";
+import { RevenuesTab } from "@/components/admin/RevenuesTab";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,6 +125,7 @@ function FinancePage() {
   const [form, setForm] = useState<Form | null>(null);
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [cat, setCat] = useState("all");
+  const [tab, setTab] = useState<"custos" | "receitas">("custos");
 
   const { data: expenses = [], isLoading } = useQuery({
     queryKey: ["expenses"],
@@ -220,13 +222,21 @@ function FinancePage() {
   return (
     <AdminShell
       title="Financeiro"
-      description="Registre os custos do TelaHUB e acompanhe para onde o dinheiro vai."
-      actions={
+      description="Custos e receitas do TelaHUB, com lembretes de cobrança."
+      actions={tab === "custos" && (
         <Button onClick={() => setForm(emptyForm())}>
           <Plus className="mr-2 h-4 w-4" /> Novo custo
         </Button>
-      }
+      )}
     >
+      <div className="mb-6 inline-flex rounded-lg border border-border bg-card p-1">
+        {(["custos", "receitas"] as const).map((t) => (
+          <button key={t} type="button" onClick={() => setTab(t)}
+            className={`rounded-md px-5 py-2 text-sm font-medium transition-colors ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            {t === "custos" ? "Custos" : "Receitas"}
+          </button>
+        ))}
+      </div>
       <div className="mb-6 flex flex-wrap gap-3">
         <Select value={year} onValueChange={setYear}>
           <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
@@ -234,15 +244,16 @@ function FinancePage() {
             {years.map((y) => <SelectItem key={y} value={y}>{y}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={cat} onValueChange={setCat}>
+        {tab === "custos" && <Select value={cat} onValueChange={setCat}>
           <SelectTrigger className="w-64"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as categorias</SelectItem>
             {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
           </SelectContent>
-        </Select>
+        </Select>}
       </div>
 
+      {tab === "receitas" ? <RevenuesTab year={year} /> : <>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={Wallet} label={`Total ${year}`} value={brl(total)} />
         <Kpi icon={CalendarDays} label="Este mês" value={brl(monthTotal)} />
@@ -348,6 +359,7 @@ function FinancePage() {
           </tbody>
         </table>
       </div>
+      </>}
 
       <Dialog open={!!form} onOpenChange={(o) => !o && setForm(null)}>
         <DialogContent>
