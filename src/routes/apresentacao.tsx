@@ -65,7 +65,6 @@ const benefits = [
 const places = [
   { icon: Dumbbell, label: "Academias", img: academiaTv.url },
   { icon: ShoppingCart, label: "Mercados", img: mercadoTv.url },
-  { icon: Building, label: "Condomínios", img: elevadorTv.url },
   { icon: Pill, label: "Farmácias", img: farmaciaTv.url },
 ];
 
