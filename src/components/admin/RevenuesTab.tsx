@@ -90,7 +90,7 @@ export function RevenuesTab({ year }: { year: string }) {
 
   const save = useMutation({
     mutationFn: async (f: Form) => {
-      const amount = Number(f.amount.replace(/\./g, "").replace(",", ".")) || Number(f.amount);
+      const amount = f.amount.includes(",") ? Number(f.amount.replace(/\./g, "").replace(",", ".")) : Number(f.amount);
       if (!f.client_name.trim()) throw new Error("Informe o cliente.");
       if (!Number.isFinite(amount) || amount <= 0) throw new Error("Valor inválido.");
       const row = {
