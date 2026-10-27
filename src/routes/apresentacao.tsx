@@ -3,7 +3,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ArrowRight,
   ChevronDown,
-  Building,
   Dumbbell,
   Handshake,
   MonitorSmartphone,
@@ -16,10 +15,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
-import academiaTv from "@/assets/home-gallery/academia-tv.png.asset.json";
-import farmaciaTv from "@/assets/home-gallery/farmacia-tv.png.asset.json";
-import elevadorTv from "@/assets/home-gallery/elevador-tv.png.asset.json";
-import mercadoTv from "@/assets/home-gallery/mercado-tv.png.asset.json";
+import academiaTv from "@/assets/home-gallery/academia-2.png.asset.json";
+import farmaciaTv from "@/assets/home-gallery/farmacia-2.png.asset.json";
+import mercadoTv from "@/assets/home-gallery/mercado-2.png.asset.json";
 
 export const Route = createFileRoute("/apresentacao")({
   head: () => ({
@@ -66,7 +64,6 @@ const benefits = [
 const places = [
   { icon: Dumbbell, label: "Academias", img: academiaTv.url },
   { icon: ShoppingCart, label: "Mercados", img: mercadoTv.url },
-  { icon: Building, label: "Condomínios", img: elevadorTv.url },
   { icon: Pill, label: "Farmácias", img: farmaciaTv.url },
 ];
 
@@ -272,7 +269,7 @@ function Apresentacao() {
       {/* Onde estamos */}
       <section id="locais" className="mx-auto w-full max-w-6xl px-6 py-20 snap-start min-h-screen flex flex-col justify-center">
         <h2 className="text-3xl font-bold sm:text-4xl">Onde a TelaHUB brilha</h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {places.map((p, i) => (
             <Reveal key={p.label} delay={i * 120} className="group relative overflow-hidden rounded-xl border border-border">
               <img
