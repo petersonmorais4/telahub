@@ -9,8 +9,8 @@ const row = (o: Partial<Parameters<typeof billingReminders>[0][number]>) => ({
 describe("billingReminders", () => {
   it("cobra 30 dias após o último pagamento", () => {
     const [r] = billingReminders([row({})], "2026-10-31");
-    expect(r.dueDate).toBe("2026-10-31");
-    expect(r.daysLeft).toBe(0);
+    expect(r?.dueDate).toBe("2026-10-31");
+    expect(r?.daysLeft).toBe(0);
   });
   it("não lembra quando faltam mais de 5 dias", () => {
     expect(billingReminders([row({})], "2026-10-20")).toHaveLength(0);
