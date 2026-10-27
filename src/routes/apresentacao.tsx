@@ -16,10 +16,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
-import academiaTv from "@/assets/home-gallery/academia-tv.png.asset.json";
-import farmaciaTv from "@/assets/home-gallery/farmacia-tv.png.asset.json";
-import elevadorTv from "@/assets/home-gallery/elevador-tv.png.asset.json";
-import mercadoTv from "@/assets/home-gallery/mercado-tv.png.asset.json";
+import academiaTv from "@/assets/home-gallery/academia-2.png.asset.json";
+import farmaciaTv from "@/assets/home-gallery/farmacia-2.png.asset.json";
+import mercadoTv from "@/assets/home-gallery/mercado-2.png.asset.json";
 
 export const Route = createFileRoute("/apresentacao")({
   head: () => ({
