@@ -246,14 +246,14 @@ function PlayerPage() {
     if (preparedPlayRef.current === playKey) return;
     preparedPlayRef.current = playKey;
 
-    let alive = true;
     const loadUrl = isDynamicMedia(current.media)
       ? Promise.resolve<string | null>("dynamic")
       : getSignedUrl(current.media.storage_path).then((url) =>
           url && current.media.type === "image" ? preloadImage(url).then(() => url) : url,
         );
     loadUrl.then((value) => {
-      if (!alive) return;
+      // Ignora apenas se outro item já assumiu; refetch não cancela o carregamento
+      if (preparedPlayRef.current !== playKey) return;
       setPreviousItem(currentItem);
       setPreviousUrl(currentUrl);
       setPreviousPlayKey(currentPlayKey);
@@ -261,9 +261,6 @@ function PlayerPage() {
       setCurrentUrl(value);
       setCurrentPlayKey(playKey);
     });
-    return () => {
-      alive = false;
-    };
   }, [current, currentItem, currentPlayKey, currentUrl, index]);
 
   // Pré-carrega o próximo item (link + arquivo da imagem) para a troca ser imediata
@@ -276,17 +273,22 @@ function PlayerPage() {
     });
   }, [queue, currentIndex]);
 
-  // Tempo de exibição das imagens
+  // Tempo de exibição: começa só quando o item está carregado e visível,
+  // e depende apenas da chave estável (refetch não reinicia o cronômetro)
+  const visibleType = currentItem?.media.type;
+  const visibleDuration = currentItem?.media.duration;
+  const defaultDuration = settings?.default_duration;
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
-    if (!current || queue.length === 0) return;
-    if (current.media.type === "video") return;
-    const seconds = current.media.duration || settings?.default_duration || 10;
+    if (!currentPlayKey || !visibleType) return;
+    if (visibleType === "video") return;
+    const seconds = visibleDuration || defaultDuration || 10;
     timerRef.current = setTimeout(advance, Math.max(1, seconds) * 1000);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [current, queue.length, advance, index, settings?.default_duration]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPlayKey, advance]);
 
   const flushPlayLogs = useCallback(async () => {
     if (isFlushingLogsRef.current || pendingPlayLogsRef.current.length === 0) return;
