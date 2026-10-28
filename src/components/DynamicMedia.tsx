@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { CloudSun, Newspaper, TrendingDown, TrendingUp, Wind } from "lucide-react";
 
+import g1Logo from "@/assets/g1-logo.jpg.asset.json";
 import { requestLiveContent } from "@/lib/live-content-request";
 import type { MediaRow } from "@/lib/signage";
 import { cn } from "@/lib/utils";
@@ -121,17 +122,13 @@ function NewsSlide({ items, className }: { items: Array<{ title: string; summary
         <img src={main.image} alt="" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/20" />
-      <svg
-        viewBox="0 0 100 100"
-        role="img"
-        aria-label="g1"
-        className="absolute left-[5vw] top-[5vh] h-[clamp(3.5rem,8vw,8rem)] w-[clamp(3.5rem,8vw,8rem)] drop-shadow-lg"
-      >
-        <rect width="100" height="100" rx="12" fill="#C4170C" />
-        <text x="50" y="68" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="700" fontSize="58" fill="#FFFFFF" letterSpacing="-3">g1</text>
-      </svg>
-      <div className="absolute inset-x-[5vw] bottom-[14vh]">
-        <h2 className="max-w-[85vw] font-display text-[clamp(2rem,4.6vw,5rem)] font-bold leading-[1.08]">{main.title}</h2>
+      <img
+        src={g1Logo.url}
+        alt="g1"
+        className="absolute left-[5vw] top-[5vh] h-[clamp(3.5rem,8vw,8rem)] w-[clamp(3.5rem,8vw,8rem)] rounded-xl object-cover drop-shadow-lg"
+      />
+      <div className="absolute inset-x-[5vw] bottom-[14vh] top-[calc(5vh+clamp(3.5rem,8vw,8rem)+8vh)] flex flex-col justify-end overflow-hidden">
+        <h2 className="line-clamp-3 max-w-[85vw] font-display text-[clamp(2rem,4.6vw,5rem)] font-bold leading-[1.08]">{main.title}</h2>
         {main.summary && <p className="mt-5 max-w-[75vw] text-[clamp(1.1rem,2vw,2rem)] text-muted-foreground">{main.summary}</p>}
         {others.length > 0 && (
           <ul className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6">
