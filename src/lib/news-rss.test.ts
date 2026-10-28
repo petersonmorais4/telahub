@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
 import { parseG1Rss } from "./live-content-source";
 
 const xml = `<rss><channel>
@@ -9,10 +10,12 @@ const xml = `<rss><channel>
 </channel></rss>`;
 
 describe("parseG1Rss", () => {
-  it("extracts headline, summary and image", () => {
+  test("extracts headline, summary and image", () => {
     const items = parseG1Rss(xml);
-    expect(items).toHaveLength(2);
-    expect(items[0]).toMatchObject({ title: "Manchete & teste", summary: "Resumo curto", image: "https://img.g1/x.png" });
-    expect(items[1]?.title).toBe("Segunda");
+    assert.equal(items.length, 2);
+    assert.equal(items[0]?.title, "Manchete & teste");
+    assert.equal(items[0]?.summary, "Resumo curto");
+    assert.equal(items[0]?.image, "https://img.g1/x.png");
+    assert.equal(items[1]?.title, "Segunda");
   });
 });
