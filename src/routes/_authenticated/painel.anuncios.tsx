@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Newspaper, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MediaPreview } from "@/components/admin/MediaPreview";
@@ -120,6 +120,29 @@ function AnunciosPage() {
     onError: (error: Error) => toast.error("Não foi possível atualizar", { description: error.message }),
   });
 
+  const addNews = useMutation({
+    mutationFn: async () => {
+      const existing = await supabase.from("media").select("id").eq("type", "news").limit(1);
+      if (existing.error) throw existing.error;
+      if (existing.data.length) return false;
+      const { error } = await supabase.from("media").insert({
+        title: "Notícias G1",
+        type: "news",
+        storage_path: `dynamic/news/${crypto.randomUUID()}`,
+        duration: 15,
+        content_config: {},
+      });
+      if (error) throw error;
+      return true;
+    },
+    onSuccess: (created) => {
+      toast.success(created ? "Notícias G1 criadas" : "Notícias G1 já estão disponíveis", {
+        description: "Agora inclua \"Notícias G1\" entre os anúncios na tela de Playlists.",
+      });
+    },
+    onError: (error: Error) => toast.error("Não foi possível adicionar", { description: error.message }),
+  });
+
   const deleteMedia = useMutation({
     mutationFn: async (media: MediaRow) => {
       await supabase.storage.from(MEDIA_BUCKET).remove([media.storage_path]);
@@ -185,6 +208,10 @@ function AnunciosPage() {
       title="Anúncios"
       description="Imagens e vídeos que entram nas playlists."
       actions={
+        <div className="flex flex-wrap gap-2">
+        <Button variant="outline" onClick={() => addNews.mutate()} disabled={addNews.isPending}>
+          <Newspaper className="mr-2 h-4 w-4" /> Notícias G1
+        </Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -255,6 +282,7 @@ function AnunciosPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       }
     >
       {isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> : null}

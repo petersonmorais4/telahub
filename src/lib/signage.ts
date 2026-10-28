@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import type { Json } from "@/integrations/supabase/types";
 
-export type MediaType = "image" | "video" | "weather" | "market";
+export type MediaType = "image" | "video" | "weather" | "market" | "news";
 
 export interface MediaRow {
   id: string;
@@ -18,7 +18,7 @@ export interface MediaRow {
 }
 
 export function isDynamicMedia(media: Pick<MediaRow, "type">): boolean {
-  return media.type === "weather" || media.type === "market";
+  return media.type === "weather" || media.type === "market" || media.type === "news";
 }
 
 export interface PlaylistRow {
