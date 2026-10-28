@@ -282,6 +282,7 @@ function AnunciosPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       }
     >
       {isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> : null}
