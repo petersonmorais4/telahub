@@ -26,6 +26,7 @@ function mediaKind(media: MediaRow | undefined) {
   if (media.type === "video") return "Vídeo completo";
   if (media.type === "weather") return `Clima · ${media.duration}s`;
   if (media.type === "market") return `Ibovespa · ${media.duration}s`;
+  if (media.type === "news") return `Notícias G1 · ${media.duration}s`;
   return `Imagem · ${media.duration}s`;
 }
 

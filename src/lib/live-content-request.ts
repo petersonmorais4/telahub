@@ -1,6 +1,6 @@
 import type { LiveContent, WeatherContent } from "./live-content-source";
 
-type LiveInput = { type: "weather"; city: string } | { type: "market" };
+type LiveInput = { type: "weather"; city: string } | { type: "market" } | { type: "news" };
 
 // Older Android WebViews do not implement AbortSignal.timeout.
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {

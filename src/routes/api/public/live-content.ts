@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { liveContentInput, loadLiveContent } from "@/lib/live-content-source";
 
-// Deliberately public: only weather/market data, no account or screen data.
+// Deliberately public: only weather/market/news data, no account or screen data.
 // GET only, validated provider parameters, no caller-supplied URLs or mutations.
 export const Route = createFileRoute("/api/public/live-content")({
   server: {
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/public/live-content")({
         }
         try {
           return Response.json(await loadLiveContent(input.data), {
-            headers: { "Cache-Control": "public, max-age=60" },
+            headers: { "Cache-Control": input.data.type === "news" ? "public, max-age=600" : "public, max-age=60" },
           });
         } catch {
           return Response.json({ error: "Informações temporariamente indisponíveis." }, {

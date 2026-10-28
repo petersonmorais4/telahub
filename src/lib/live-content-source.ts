@@ -3,7 +3,22 @@ import { z } from "zod";
 export const liveContentInput = z.discriminatedUnion("type", [
   z.object({ type: z.literal("weather"), city: z.string().trim().min(2).max(80) }),
   z.object({ type: z.literal("market") }),
+  z.object({ type: z.literal("news") }),
 ]);
+
+export interface NewsItem {
+  title: string;
+  summary: string;
+  image: string | null;
+  publishedAt: string | null;
+}
+
+export interface NewsContent {
+  type: "news";
+  source: "g1";
+  items: NewsItem[];
+  observedAt: string;
+}
 
 export interface WeatherContent {
   type: "weather";
@@ -28,7 +43,7 @@ export interface MarketContent {
   delayed: true;
 }
 
-export type LiveContent = WeatherContent | MarketContent;
+export type LiveContent = WeatherContent | MarketContent | NewsContent;
 
 interface GeocodingResponse {
   results?: Array<{
@@ -63,7 +78,53 @@ interface YahooChartResponse {
   };
 }
 
+function decodeEntities(text: string) {
+  return text
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&#(\d+);/g, (_, n: string) => String.fromCharCode(Number(n)))
+    .replace(/&quot;/g, '"').replace(/&apos;|&#39;/g, "'")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&")
+    .trim();
+}
+
+function tag(block: string, name: string) {
+  const match = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`));
+  return match?.[1] ? decodeEntities(match[1]) : "";
+}
+
+// Parses the public G1 RSS feed with plain string matching (no DOM on the edge runtime).
+export function parseG1Rss(xml: string, limit = 12): NewsItem[] {
+  const items: NewsItem[] = [];
+  for (const match of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+    const block = match[1] ?? "";
+    const title = tag(block, "title");
+    if (!title) continue;
+    const media = block.match(/<media:content[^>]*url="([^"]+)"/)?.[1];
+    const img = block.match(/<img[^>]*src="([^"]+)"/)?.[1];
+    const image = media ?? img ?? null;
+    const summary = tag(block, "atom:subtitle");
+    const pub = tag(block, "pubDate");
+    items.push({
+      title,
+      summary: summary.length > 220 ? `${summary.slice(0, 217)}…` : summary,
+      image: image && image.startsWith("https://") ? image : null,
+      publishedAt: pub ? new Date(pub).toISOString() : null,
+    });
+    if (items.length >= limit) break;
+  }
+  return items;
+}
+
 export async function loadLiveContent(data: z.infer<typeof liveContentInput>): Promise<LiveContent> {
+    if (data.type === "news") {
+      const response = await fetch("https://g1.globo.com/rss/g1/", {
+        headers: { Accept: "application/rss+xml, application/xml", "User-Agent": "TelaHUB/1.0" },
+      });
+      if (!response.ok) throw new Error("As notícias estão temporariamente indisponíveis.");
+      const items = parseG1Rss(await response.text());
+      if (!items.length) throw new Error("As notícias estão temporariamente indisponíveis.");
+      return { type: "news", source: "g1", items, observedAt: new Date().toISOString() };
+    }
     if (data.type === "weather") {
       const geoUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
       geoUrl.search = new URLSearchParams({
