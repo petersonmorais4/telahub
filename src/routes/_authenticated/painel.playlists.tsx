@@ -272,9 +272,9 @@ function PlaylistsPage() {
                       <SelectValue placeholder="Escolher anúncio" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(data?.media ?? []).filter((media) => !isDynamicMedia(media)).map((media) => (
+                      {(data?.media ?? []).filter((media) => !isDynamicMedia(media) || media.type === "news").map((media) => (
                         <SelectItem key={media.id} value={media.id}>
-                          {media.title}
+                          {media.type === "news" ? `📰 ${media.title}` : media.title}
                         </SelectItem>
                       ))}
                     </SelectContent>
