@@ -122,14 +122,15 @@ function NewsSlide({ items, className }: { items: Array<{ title: string; summary
         <img src={main.image} alt="" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/20" />
+      <div className="relative flex h-full flex-col px-[5vw] pb-[14vh] pt-[5vh]">
       <img
         src={g1Logo.url}
         alt="g1"
-        className="absolute left-[5vw] top-[5vh] h-[clamp(3.5rem,8vw,8rem)] w-[clamp(3.5rem,8vw,8rem)] rounded-xl object-cover drop-shadow-lg"
+        className="h-[clamp(3.5rem,8vw,8rem)] w-[clamp(3.5rem,8vw,8rem)] shrink-0 rounded-xl object-cover drop-shadow-lg"
       />
-      <div className="absolute inset-x-[5vw] bottom-[14vh] top-[calc(5vh+clamp(3.5rem,8vw,8rem)+8vh)] flex flex-col justify-end overflow-hidden">
-        <h2 className="line-clamp-3 max-w-[85vw] font-display text-[clamp(2rem,4.6vw,5rem)] font-bold leading-[1.08]">{main.title}</h2>
-        {main.summary && <p className="mt-5 max-w-[75vw] text-[clamp(1.1rem,2vw,2rem)] text-muted-foreground">{main.summary}</p>}
+      <div className="mt-[6vh] flex min-h-0 flex-1 flex-col justify-end overflow-hidden">
+        <h2 className="line-clamp-3 max-w-[85vw] shrink-0 font-display text-[clamp(1.8rem,4vw,4.4rem)] font-bold leading-[1.1]">{main.title}</h2>
+        {main.summary && <p className="mt-5 line-clamp-2 max-w-[75vw] text-[clamp(1.1rem,2vw,2rem)] text-muted-foreground">{main.summary}</p>}
         {others.length > 0 && (
           <ul className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6">
             {others.map((item) => (
@@ -138,6 +139,7 @@ function NewsSlide({ items, className }: { items: Array<{ title: string; summary
           </ul>
         )}
         <p className="mt-6 text-[clamp(0.8rem,1vw,1rem)] text-muted-foreground">Fonte: g1.globo.com</p>
+      </div>
       </div>
     </div>
   );
