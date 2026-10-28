@@ -144,7 +144,8 @@ export function buildPlaylistQueue(
     .sort((a, b) => a.position - b.position)
     .flatMap<PlayableItem>((item) => {
       const media = mediaById.get(item.media_id);
-      if (!media || isDynamicMedia(media) || !media.active || !withinDateRange(media, now)) return [];
+      // Clima e mercado ficam no rodapé; notícias entram como slide de tela cheia.
+      if (!media || (isDynamicMedia(media) && media.type !== "news") || !media.active || !withinDateRange(media, now)) return [];
       const mediaSchedules = schedules.filter((s) => s.media_id === media.id);
       if (mediaSchedules.length > 0 && !mediaSchedules.some((s) => scheduleMatches(s, now))) return [];
       return [{ itemId: item.id, media }];
