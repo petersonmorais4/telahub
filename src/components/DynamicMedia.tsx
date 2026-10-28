@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { CloudSun, TrendingDown, TrendingUp, Wind } from "lucide-react";
+import { useState } from "react";
+import { CloudSun, Newspaper, TrendingDown, TrendingUp, Wind } from "lucide-react";
 
 import { requestLiveContent } from "@/lib/live-content-request";
 import type { MediaRow } from "@/lib/signage";
@@ -37,19 +38,21 @@ export function DynamicMedia({
   className?: string | undefined;
 }) {
   const isWeather = media.type === "weather";
+  const isNews = media.type === "news";
   const city = configCity(media);
   const { data, isError } = useQuery({
     ...liveQueryPolicy,
-    queryKey: ["live-content", media.type, city],
-    queryFn: () => requestLiveContent(isWeather ? { type: "weather", city } : { type: "market" }),
-    staleTime: 5 * 60_000,
+    queryKey: ["live-content", media.type, isWeather ? city : null],
+    queryFn: () =>
+      requestLiveContent(isWeather ? { type: "weather", city } : isNews ? { type: "news" } : { type: "market" }),
+    staleTime: (isNews ? 10 : 5) * 60_000,
     refetchInterval: (query) => liveRefetchInterval(Boolean(query.state.data)),
   });
 
   if (compact) {
     return (
       <div className={cn("flex items-center justify-center bg-secondary text-primary", className)}>
-        {isWeather ? <CloudSun className="h-7 w-7" aria-hidden /> : <TrendingUp className="h-7 w-7" aria-hidden />}
+        {isWeather ? <CloudSun className="h-7 w-7" aria-hidden /> : isNews ? <Newspaper className="h-7 w-7" aria-hidden /> : <TrendingUp className="h-7 w-7" aria-hidden />}
       </div>
     );
   }
@@ -57,7 +60,7 @@ export function DynamicMedia({
   if (!data || isError) {
     return (
       <div className={cn("flex h-full w-full flex-col items-center justify-center gap-5 bg-background text-foreground", className)}>
-        {isWeather ? <CloudSun className="h-20 w-20 text-primary" aria-hidden /> : <TrendingUp className="h-20 w-20 text-primary" aria-hidden />}
+        {isWeather ? <CloudSun className="h-20 w-20 text-primary" aria-hidden /> : isNews ? <Newspaper className="h-20 w-20 text-primary" aria-hidden /> : <TrendingUp className="h-20 w-20 text-primary" aria-hidden />}
         <p className="text-3xl font-semibold">{isError ? "Atualizando informações…" : "Carregando informações…"}</p>
       </div>
     );
@@ -83,6 +86,8 @@ export function DynamicMedia({
     );
   }
 
+  if (data.type === "news") return <NewsSlide items={data.items} className={className} />;
+
   const positive = data.change >= 0;
   const TrendIcon = positive ? TrendingUp : TrendingDown;
   return (
@@ -100,6 +105,36 @@ export function DynamicMedia({
           <span>{positive ? "+" : ""}{data.changePercent.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</span>
           <span className="text-[0.55em] font-normal text-muted-foreground">dados com possível atraso</span>
         </div>
+      </div>
+    </div>
+  );
+}
+function NewsSlide({ items, className }: { items: Array<{ title: string; summary: string; image: string | null }>; className?: string | undefined }) {
+  // Each appearance picks the next headline so the same story doesn't repeat back-to-back.
+  const [pick] = useState(() => Math.floor(Date.now() / 60_000) % Math.max(items.length, 1));
+  const main = items[pick] ?? items[0];
+  if (!main) return null;
+  const others = [1, 2, 3].map((n) => items[(pick + n) % items.length]).filter((i) => i && i !== main);
+  return (
+    <div className={cn("relative h-full w-full overflow-hidden bg-background text-foreground", className)}>
+      {main.image && (
+        <img src={main.image} alt="" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-cover" />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/20" />
+      <div className="absolute left-[5vw] top-[5vh] inline-flex items-center gap-3 rounded-md bg-primary px-5 py-2 text-[clamp(1rem,1.8vw,1.75rem)] font-bold text-primary-foreground">
+        <Newspaper className="h-[1.1em] w-[1.1em]" aria-hidden /> Notícias · g1
+      </div>
+      <div className="absolute inset-x-[5vw] bottom-[14vh]">
+        <h2 className="max-w-[85vw] font-display text-[clamp(2rem,4.6vw,5rem)] font-bold leading-[1.08]">{main.title}</h2>
+        {main.summary && <p className="mt-5 max-w-[75vw] text-[clamp(1.1rem,2vw,2rem)] text-muted-foreground">{main.summary}</p>}
+        {others.length > 0 && (
+          <ul className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6">
+            {others.map((item) => (
+              <li key={item!.title} className="line-clamp-2 text-[clamp(0.9rem,1.3vw,1.3rem)] text-foreground/80">{item!.title}</li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-6 text-[clamp(0.8rem,1vw,1rem)] text-muted-foreground">Fonte: g1.globo.com</p>
       </div>
     </div>
   );
