@@ -43,6 +43,7 @@ export const Route = createFileRoute("/indique")({
 });
 
 const schema = z.object({
+  referrer: z.string().trim().min(2, "Informe seu nome").max(100, "Nome muito longo"),
   name: z.string().trim().min(2, "Informe o nome do responsável").max(100, "Nome muito longo"),
   email: z.string().trim().email("Informe um e-mail válido").max(255, "E-mail muito longo"),
   phone: z.string().trim().regex(/^\d{10,11}$/, "Informe um telefone válido com DDD"),
@@ -68,7 +69,7 @@ const steps = [
 ];
 
 function Indique() {
-  const [form, setForm] = useState<Form>({ name: "", email: "", phone: "", referred: "" });
+  const [form, setForm] = useState<Form>({ referrer: "", name: "", email: "", phone: "", referred: "" });
   const [phoneDisplay, setPhoneDisplay] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -88,10 +89,10 @@ function Indique() {
     }
     setErrors({});
     setSubmitting(true);
-    const { name, email, phone, referred } = parsed.data;
+    const { referrer, name, email, phone, referred } = parsed.data;
     const { error } = await supabase
       .from("advertiser_leads")
-      .insert({ name, email, phone, company: `[Indicação] ${referred}` });
+      .insert({ name, email, phone, company: `[Indicação de ${referrer}] ${referred}`.slice(0, 250) });
     setSubmitting(false);
     if (error) {
       toast.error("Não foi possível enviar. Tente novamente.");
@@ -138,7 +139,7 @@ function Indique() {
               <Button
                 onClick={() => {
                   setSent(false);
-                  setForm({ name: "", email: "", phone: "", referred: "" });
+                  setForm((f) => ({ referrer: f.referrer, name: "", email: "", phone: "", referred: "" }));
                   setPhoneDisplay("");
                 }}
               >
@@ -182,6 +183,11 @@ function Indique() {
               <h2 className="text-xl font-bold">Faça sua indicação</h2>
               <p className="mt-2 text-sm text-muted-foreground">Leva menos de 1 minuto.</p>
               <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>
+                {field("referrer", "Seu nome", User, {
+                  placeholder: "Quem está indicando",
+                  value: form.referrer,
+                  onChange: (e) => setForm((f) => ({ ...f, referrer: e.target.value })),
+                })}
                 {field("referred", "Nome do negócio parceiro", Building2, {
                   placeholder: "Ex.: Mercado Bom Preço, Centro",
                   value: form.referred,
