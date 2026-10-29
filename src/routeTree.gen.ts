@@ -16,6 +16,7 @@ import { Route as ApkRouteImport } from './routes/apk'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as IndiqueRouteImport } from './routes/indique'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ParceiroRouteImport } from './routes/parceiro'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -66,6 +67,11 @@ const ApresentacaoRoute = ApresentacaoRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndiqueRoute = IndiqueRouteImport.update({
+  id: '/indique',
+  path: '/indique',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
   '/apresentacao': typeof ApresentacaoRoute
   '/auth': typeof AuthRoute
+  '/indique': typeof IndiqueRoute
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppRoute
   '/apresentacao': typeof ApresentacaoRoute
   '/auth': typeof AuthRoute
+  '/indique': typeof IndiqueRoute
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/app': typeof AppRoute
   '/apresentacao': typeof ApresentacaoRoute
   '/auth': typeof AuthRoute
+  '/indique': typeof IndiqueRoute
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -249,6 +258,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/apresentacao'
     | '/auth'
+    | '/indique'
     | '/mcp'
     | '/parceiro'
     | '/.well-known/oauth-protected-resource'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/apresentacao'
     | '/auth'
+    | '/indique'
     | '/mcp'
     | '/parceiro'
     | '/.well-known/oauth-protected-resource'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/apresentacao'
     | '/auth'
+    | '/indique'
     | '/mcp'
     | '/parceiro'
     | '/.well-known/oauth-protected-resource'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRoute
   ApresentacaoRoute: typeof ApresentacaoRoute
   AuthRoute: typeof AuthRoute
+  IndiqueRoute: typeof IndiqueRoute
   McpRoute: typeof McpRoute
   ParceiroRoute: typeof ParceiroRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/indique': {
+      id: '/indique'
+      path: '/indique'
+      fullPath: '/indique'
+      preLoaderRoute: typeof IndiqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -554,6 +574,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
   ApresentacaoRoute: ApresentacaoRoute,
   AuthRoute: AuthRoute,
+  IndiqueRoute: IndiqueRoute,
   McpRoute: McpRoute,
   ParceiroRoute: ParceiroRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
