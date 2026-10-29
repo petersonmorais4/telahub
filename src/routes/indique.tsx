@@ -43,13 +43,13 @@ export const Route = createFileRoute("/indique")({
 });
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Informe seu nome").max(100, "Nome muito longo"),
+  name: z.string().trim().min(2, "Informe o nome do responsável").max(100, "Nome muito longo"),
   email: z.string().trim().email("Informe um e-mail válido").max(255, "E-mail muito longo"),
   phone: z.string().trim().regex(/^\d{10,11}$/, "Informe um telefone válido com DDD"),
   referred: z
     .string()
     .trim()
-    .min(2, "Informe o negócio indicado")
+    .min(2, "Informe o nome do negócio")
     .max(120, "Nome muito longo"),
 });
 
@@ -138,7 +138,8 @@ function Indique() {
               <Button
                 onClick={() => {
                   setSent(false);
-                  setForm((f) => ({ ...f, referred: "" }));
+                  setForm({ name: "", email: "", phone: "", referred: "" });
+                  setPhoneDisplay("");
                 }}
               >
                 Indicar outro
@@ -181,18 +182,23 @@ function Indique() {
               <h2 className="text-xl font-bold">Faça sua indicação</h2>
               <p className="mt-2 text-sm text-muted-foreground">Leva menos de 1 minuto.</p>
               <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>
-                {field("name", "Seu nome", User, {
-                  placeholder: "Seu nome completo",
+                {field("referred", "Nome do negócio parceiro", Building2, {
+                  placeholder: "Ex.: Mercado Bom Preço, Centro",
+                  value: form.referred,
+                  onChange: (e) => setForm((f) => ({ ...f, referred: e.target.value })),
+                })}
+                {field("name", "Responsável pelo negócio", User, {
+                  placeholder: "Nome do responsável",
                   value: form.name,
                   onChange: (e) => setForm((f) => ({ ...f, name: e.target.value })),
                 })}
-                {field("email", "Seu e-mail", Mail, {
+                {field("email", "E-mail do parceiro", Mail, {
                   type: "email",
-                  placeholder: "voce@email.com",
+                  placeholder: "contato@negocio.com",
                   value: form.email,
                   onChange: (e) => setForm((f) => ({ ...f, email: e.target.value })),
                 })}
-                {field("phone", "Seu WhatsApp", Phone, {
+                {field("phone", "WhatsApp do parceiro", Phone, {
                   inputMode: "numeric",
                   placeholder: "(00) 00000-0000",
                   value: phoneDisplay,
@@ -201,11 +207,6 @@ function Indique() {
                     setPhoneDisplay(m);
                     setForm((f) => ({ ...f, phone: m.replace(/\D/g, "") }));
                   },
-                })}
-                {field("referred", "Negócio indicado", Building2, {
-                  placeholder: "Ex.: Mercado Bom Preço, Centro",
-                  value: form.referred,
-                  onChange: (e) => setForm((f) => ({ ...f, referred: e.target.value })),
                 })}
                 <Button type="submit" size="lg" className="w-full" disabled={submitting}>
                   {submitting ? "Enviando..." : "Enviar indicação"}
