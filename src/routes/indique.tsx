@@ -27,13 +27,13 @@ export const Route = createFileRoute("/indique")({
       {
         name: "description",
         content:
-          "Indique um negócio para a rede TelaHub e ganhe recompensas quando a indicação fechar parceria.",
+          "Indique um negócio para a rede TelaHub e ganhe 1 mês de anúncios grátis em até 10 telas.",
       },
       { property: "og:title", content: "Indique e Ganhe — TelaHub" },
       {
         property: "og:description",
         content:
-          "Conhece um negócio que combina com a TelaHub? Indique e ganhe recompensas exclusivas.",
+          "Indique um negócio para a TelaHub e ganhe 1 mês de anúncios grátis em até 10 telas.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -64,7 +64,7 @@ function maskPhone(value: string) {
 const steps = [
   { icon: Send, title: "1. Indique", text: "Conte qual negócio você conhece: academia, mercado, farmácia, barbearia..." },
   { icon: Handshake, title: "2. A gente conversa", text: "Nossa equipe entra em contato e apresenta a TelaHub para a sua indicação." },
-  { icon: Gift, title: "3. Você ganha", text: "Fechou parceria? Você recebe sua recompensa. Sem limite de indicações." },
+  { icon: Gift, title: "3. Você ganha", text: "Fechou parceria? Você ganha 1 mês de anúncios grátis em até 10 telas da TelaHub." },
 ];
 
 function Indique() {
@@ -158,7 +158,8 @@ function Indique() {
                 Conhece um negócio que merece uma tela TelaHub?
               </h1>
               <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-                Indique estabelecimentos para a nossa rede e ganhe recompensas a cada parceria fechada.
+                Indique estabelecimentos para a nossa rede e, a cada parceria fechada, ganhe{" "}
+                <strong className="text-foreground">1 mês de anúncios grátis em até 10 telas</strong> da TelaHub.
               </p>
 
               <div className="mt-10 grid gap-6 sm:grid-cols-3 lg:grid-cols-1">
