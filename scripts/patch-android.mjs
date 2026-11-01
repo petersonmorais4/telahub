@@ -30,7 +30,6 @@ m = m.replace(/<activity([^>]*android:name="[^"]*MainActivity"[^>]*)>/, (full, a
   let a = attrs;
   if (!a.includes("android:banner")) a += '\n            android:banner="@drawable/banner"';
   if (!a.includes("android:screenOrientation")) a += '\n            android:screenOrientation="sensorLandscape"';
-  if (!a.includes("android:launchMode")) a += '\n            android:launchMode="singleTask"';
   return `<activity${a}>`;
 });
 if (!m.includes("LEANBACK_LAUNCHER")) {
