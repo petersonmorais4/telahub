@@ -5,13 +5,11 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar no WhatsApp"
-      className="fixed bottom-5 left-5 z-50 flex items-center gap-3 rounded-full bg-[#25D366] px-5 py-3.5 font-display text-base font-bold text-white shadow-[0_10px_30px_-5px_rgba(37,211,102,0.55)] ring-1 ring-white/20 transition-transform hover:scale-105 hover:brightness-105 active:scale-95 md:bottom-6 md:left-6 md:px-6 md:py-4 md:text-lg"
+      className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_30px_-5px_rgba(37,211,102,0.55)] ring-1 ring-white/20 transition-transform hover:scale-105 hover:brightness-105 active:scale-95 md:bottom-6 md:right-6 md:h-16 md:w-16"
     >
       <svg viewBox="0 0 32 32" fill="currentColor" className="h-7 w-7 shrink-0 md:h-8 md:w-8" aria-hidden>
         <path d="M16.004 2.667C8.668 2.667 2.708 8.626 2.708 15.962c0 2.355.617 4.658 1.79 6.687l-1.903 6.95 7.118-1.868a13.26 13.26 0 0 0 6.29 1.602h.006c7.335 0 13.294-5.96 13.294-13.295 0-3.552-1.383-6.892-3.894-9.4a13.21 13.21 0 0 0-9.405-3.971Zm0 24.333h-.005a11.05 11.05 0 0 1-5.63-1.542l-.404-.24-4.224 1.108 1.128-4.118-.264-.423a11.02 11.02 0 0 1-1.692-5.885c0-6.104 4.968-11.07 11.075-11.07 2.958 0 5.738 1.153 7.828 3.245a11 11 0 0 1 3.241 7.833c-.003 6.107-4.97 11.092-11.053 11.092Zm6.07-8.28c-.332-.166-1.969-.971-2.274-1.083-.305-.111-.527-.166-.749.167-.222.333-.86 1.083-1.054 1.305-.194.222-.388.25-.72.083-.333-.166-1.404-.517-2.673-1.649-.988-.881-1.654-1.969-1.848-2.302-.194-.333-.021-.513.146-.679.15-.15.333-.388.5-.583.166-.194.222-.333.333-.555.111-.222.055-.417-.056-.583-.111-.167-.749-1.804-1.026-2.471-.27-.65-.545-.562-.749-.572-.194-.01-.416-.012-.638-.012a1.224 1.224 0 0 0-.887.416c-.305.333-1.164 1.138-1.164 2.775s1.192 3.219 1.358 3.441c.166.222 2.344 3.58 5.68 5.021.794.343 1.413.547 1.896.7.797.253 1.523.217 2.096.132.64-.096 1.969-.805 2.247-1.583.277-.778.277-1.444.194-1.583-.083-.14-.305-.222-.638-.388Z" />
       </svg>
-      <span className="hidden sm:inline">Fale conosco no WhatsApp</span>
-      <span className="sm:hidden">WhatsApp</span>
     </a>
   );
 }
