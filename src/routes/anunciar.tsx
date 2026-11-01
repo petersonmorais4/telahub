@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandLogo } from "@/components/BrandLogo";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/anunciar")({
@@ -103,6 +104,7 @@ function Anunciar() {
 
   return (
     <main className="min-h-screen bg-background">
+      <WhatsAppButton />
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
           <Link to="/" aria-label="Voltar para a página inicial">
