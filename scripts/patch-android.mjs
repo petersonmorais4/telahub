@@ -22,7 +22,6 @@ const headerAdds = [
   '<uses-feature android:name="android.software.leanback" android:required="false" />',
   '<uses-permission android:name="android.permission.WAKE_LOCK" />',
   '<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />',
-  '<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />',
 ].filter((l) => !m.includes(l.match(/name="([^"]+)"/)[1]));
 if (headerAdds.length) m = m.replace(/<application/, `${headerAdds.join("\n    ")}\n\n    <application`);
 
