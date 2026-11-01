@@ -46,21 +46,25 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      # Fixed signing key: without it every CI run generates a new debug key, and
-      # Android refuses to install a build over one signed with a different key.
-      - name: Install fixed signing key
-        run: |
-          mkdir -p ~/.android
-          base64 -d signing/telahub-debug.keystore.b64 > ~/.android/debug.keystore
-
       - name: Build debug APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Collect APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk telahub.apk
+      # Re-sign with the fixed key (v1+v2+v3): without it every CI run uses a new
+      # random debug key and Android refuses to install over a previous build.
+      - name: Sign APK with fixed key
+        run: |
+          base64 -d signing/telahub-debug.keystore.b64 > /tmp/telahub.keystore
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/zipalign" -f -p 4 android/app/build/outputs/apk/debug/app-debug.apk aligned.apk
+          "$BT/apksigner" sign --ks /tmp/telahub.keystore --ks-pass pass:android \
+            --ks-key-alias androiddebugkey --key-pass pass:android \
+            --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
+            --out telahub.apk aligned.apk
+          "$BT/apksigner" verify --verbose --print-certs telahub.apk
+          "$BT/apksigner" verify --print-certs telahub.apk | grep -q "CN=TelaHUB"
 
       - uses: actions/upload-artifact@v4
         with:
