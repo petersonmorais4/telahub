@@ -85,14 +85,14 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
 
   return (
     <footer className="absolute inset-x-0 bottom-0 z-30 flex h-11 items-center border-t border-border bg-background px-3 text-foreground shadow-panel md:h-14 md:px-6">
-      <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4">
+      <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4 self-stretch">
         <div className="relative flex shrink-0 items-center gap-2 self-stretch md:gap-3">
           <img
             src={qrcodeAsset.url}
             alt="QR Code TelaHUB"
-            className="absolute bottom-0 left-0 z-10 h-16 w-16 rounded-xl bg-white object-contain p-1 shadow-lg md:h-20 md:w-20"
+            className="absolute bottom-0 left-0 z-10 h-20 w-20 rounded-2xl bg-white object-contain p-1.5 shadow-lg md:h-24 md:w-24"
           />
-          <div className="h-16 w-16 shrink-0 md:h-20 md:w-20" aria-hidden />
+          <div className="w-20 shrink-0 md:w-24" aria-hidden />
           <span className="hidden shrink-0 text-[0.65rem] uppercase tracking-wide text-muted-foreground sm:inline md:text-sm">
             Anuncie com a
           </span>
