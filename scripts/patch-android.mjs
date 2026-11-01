@@ -38,18 +38,6 @@ if (!m.includes("LEANBACK_LAUNCHER")) {
     '$1\n                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />',
   );
 }
-if (!m.includes('android.intent.category.HOME')) {
-  m = m.replace(
-    /(<activity[^>]*android:name="[^"]*MainActivity"[^>]*>[\s\S]*?)(<\/activity>)/,
-    `$1
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        $2`,
-  );
-}
 if (!m.includes(".BootReceiver")) {
   m = m.replace(
     /<\/application>/,
