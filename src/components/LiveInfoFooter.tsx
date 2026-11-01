@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CloudSun, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import qrcodeAsset from "@/assets/qrcode-telahub.png.asset.json";
 import { BrandLogo } from "@/components/BrandLogo";
 import {
   type LiveContent,
@@ -85,7 +86,17 @@ export function LiveInfoFooter({ city }: { city: string | null }) {
   return (
     <footer className="absolute inset-x-0 bottom-0 z-30 flex h-11 items-center border-t border-border bg-background px-3 text-foreground shadow-panel md:h-14 md:px-6">
       <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4">
-        <BrandLogo className="h-7 w-auto shrink-0 md:h-9" />
+        <div className="flex shrink-0 items-center gap-2 md:gap-3">
+          <img
+            src={qrcodeAsset.url}
+            alt="QR Code TelaHUB"
+            className="h-9 w-9 shrink-0 rounded-md bg-white object-contain p-0.5 md:h-12 md:w-12"
+          />
+          <span className="hidden shrink-0 text-[0.65rem] uppercase tracking-wide text-muted-foreground sm:inline md:text-sm">
+            Anuncie com a
+          </span>
+          <BrandLogo className="h-7 w-auto shrink-0 md:h-9" />
+        </div>
 
         <div className="min-w-0 overflow-hidden" aria-live="polite">
           {allUnavailable ? (
