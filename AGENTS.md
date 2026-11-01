@@ -11,6 +11,7 @@
 
 - The app exposes an MCP server (`/mcp`, Supabase OAuth, name `telahub`); tools live in `src/lib/mcp/tools/` (one `defineTool` per file) and are registered in `src/lib/mcp/index.ts` — never hand-edit the generated `src/routes/mcp.ts` or `.well-known` routes.
 - The Android TV APK is a Capacitor shell built only in CI (`.github/workflows/build-apk.yml` + `scripts/patch-android.mjs`); `android/` is generated per build and never committed, because the APK just loads the published `/app` route.
+- CI signs the APK with the fixed key in `signing/telahub-debug.keystore.b64` (installed as `~/.android/debug.keystore`); never regenerate or remove it, because Android rejects updates signed with a different key.
 - Live weather and market queries share `src/lib/live-query-policy.ts`; ignore WebView offline/hidden signals and retry missing data promptly because TV connectivity events can be inaccurate.
 - Player weather is fetched directly from the device (open-meteo allows CORS) with `/api/public/live-content` as fallback, because the provider rejects requests from the hosting edge network; market data still uses the endpoint. Android WebViews may omit origin metadata required by RPC CSRF checks, so never weaken global CSRF protection.
 - Team roles are admin/operator/viewer in `user_roles`; panel writes require `is_staff()` (admin/operator), reads `is_member()`, and user management goes through admin-checked server functions in `src/lib/users.functions.ts`, because new signups default to viewer and must not escalate themselves.
