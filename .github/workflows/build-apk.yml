@@ -1,5 +1,9 @@
 name: Build Android APK
 
+# Pinned release: every push republishes the APK built on 2026-10-26 (build 35),
+# kept in release/telahub-2026-10-26.apk, so /apk always serves that exact file.
+# A fresh build only runs on manual dispatch and is uploaded as an artifact only.
+
 on:
   push:
     branches: [main]
@@ -13,7 +17,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  publish-pinned:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish release apk-latest (pinned 26/10 build)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp release/telahub-2026-10-26.apk telahub.apk
+          git tag -f apk-latest
+          git push -f origin apk-latest
+          NOTES="Versão 1.0.35 (build de 26/10/2026) — republicada"
+          if gh release view apk-latest >/dev/null 2>&1; then
+            gh release upload apk-latest telahub.apk --clobber
+            gh release edit apk-latest --title "TelaHUB APK (build 35)" --notes "$NOTES"
+          else
+            gh release create apk-latest telahub.apk --title "TelaHUB APK (build 35)" --notes "$NOTES" --latest
+          fi
+
   build:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,34 +78,10 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      # Re-sign with the fixed key (v1+v2+v3): without it every CI run uses a new
-      # random debug key and Android refuses to install over a previous build.
-      - name: Sign APK with fixed key
-        run: |
-          base64 -d signing/telahub-debug.keystore.b64 > /tmp/telahub.keystore
-          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/zipalign" -f -p 4 android/app/build/outputs/apk/debug/app-debug.apk aligned.apk
-          "$BT/apksigner" sign --ks /tmp/telahub.keystore --ks-pass pass:android \
-            --ks-key-alias androiddebugkey --key-pass pass:android \
-            --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
-            --out telahub.apk aligned.apk
-          "$BT/apksigner" verify --verbose --print-certs telahub.apk
-          "$BT/apksigner" verify --print-certs telahub.apk | grep -q "CN=TelaHUB"
+      - name: Collect APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk telahub.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: telahub-apk
           path: telahub.apk
-
-      - name: Publish release apk-latest
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git tag -f apk-latest
-          git push -f origin apk-latest
-          if gh release view apk-latest >/dev/null 2>&1; then
-            gh release upload apk-latest telahub.apk --clobber
-            gh release edit apk-latest --title "TelaHUB APK (build ${{ github.run_number }})" --notes "Versão 1.0.${{ github.run_number }} — commit ${{ github.sha }}"
-          else
-            gh release create apk-latest telahub.apk --title "TelaHUB APK (build ${{ github.run_number }})" --notes "Versão 1.0.${{ github.run_number }} — commit ${{ github.sha }}" --latest
-          fi
