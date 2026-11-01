@@ -59,15 +59,13 @@ function AppStart() {
       }
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return setChecking(false);
-      go(saved);
       const res = await lookupScreen(saved);
+      if (cancelled) return;
       if (res === "missing") {
         localStorage.removeItem(STORAGE_KEY);
-        if (!cancelled) {
-          setChecking(false);
-        } else {
-          void navigate({ to: "/app", search: { reset: "1" } });
-        }
+        setChecking(false);
+      } else {
+        go(saved);
       }
     })();
     return () => {

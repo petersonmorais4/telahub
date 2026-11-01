@@ -22,7 +22,6 @@ const headerAdds = [
   '<uses-feature android:name="android.software.leanback" android:required="false" />',
   '<uses-permission android:name="android.permission.WAKE_LOCK" />',
   '<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />',
-  '<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />',
 ].filter((l) => !m.includes(l.match(/name="([^"]+)"/)[1]));
 if (headerAdds.length) m = m.replace(/<application/, `${headerAdds.join("\n    ")}\n\n    <application`);
 
@@ -30,25 +29,12 @@ m = m.replace(/<activity([^>]*android:name="[^"]*MainActivity"[^>]*)>/, (full, a
   let a = attrs;
   if (!a.includes("android:banner")) a += '\n            android:banner="@drawable/banner"';
   if (!a.includes("android:screenOrientation")) a += '\n            android:screenOrientation="sensorLandscape"';
-  if (!a.includes("android:launchMode")) a += '\n            android:launchMode="singleTask"';
   return `<activity${a}>`;
 });
 if (!m.includes("LEANBACK_LAUNCHER")) {
   m = m.replace(
     /(<category android:name="android.intent.category.LAUNCHER"\s*\/>)/,
     '$1\n                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />',
-  );
-}
-if (!m.includes('android.intent.category.HOME')) {
-  m = m.replace(
-    /(<activity[^>]*android:name="[^"]*MainActivity"[^>]*>[\s\S]*?)(<\/activity>)/,
-    `$1
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        $2`,
   );
 }
 if (!m.includes(".BootReceiver")) {
