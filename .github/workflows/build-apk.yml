@@ -46,6 +46,13 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      # Fixed signing key: without it every CI run generates a new debug key, and
+      # Android refuses to install a build over one signed with a different key.
+      - name: Install fixed signing key
+        run: |
+          mkdir -p ~/.android
+          base64 -d signing/telahub-debug.keystore.b64 > ~/.android/debug.keystore
+
       - name: Build debug APK
         working-directory: android
         run: |
