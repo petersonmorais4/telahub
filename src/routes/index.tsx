@@ -7,6 +7,7 @@ import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
 import academiaTv from "@/assets/home-gallery/academia-new.png.asset.json";
 import farmaciaTv from "@/assets/home-gallery/farmacia-new.png.asset.json";
@@ -92,6 +93,7 @@ function Index() {
 
   return (
     <main className="min-h-screen bg-background">
+      <WhatsAppButton />
       <section className="relative isolate flex min-h-[70vh] max-h-[800px] items-start overflow-hidden">
         <header className="absolute left-0 right-0 top-0 z-20">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
