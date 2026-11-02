@@ -171,10 +171,11 @@ log(`MainActivity (${isKotlin ? "Kotlin" : "Java"}) + BootReceiver written`);
 const gradlePath = existsSync(join(ROOT, "build.gradle")) ? join(ROOT, "build.gradle") : join(ROOT, "build.gradle.kts");
 let g = read(gradlePath);
 const kts = gradlePath.endsWith(".kts");
-g = g.replace(/versionCode\s*=?\s*\d+/, kts ? `versionCode = ${run}` : `versionCode ${run}`);
+const versionCode = 1000 + run;
+g = g.replace(/versionCode\s*=?\s*\d+/, kts ? `versionCode = ${versionCode}` : `versionCode ${versionCode}`);
 g = g.replace(/versionName\s*=?\s*"[^"]*"/, kts ? `versionName = "1.0.${run}"` : `versionName "1.0.${run}"`);
 write(gradlePath, g);
-log(`version set to 1.0.${run} (${run})`);
+log(`version set to 1.0.${run} (${versionCode})`);
 
 // ---------- Icons + banner (ImageMagick) ----------
 const magick = (() => {

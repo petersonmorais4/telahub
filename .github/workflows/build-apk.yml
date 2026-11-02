@@ -1,12 +1,10 @@
 name: Build Android APK
 
-# Pinned release: every push republishes the APK built on 2026-10-26 (build 35),
-# kept in release/telahub-2026-10-26.apk, so /apk always serves that exact file.
-# A fresh build only runs on manual dispatch and is uploaded as an artifact only.
+# Manual dispatch only: builds the APK signed with the fixed keystore in
+# signing/telahub-debug.keystore.b64 and publishes it to the apk-latest release.
+# Pushes never overwrite apk-latest. release/telahub-2026-10-26.apk is kept as a backup.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -17,29 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publish-pinned:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Publish release apk-latest (pinned 26/10 build)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          cp release/telahub-2026-10-26.apk telahub.apk
-          git tag -f apk-latest
-          git push -f origin apk-latest
-          NOTES="Versão 1.0.35 (build de 26/10/2026) — republicada"
-          if gh release view apk-latest >/dev/null 2>&1; then
-            gh release upload apk-latest telahub.apk --clobber
-            gh release edit apk-latest --title "TelaHUB APK (build 35)" --notes "$NOTES"
-          else
-            gh release create apk-latest telahub.apk --title "TelaHUB APK (build 35)" --notes "$NOTES" --latest
-          fi
-
   build:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +48,11 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Install fixed signing keystore
+        run: |
+          mkdir -p ~/.android
+          base64 -d signing/telahub-debug.keystore.b64 > ~/.android/debug.keystore
+
       - name: Build debug APK
         working-directory: android
         run: |
@@ -85,3 +66,20 @@ jobs:
         with:
           name: telahub-apk
           path: telahub.apk
+
+      - name: Publish release apk-latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          DATE=$(date -u +%d/%m/%Y)
+          TITLE="TelaHUB APK $VERSION ($DATE)"
+          NOTES="Versão $VERSION — build de $DATE"
+          git tag -f apk-latest
+          git push -f origin apk-latest
+          if gh release view apk-latest >/dev/null 2>&1; then
+            gh release upload apk-latest telahub.apk --clobber
+            gh release edit apk-latest --title "$TITLE" --notes "$NOTES"
+          else
+            gh release create apk-latest telahub.apk --title "$TITLE" --notes "$NOTES" --latest
+          fi
