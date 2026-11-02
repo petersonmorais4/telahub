@@ -208,12 +208,8 @@ if (/\bsigningConfigs\s*\{/.test(g)) {
 if (/\bbuildTypes\s*\{/.test(g)) {
   g = g.replace(/\bbuildTypes\s*\{/, (s) => `${s}\n        ${debugBuildType}`);
 } else {
-  g = g.replace(/(\n\s*signingConfigs\s*\{)/, `\n    buildTypes {\n        ${debugBuildType}\n    }$1`);
-  // buildTypes must come after signingConfigs; move it below the signingConfigs block.
-  g = g.replace(
-    /\n    buildTypes \{\n([\s\S]*?)\n    \}(\n\s*signingConfigs \{\n[\s\S]*?\n    \}\n)/,
-    (_, bt, sc) => `${sc}    buildTypes {\n${bt}\n    }\n`,
-  );
+  // A second android { } block is evaluated after the first, so signingConfigs already exists.
+  g += `\nandroid {\n    buildTypes {\n        ${debugBuildType}\n    }\n}\n`;
 }
 if (!g.includes("telahub.keystore")) throw new Error("failed to inject signing config");
 write(gradlePath, g);
