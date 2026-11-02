@@ -167,10 +167,55 @@ public class BootReceiver extends BroadcastReceiver {
 }
 log(`MainActivity (${isKotlin ? "Kotlin" : "Java"}) + BootReceiver written`);
 
-// ---------- versionCode / versionName ----------
+// ---------- signing ----------
 const gradlePath = existsSync(join(ROOT, "build.gradle")) ? join(ROOT, "build.gradle") : join(ROOT, "build.gradle.kts");
-let g = read(gradlePath);
+if (!existsSync(gradlePath)) throw new Error("app build.gradle not found");
 const kts = gradlePath.endsWith(".kts");
+const KEYSTORE_B64 = "signing/telahub-debug.keystore.b64";
+if (!existsSync(KEYSTORE_B64)) throw new Error(`${KEYSTORE_B64} not found`);
+const keystore = Buffer.from(read(KEYSTORE_B64).replace(/\s/g, ""), "base64");
+if (keystore.length === 0) throw new Error("keystore is empty");
+writeFileSync(join(ROOT, "telahub.keystore"), keystore);
+
+let g = read(gradlePath);
+const debugSigning = kts
+  ? `getByName("debug") {
+            storeFile = file("telahub.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }`
+  : `debug {
+            storeFile file("telahub.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }`;
+const debugBuildType = kts
+  ? `getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }`
+  : `debug {
+            signingConfig signingConfigs.debug
+        }`;
+const androidOpen = /(^|\n)android\s*\{/;
+if (!androidOpen.test(g)) throw new Error("android { } block not found in app build.gradle");
+if (/\bsigningConfigs\s*\{/.test(g)) {
+  g = g.replace(/\bsigningConfigs\s*\{/, (s) => `${s}\n        ${debugSigning}`);
+} else {
+  g = g.replace(androidOpen, (s) => `${s}\n    signingConfigs {\n        ${debugSigning}\n    }\n`);
+}
+if (/\bbuildTypes\s*\{/.test(g)) {
+  g = g.replace(/\bbuildTypes\s*\{/, (s) => `${s}\n        ${debugBuildType}`);
+} else {
+  // A second android { } block is evaluated after the first, so signingConfigs already exists.
+  g += `\nandroid {\n    buildTypes {\n        ${debugBuildType}\n    }\n}\n`;
+}
+if (!g.includes("telahub.keystore")) throw new Error("failed to inject signing config");
+write(gradlePath, g);
+log("signing config applied");
+
+// ---------- versionCode / versionName ----------
 const versionCode = 1000 + run;
 g = g.replace(/versionCode\s*=?\s*\d+/, kts ? `versionCode = ${versionCode}` : `versionCode ${versionCode}`);
 g = g.replace(/versionName\s*=?\s*"[^"]*"/, kts ? `versionName = "1.0.${run}"` : `versionName "1.0.${run}"`);
