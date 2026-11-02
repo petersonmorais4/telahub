@@ -34,6 +34,7 @@ import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPainelUsuariosRouteImport } from './routes/_authenticated/painel.usuarios'
 import { Route as ApiPublicLiveContentRouteImport } from './routes/api/public/live-content'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
+import { Route as ApiPublicJobsScreensOfflineAlertRouteImport } from './routes/api/public/jobs/screens-offline-alert'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -169,6 +170,12 @@ const ApiPublicPlayerManifestRoute = ApiPublicPlayerManifestRouteImport.update({
   path: '/api/public/player-manifest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsScreensOfflineAlertRoute =
+  ApiPublicJobsScreensOfflineAlertRouteImport.update({
+    id: '/api/public/jobs/screens-offline-alert',
+    path: '/api/public/jobs/screens-offline-alert',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -195,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
+  '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -220,6 +228,7 @@ export interface FileRoutesByTo {
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
+  '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -248,6 +257,7 @@ export interface FileRoutesById {
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
+  '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel/'
+    | '/api/public/jobs/screens-offline-alert'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel'
+    | '/api/public/jobs/screens-offline-alert'
   id:
     | '__root__'
     | '/'
@@ -328,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
+    | '/api/public/jobs/screens-offline-alert'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -346,6 +359,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicLiveContentRoute: typeof ApiPublicLiveContentRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
+  ApiPublicJobsScreensOfflineAlertRoute: typeof ApiPublicJobsScreensOfflineAlertRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -525,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPlayerManifestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/screens-offline-alert': {
+      id: '/api/public/jobs/screens-offline-alert'
+      path: '/api/public/jobs/screens-offline-alert'
+      fullPath: '/api/public/jobs/screens-offline-alert'
+      preLoaderRoute: typeof ApiPublicJobsScreensOfflineAlertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -583,6 +604,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicLiveContentRoute: ApiPublicLiveContentRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
+  ApiPublicJobsScreensOfflineAlertRoute: ApiPublicJobsScreensOfflineAlertRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
