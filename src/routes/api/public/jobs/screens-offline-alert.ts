@@ -61,8 +61,8 @@ export const Route = createFileRoute("/api/public/jobs/screens-offline-alert")({
         const res = await fetch(`${GATEWAY_URL}/users/me/messages/send`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${process.env.LOVABLE_API_KEY}`,
-            "X-Connection-Api-Key": process.env.GOOGLE_MAIL_API_KEY ?? "",
+            Authorization: `Bearer ${process.env['LOVABLE_API_KEY']}`,
+            "X-Connection-Api-Key": process.env['GOOGLE_MAIL_API_KEY'] ?? "",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ raw }),
