@@ -48,11 +48,6 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Install fixed signing keystore
-        run: |
-          mkdir -p ~/.android
-          base64 -d signing/telahub-debug.keystore.b64 > ~/.android/debug.keystore
-
       - name: Build debug APK
         working-directory: android
         run: |
@@ -61,6 +56,20 @@ jobs:
 
       - name: Collect APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk telahub.apk
+
+      - name: Verify signing certificate
+        run: |
+          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | sort -V | tail -1)
+          echo "Using $APKSIGNER"
+          OUT=$("$APKSIGNER" verify --print-certs -v telahub.apk)
+          echo "$OUT"
+          SHA=$(echo "$OUT" | grep -m1 -i "certificate SHA-256 digest" | sed 's/.*: *//' | tr -d ': ' | tr 'A-F' 'a-f')
+          EXPECTED=2be553f9b6f4362eded6cf89bac4e0009d30531d3b04d85267c80532cb476778
+          if [ "$SHA" != "$EXPECTED" ]; then
+            echo "::error::APK signed with wrong certificate ($SHA), expected $EXPECTED"
+            exit 1
+          fi
+          echo "Signing certificate OK"
 
       - uses: actions/upload-artifact@v4
         with:
