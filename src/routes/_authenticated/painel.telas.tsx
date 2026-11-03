@@ -44,6 +44,11 @@ export const Route = createFileRoute("/_authenticated/painel/telas")({
 
 const NONE = "__none__";
 
+type ScreenContact = { screen_id: string; partner_name: string | null; partner_email: string | null };
+// screen_contacts is newer than the generated types.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as unknown as { from: (table: string) => any };
+
 function TelasPage() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -52,19 +57,28 @@ function TelasPage() {
   const [code, setCode] = useState(randomCode());
   const [playlistId, setPlaylistId] = useState<string>(NONE);
   const [address, setAddress] = useState<AddressForm>(emptyAddress());
-  const [editing, setEditing] = useState<{ id: string; name: string; form: AddressForm } | null>(null);
+  const [editing, setEditing] = useState<{
+    id: string;
+    name: string;
+    form: AddressForm;
+    partnerName: string;
+    partnerEmail: string;
+  } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["telas"],
-    refetchInterval: 10_000,
     queryFn: async () => {
-      const [screens, playlists] = await Promise.all([
+      const [screens, playlists, contacts] = await Promise.all([
         supabase.from("screens").select("*").order("created_at", { ascending: false }),
         supabase.from("playlists").select("*").order("name"),
+        db.from("screen_contacts").select("screen_id, partner_name, partner_email"),
       ]);
+      const contactMap: Record<string, ScreenContact> = {};
+      for (const c of (contacts.data ?? []) as ScreenContact[]) contactMap[c.screen_id] = c;
       return {
         screens: (screens.data ?? []) as ScreenRow[],
         playlists: (playlists.data ?? []) as PlaylistRow[],
+        contacts: contactMap,
       };
     },
   });
@@ -99,13 +113,32 @@ function TelasPage() {
   });
 
   const saveAddress = useMutation({
-    mutationFn: async ({ id, form }: { id: string; form: AddressForm }) => {
+    mutationFn: async ({
+      id,
+      form,
+      partnerName,
+      partnerEmail,
+    }: {
+      id: string;
+      form: AddressForm;
+      partnerName: string;
+      partnerEmail: string;
+    }) => {
+      const email = partnerEmail.trim();
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("E-mail do parceiro inválido");
       const coords = await geocodeAddress(form).catch(() => null);
       const { error } = await supabase
         .from("screens")
         .update({ ...addressToRow(form), latitude: coords?.latitude ?? null, longitude: coords?.longitude ?? null })
         .eq("id", id);
       if (error) throw error;
+      const { error: contactError } = await db.from("screen_contacts").upsert({
+        screen_id: id,
+        partner_name: partnerName.trim() || null,
+        partner_email: email || null,
+        updated_at: new Date().toISOString(),
+      });
+      if (contactError) throw contactError;
       return { coords, form };
     },
     onSuccess: ({ coords, form }) => {
@@ -289,6 +322,8 @@ function TelasPage() {
                       state: screen.state ?? "",
                       show_on_map: screen.show_on_map ?? false,
                     },
+                    partnerName: data?.contacts[screen.id]?.partner_name ?? "",
+                    partnerEmail: data?.contacts[screen.id]?.partner_email ?? "",
                   })
                 }
               >
@@ -347,7 +382,29 @@ function TelasPage() {
             <DialogDescription>Digite o CEP para preencher o endereço. O ponto aparece no mapa da página inicial se marcado.</DialogDescription>
           </DialogHeader>
           {editing ? (
-            <AddressFields value={editing.form} onChange={(form) => setEditing({ ...editing, form })} />
+            <div className="space-y-4">
+              <AddressFields value={editing.form} onChange={(form) => setEditing({ ...editing, form })} />
+              <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+                <p className="text-sm text-muted-foreground sm:col-span-2">
+                  Lembrete às 9h: se a TV não estiver ligada, o parceiro recebe um e-mail.
+                </p>
+                <div className="space-y-2">
+                  <Label>Nome do parceiro</Label>
+                  <Input
+                    value={editing.partnerName}
+                    onChange={(e) => setEditing({ ...editing, partnerName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>E-mail do parceiro</Label>
+                  <Input
+                    type="email"
+                    value={editing.partnerEmail}
+                    onChange={(e) => setEditing({ ...editing, partnerEmail: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
           ) : null}
           <DialogFooter>
             <Button
