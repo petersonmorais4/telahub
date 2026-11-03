@@ -409,7 +409,7 @@ function TelasPage() {
           <DialogFooter>
             <Button
               disabled={saveAddress.isPending}
-              onClick={() => editing && saveAddress.mutate({ id: editing.id, form: editing.form })}
+              onClick={() => editing && saveAddress.mutate({ id: editing.id, form: editing.form, partnerName: editing.partnerName, partnerEmail: editing.partnerEmail })}
             >
               {saveAddress.isPending ? "Localizando…" : "Salvar endereço"}
             </Button>
