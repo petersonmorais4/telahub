@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AnunciarRouteImport } from './routes/anunciar'
+import { Route as AnuncieRouteImport } from './routes/anuncie'
 import { Route as ApkRouteImport } from './routes/apk'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ApresentacaoRouteImport } from './routes/apresentacao'
@@ -48,6 +49,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AnunciarRoute = AnunciarRouteImport.update({
   id: '/anunciar',
   path: '/anunciar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnuncieRoute = AnuncieRouteImport.update({
+  id: '/anuncie',
+  path: '/anuncie',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApkRoute = ApkRouteImport.update({
@@ -180,6 +186,7 @@ const ApiPublicJobsScreensOfflineAlertRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
+  '/anuncie': typeof AnuncieRoute
   '/apk': typeof ApkRoute
   '/app': typeof AppRoute
   '/apresentacao': typeof ApresentacaoRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anunciar': typeof AnunciarRoute
+  '/anuncie': typeof AnuncieRoute
   '/apk': typeof ApkRoute
   '/app': typeof AppRoute
   '/apresentacao': typeof ApresentacaoRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/anunciar': typeof AnunciarRoute
+  '/anuncie': typeof AnuncieRoute
   '/apk': typeof ApkRoute
   '/app': typeof AppRoute
   '/apresentacao': typeof ApresentacaoRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anunciar'
+    | '/anuncie'
     | '/apk'
     | '/app'
     | '/apresentacao'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anunciar'
+    | '/anuncie'
     | '/apk'
     | '/app'
     | '/apresentacao'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/anunciar'
+    | '/anuncie'
     | '/apk'
     | '/app'
     | '/apresentacao'
@@ -347,6 +359,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AnunciarRoute: typeof AnunciarRoute
+  AnuncieRoute: typeof AnuncieRoute
   ApkRoute: typeof ApkRoute
   AppRoute: typeof AppRoute
   ApresentacaoRoute: typeof ApresentacaoRoute
@@ -383,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/anunciar'
       fullPath: '/anunciar'
       preLoaderRoute: typeof AnunciarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anuncie': {
+      id: '/anuncie'
+      path: '/anuncie'
+      fullPath: '/anuncie'
+      preLoaderRoute: typeof AnuncieRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/apk': {
@@ -591,6 +611,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AnunciarRoute: AnunciarRoute,
+  AnuncieRoute: AnuncieRoute,
   ApkRoute: ApkRoute,
   AppRoute: AppRoute,
   ApresentacaoRoute: ApresentacaoRoute,
