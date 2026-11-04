@@ -18,6 +18,11 @@ export function canUseSales(roles: AppRole[]) {
   return roles.includes("admin") || roles.includes("operacional");
 }
 
+/** Only admins manage users (also enforced by the user server functions). */
+export function canManageUsers(roles: AppRole[]) {
+  return roles.includes("admin");
+}
+
 export function useMyRoles() {
   return useQuery({ queryKey: ["my-roles"], queryFn: fetchMyRoles, staleTime: 60_000 });
 }

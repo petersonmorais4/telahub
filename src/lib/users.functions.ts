@@ -14,13 +14,12 @@ export interface TeamUser {
   createdAt: string;
 }
 
-/** Admins and Operacional manage users; only admins may grant or touch the admin role. */
+/** Only admins manage users. */
 async function assertAdmin(supabase: any, userId: string): Promise<{ isAdmin: boolean }> {
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roles: string[] = (data ?? []).map((r: { role: string }) => r.role);
   if (roles.includes("admin")) return { isAdmin: true };
-  if (roles.includes("operacional")) return { isAdmin: false };
-  throw new Error("Apenas administradores ou operacionais podem gerenciar usuários.");
+  throw new Error("Apenas administradores podem gerenciar usuários.");
 }
 
 async function assertCanTouch(isAdmin: boolean, targetId: string | null, newRole?: Role) {

@@ -15,7 +15,7 @@ import {
   Wallet,
   KanbanSquare,
 } from "lucide-react";
-import { canSeeFinance, canUseSales, useMyRoles } from "@/lib/my-role";
+import { canSeeFinance, canUseSales, canManageUsers, useMyRoles } from "@/lib/my-role";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -53,6 +53,7 @@ export function AdminShell({
   const visibleNav = nav.filter((item) =>
     item.to === "/painel/financeiro" ? canSeeFinance(roles)
     : item.to === "/painel/funil" ? canUseSales(roles)
+    : item.to === "/painel/usuarios" ? canManageUsers(roles)
     : true,
   );
 
