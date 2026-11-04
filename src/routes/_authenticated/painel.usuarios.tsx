@@ -17,6 +17,8 @@ import {
   createTeamUser, listTeamUsers, removeTeamUser, updateTeamUserRole, type Role,
 } from "@/lib/users.functions";
 
+import { canManageUsers, fetchMyRoles } from "@/lib/my-role";
+
 export const Route = createFileRoute("/_authenticated/painel/usuarios")({
   head: () => ({
     meta: [
@@ -29,12 +31,15 @@ export const Route = createFileRoute("/_authenticated/painel/usuarios")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  beforeLoad: async () => {
+    if (!canManageUsers(await fetchMyRoles())) throw redirect({ to: "/painel" });
+  },
   component: UsuariosPage,
 });
 
 const roleLabels: Record<Role, { label: string; hint: string }> = {
   admin: { label: "Administrador", hint: "Acesso total, inclusive usuários" },
-  operacional: { label: "Operacional", hint: "Acesso total ao painel, exceto financeiro" },
+  operacional: { label: "Operacional", hint: "Acesso total ao painel, exceto financeiro e usuários" },
   operator: { label: "Operador", hint: "Gerencia telas, anúncios e playlists" },
   viewer: { label: "Visualizador", hint: "Apenas consulta" },
 };
