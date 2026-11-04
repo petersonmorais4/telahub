@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { canSeeFinance, fetchMyRoles } from "@/lib/my-role";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Pencil, Plus, Trash2, Wallet, TrendingUp, Receipt, CalendarDays } from "lucide-react";
@@ -48,6 +49,9 @@ export const Route = createFileRoute("/_authenticated/painel/financeiro")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  beforeLoad: async () => {
+    if (!canSeeFinance(await fetchMyRoles())) throw redirect({ to: "/painel" });
+  },
   component: FinancePage,
 });
 

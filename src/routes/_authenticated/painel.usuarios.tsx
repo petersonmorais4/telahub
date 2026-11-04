@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/painel/usuarios")({
   head: () => ({
     meta: [
       { title: "TelaHUB — Usuários" },
-      { name: "description", content: "Convide colaboradores e defina se são administradores, operadores ou visualizadores." },
+      { name: "description", content: "Convide colaboradores e defina se são administradores, operacionais, operadores ou visualizadores." },
       { property: "og:title", content: "TelaHUB — Usuários" },
       { property: "og:description", content: "Gestão da equipe do TelaHUB." },
       { property: "og:type", content: "website" },
@@ -34,6 +34,7 @@ export const Route = createFileRoute("/_authenticated/painel/usuarios")({
 
 const roleLabels: Record<Role, { label: string; hint: string }> = {
   admin: { label: "Administrador", hint: "Acesso total, inclusive usuários" },
+  operacional: { label: "Operacional", hint: "Acesso total ao painel, exceto financeiro" },
   operator: { label: "Operador", hint: "Gerencia telas, anúncios e playlists" },
   viewer: { label: "Visualizador", hint: "Apenas consulta" },
 };

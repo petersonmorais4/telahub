@@ -349,6 +349,110 @@ export type Database = {
           },
         ]
       }
+      sales_lead_events: {
+        Row: {
+          body: string | null
+          created_at: string
+          event_date: string
+          from_stage: string | null
+          id: string
+          kind: string
+          lead_id: string
+          to_stage: string | null
+          user_id: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          event_date?: string
+          from_stage?: string | null
+          id?: string
+          kind?: string
+          lead_id: string
+          to_stage?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          event_date?: string
+          from_stage?: string | null
+          id?: string
+          kind?: string
+          lead_id?: string
+          to_stage?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_lead_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "sales_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_leads: {
+        Row: {
+          business_name: string
+          city: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          lost_reason: string | null
+          monthly_value: number
+          next_action_date: string | null
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          position: number
+          segment: string | null
+          source: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          business_name: string
+          city?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lost_reason?: string | null
+          monthly_value?: number
+          next_action_date?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          position?: number
+          segment?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          business_name?: string
+          city?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lost_reason?: string | null
+          monthly_value?: number
+          next_action_date?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          position?: number
+          segment?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           active: boolean
@@ -396,6 +500,35 @@ export type Database = {
             columns: ["playlist_id"]
             isOneToOne: false
             referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      screen_contacts: {
+        Row: {
+          partner_email: string | null
+          partner_name: string | null
+          screen_id: string
+          updated_at: string
+        }
+        Insert: {
+          partner_email?: string | null
+          partner_name?: string | null
+          screen_id: string
+          updated_at?: string
+        }
+        Update: {
+          partner_email?: string | null
+          partner_name?: string | null
+          screen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screen_contacts_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: true
+            referencedRelation: "screens"
             referencedColumns: ["id"]
           },
         ]
@@ -652,6 +785,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_finance_read: { Args: { _user_id: string }; Returns: boolean }
+      can_finance_write: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -660,11 +795,21 @@ export type Database = {
         Returns: boolean
       }
       is_member: { Args: { _user_id: string }; Returns: boolean }
+      is_operacional: { Args: { _user_id: string }; Returns: boolean }
+      is_sales: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      list_sales_users: {
+        Args: never
+        Returns: {
+          email: string
+          id: string
+          name: string
+        }[]
+      }
       touch_screen: { Args: { p_code: string }; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "operator" | "viewer"
+      app_role: "admin" | "operator" | "viewer" | "operacional"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -792,7 +937,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "operator", "viewer"],
+      app_role: ["admin", "operator", "viewer", "operacional"],
     },
   },
 } as const
