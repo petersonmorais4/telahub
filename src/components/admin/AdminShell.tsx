@@ -13,7 +13,9 @@ import {
   LogOut,
   Menu,
   Wallet,
+  KanbanSquare,
 } from "lucide-react";
+import { canSeeFinance, canUseSales, useMyRoles } from "@/lib/my-role";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -26,6 +28,7 @@ const nav = [
   { to: "/painel/anuncios", label: "Anúncios", icon: Images, exact: false },
   { to: "/painel/playlists", label: "Playlists", icon: ListOrdered, exact: false },
   { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock, exact: false },
+  { to: "/painel/funil", label: "Funil de Vendas", icon: KanbanSquare, exact: false },
   { to: "/painel/relatorios", label: "Relatórios", icon: FileBarChart, exact: false },
   { to: "/painel/financeiro", label: "Financeiro", icon: Wallet, exact: false },
   { to: "/painel/usuarios", label: "Usuários", icon: Users, exact: false },
@@ -46,6 +49,12 @@ export function AdminShell({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const roles = useMyRoles().data ?? [];
+  const visibleNav = nav.filter((item) =>
+    item.to === "/painel/financeiro" ? canSeeFinance(roles)
+    : item.to === "/painel/funil" ? canUseSales(roles)
+    : true,
+  );
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -66,7 +75,7 @@ export function AdminShell({
           <BrandLogo className="h-9 w-auto max-w-[10.5rem]" />
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {nav.map((item) => (
+          {visibleNav.map((item) => (
             <Link
               key={item.to}
               to={item.to}
