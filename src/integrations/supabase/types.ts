@@ -400,6 +400,35 @@ export type Database = {
           },
         ]
       }
+      screen_contacts: {
+        Row: {
+          partner_email: string | null
+          partner_name: string | null
+          screen_id: string
+          updated_at: string
+        }
+        Insert: {
+          partner_email?: string | null
+          partner_name?: string | null
+          screen_id: string
+          updated_at?: string
+        }
+        Update: {
+          partner_email?: string | null
+          partner_name?: string | null
+          screen_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "screen_contacts_screen_id_fkey"
+            columns: ["screen_id"]
+            isOneToOne: true
+            referencedRelation: "screens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       screens: {
         Row: {
           address_number: string | null
