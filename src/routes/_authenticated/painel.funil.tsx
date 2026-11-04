@@ -116,7 +116,7 @@ function FunnelPage() {
   const moveMut = useMutation({
     mutationFn: async (v: { id: string; stage: Stage; lost_reason?: string }) => {
       const { error } = await supabase.from("sales_leads")
-        .update({ stage: v.stage, lost_reason: v.stage === "perdido" ? v.lost_reason : null }).eq("id", v.id);
+        .update({ stage: v.stage, lost_reason: v.stage === "perdido" ? (v.lost_reason ?? null) : null }).eq("id", v.id);
       if (error) throw error;
     },
     onSuccess: refresh,
