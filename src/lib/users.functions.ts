@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export const ROLES = ["admin", "operator", "viewer"] as const;
+export const ROLES = ["admin", "operacional", "operator", "viewer"] as const;
 export type Role = (typeof ROLES)[number];
 
 export interface TeamUser {
@@ -14,9 +14,23 @@ export interface TeamUser {
   createdAt: string;
 }
 
-async function assertAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-  if (error || !data) throw new Error("Apenas administradores podem gerenciar usuários.");
+/** Admins and Operacional manage users; only admins may grant or touch the admin role. */
+async function assertAdmin(supabase: any, userId: string): Promise<{ isAdmin: boolean }> {
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  const roles: string[] = (data ?? []).map((r: { role: string }) => r.role);
+  if (roles.includes("admin")) return { isAdmin: true };
+  if (roles.includes("operacional")) return { isAdmin: false };
+  throw new Error("Apenas administradores ou operacionais podem gerenciar usuários.");
+}
+
+async function assertCanTouch(isAdmin: boolean, targetId: string | null, newRole?: Role) {
+  if (isAdmin) return;
+  if (newRole === "admin") throw new Error("Apenas administradores podem conceder acesso de administrador.");
+  if (targetId) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", targetId);
+    if ((data ?? []).some((r) => r.role === "admin")) throw new Error("Apenas administradores podem alterar outro administrador.");
+  }
 }
 
 export const listTeamUsers = createServerFn({ method: "GET" })
@@ -29,7 +43,7 @@ export const listTeamUsers = createServerFn({ method: "GET" })
       supabaseAdmin.from("user_roles").select("user_id, role"),
     ]);
     if (profiles.error) throw new Error(profiles.error.message);
-    const rank: Record<string, number> = { admin: 3, operator: 2, viewer: 1 };
+    const rank: Record<string, number> = { admin: 4, operacional: 3, operator: 2, viewer: 1 };
     const roleOf = new Map<string, Role>();
     for (const r of roles.data ?? []) {
       const cur = roleOf.get(r.user_id);
@@ -57,7 +71,8 @@ export const createTeamUser = createServerFn({ method: "POST" })
     role: z.enum(ROLES),
   }))
   .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
+    const { isAdmin } = await assertAdmin(context.supabase, context.userId);
+    await assertCanTouch(isAdmin, null, data.role);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email, password: data.password, email_confirm: true, user_metadata: { name: data.name },
@@ -73,10 +88,9 @@ export const updateTeamUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ userId: z.string().uuid(), role: z.enum(ROLES) }))
   .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
-    if (data.userId === context.userId && data.role !== "admin") {
-      throw new Error("Você não pode remover seu próprio acesso de administrador.");
-    }
+    const { isAdmin } = await assertAdmin(context.supabase, context.userId);
+    if (data.userId === context.userId) throw new Error("Você não pode alterar a sua própria permissão.");
+    await assertCanTouch(isAdmin, data.userId, data.role);
     await setRole(data.userId, data.role);
     return { ok: true };
   });
@@ -85,8 +99,9 @@ export const removeTeamUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ userId: z.string().uuid() }))
   .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
+    const { isAdmin } = await assertAdmin(context.supabase, context.userId);
     if (data.userId === context.userId) throw new Error("Você não pode remover a si mesmo.");
+    await assertCanTouch(isAdmin, data.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) throw new Error("Não foi possível remover o usuário.");
