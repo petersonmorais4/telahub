@@ -57,6 +57,13 @@
       "when": 1793220103934,
       "tag": "0007_media_news_type",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793792394093,
+      "tag": "0008_operacional_role_and_sales_funnel",
+      "breakpoints": true
     }
   ]
 }
