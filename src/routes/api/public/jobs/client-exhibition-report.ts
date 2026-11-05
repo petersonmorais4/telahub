@@ -62,7 +62,12 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
         if (screensRes.error) return Response.json({ error: screensRes.error.message }, { status: 500 });
 
         const screens = new Map<string, ScreenInfo>();
-        for (const s of screensRes.data ?? []) screens.set(s.id, { name: s.name, location: s.location });
+        // Test screens never appear in client reports.
+        const testScreenIds = new Set<string>();
+        for (const s of screensRes.data ?? []) {
+          if (/teste/i.test(s.name)) testScreenIds.add(s.id);
+          else screens.set(s.id, { name: s.name, location: s.location });
+        }
 
         const report: string[] = [];
         for (const c of contactsRes.data ?? []) {
@@ -78,7 +83,7 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
               .lt("played_at", range.end)
               .range(from, from + 999);
             if (error) return Response.json({ error: error.message }, { status: 500 });
-            logs.push(...(data ?? []));
+            logs.push(...(data ?? []).filter((l) => !l.screen_id || !testScreenIds.has(l.screen_id)));
             if (!data || data.length < 1000) break;
           }
           const summary = summarize(logs, media.duration || 10, screens);
