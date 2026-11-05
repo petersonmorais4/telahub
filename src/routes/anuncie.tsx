@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createFileRoute, Link, ClientOnly } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+
+const NetworkMap = lazy(() => import("@/components/NetworkMap").then((m) => ({ default: m.NetworkMap })));
 import {
   ArrowRight,
   BarChart3,
@@ -81,7 +83,7 @@ const compare = [
   { label: "TelaHUB", items: ["Exibição contínua o dia todo", "Público local e presente", "Relatório de exibição"], highlight: true },
 ];
 
-const slideIds = ["abertura", "mercado", "por-que", "locais", "comparativo", "como-anunciar", "contato"];
+const slideIds = ["abertura", "mercado", "por-que", "locais", "mapa", "comparativo", "como-anunciar", "contato"];
 
 function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -247,6 +249,19 @@ function Anuncie() {
               </div>
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* Mapa */}
+      <section id="mapa" className={section}>
+        <h2 className="text-3xl font-bold sm:text-4xl">Onde estamos</h2>
+        <p className="mt-3 text-muted-foreground">Pontos da rede TelaHub onde sua marca pode aparecer.</p>
+        <div className="mt-8">
+          <ClientOnly fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+            <Suspense fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+              <NetworkMap />
+            </Suspense>
+          </ClientOnly>
         </div>
       </section>
 
