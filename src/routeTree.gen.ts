@@ -36,6 +36,7 @@ import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPainelUsuariosRouteImport } from './routes/_authenticated/painel.usuarios'
 import { Route as ApiPublicLiveContentRouteImport } from './routes/api/public/live-content'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
+import { Route as ApiPublicJobsClientExhibitionReportRouteImport } from './routes/api/public/jobs/client-exhibition-report'
 import { Route as ApiPublicJobsPartnerTvReminderRouteImport } from './routes/api/public/jobs/partner-tv-reminder'
 import { Route as ApiPublicJobsScreensOfflineAlertRouteImport } from './routes/api/public/jobs/screens-offline-alert'
 
@@ -184,6 +185,12 @@ const ApiPublicPlayerManifestRoute = ApiPublicPlayerManifestRouteImport.update({
   path: '/api/public/player-manifest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsClientExhibitionReportRoute =
+  ApiPublicJobsClientExhibitionReportRouteImport.update({
+    id: '/api/public/jobs/client-exhibition-report',
+    path: '/api/public/jobs/client-exhibition-report',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicJobsPartnerTvReminderRoute =
   ApiPublicJobsPartnerTvReminderRouteImport.update({
     id: '/api/public/jobs/partner-tv-reminder',
@@ -224,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
+  '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
   '/api/public/jobs/partner-tv-reminder': typeof ApiPublicJobsPartnerTvReminderRoute
   '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
 }
@@ -253,6 +261,7 @@ export interface FileRoutesByTo {
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
+  '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
   '/api/public/jobs/partner-tv-reminder': typeof ApiPublicJobsPartnerTvReminderRoute
   '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
 }
@@ -285,6 +294,7 @@ export interface FileRoutesById {
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
+  '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
   '/api/public/jobs/partner-tv-reminder': typeof ApiPublicJobsPartnerTvReminderRoute
   '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
 }
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel/'
+    | '/api/public/jobs/client-exhibition-report'
     | '/api/public/jobs/partner-tv-reminder'
     | '/api/public/jobs/screens-offline-alert'
   fileRoutesByTo: FileRoutesByTo
@@ -346,6 +357,7 @@ export interface FileRouteTypes {
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel'
+    | '/api/public/jobs/client-exhibition-report'
     | '/api/public/jobs/partner-tv-reminder'
     | '/api/public/jobs/screens-offline-alert'
   id:
@@ -377,6 +389,7 @@ export interface FileRouteTypes {
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
+    | '/api/public/jobs/client-exhibition-report'
     | '/api/public/jobs/partner-tv-reminder'
     | '/api/public/jobs/screens-offline-alert'
   fileRoutesById: FileRoutesById
@@ -398,6 +411,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicLiveContentRoute: typeof ApiPublicLiveContentRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
+  ApiPublicJobsClientExhibitionReportRoute: typeof ApiPublicJobsClientExhibitionReportRoute
   ApiPublicJobsPartnerTvReminderRoute: typeof ApiPublicJobsPartnerTvReminderRoute
   ApiPublicJobsScreensOfflineAlertRoute: typeof ApiPublicJobsScreensOfflineAlertRoute
 }
@@ -593,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPlayerManifestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/client-exhibition-report': {
+      id: '/api/public/jobs/client-exhibition-report'
+      path: '/api/public/jobs/client-exhibition-report'
+      fullPath: '/api/public/jobs/client-exhibition-report'
+      preLoaderRoute: typeof ApiPublicJobsClientExhibitionReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/partner-tv-reminder': {
       id: '/api/public/jobs/partner-tv-reminder'
       path: '/api/public/jobs/partner-tv-reminder'
@@ -668,6 +689,8 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicLiveContentRoute: ApiPublicLiveContentRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
+  ApiPublicJobsClientExhibitionReportRoute:
+    ApiPublicJobsClientExhibitionReportRoute,
   ApiPublicJobsPartnerTvReminderRoute: ApiPublicJobsPartnerTvReminderRoute,
   ApiPublicJobsScreensOfflineAlertRoute: ApiPublicJobsScreensOfflineAlertRoute,
 }
