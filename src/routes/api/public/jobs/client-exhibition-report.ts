@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
-import { previousMonthRange, reportHtml, summarize, type ScreenInfo } from "@/lib/client-report";
+import { previousWeekRange, reportHtml, summarize, type ScreenInfo } from "@/lib/client-report";
 
 const ADMIN_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
         if (authFailure) return authFailure;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const range = previousMonthRange();
+        const range = previousWeekRange();
 
         const [contactsRes, screensRes] = await Promise.all([
           supabaseAdmin
@@ -84,7 +84,7 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
           const summary = summarize(logs, media.duration || 10, screens);
           const err = await sendMail(
             c.client_email,
-            `TelaHUB: relatório de exibição de ${range.label}`,
+            `TelaHUB: relatório semanal de exibição (${range.label})`,
             reportHtml({ clientName: c.client_name, adTitle: media.title, monthLabel: range.label, summary }),
             true,
           );
@@ -96,8 +96,8 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
         if (report.length > 0) {
           await sendMail(
             ADMIN_TO,
-            `TelaHUB: relatórios de ${range.label} enviados`,
-            ["Relatórios mensais enviados aos anunciantes:", "", ...report].join("\n"),
+            `TelaHUB: relatórios semanais (${range.label}) enviados`,
+            ["Relatórios semanais enviados aos anunciantes:", "", ...report].join("\n"),
             false,
           );
         }

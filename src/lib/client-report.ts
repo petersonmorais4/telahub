@@ -22,6 +22,19 @@ export function previousMonthRange(now = new Date()) {
   return { start: start.toISOString(), end: end.toISOString(), label };
 }
 
+/** Previous Monday–Sunday week in São Paulo time (UTC-3), as UTC ISO bounds. */
+export function previousWeekRange(now = new Date()) {
+  const sp = new Date(now.getTime() - 3 * 3600_000);
+  const dow = (sp.getUTCDay() + 6) % 7; // 0 = Monday
+  const thisMonday = Date.UTC(sp.getUTCFullYear(), sp.getUTCMonth(), sp.getUTCDate() - dow, 3);
+  const start = new Date(thisMonday - 7 * 86400_000);
+  const end = new Date(thisMonday);
+  const fmt = (d: Date) =>
+    new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" }).format(d);
+  const label = `${fmt(start)} a ${fmt(new Date(end.getTime() - 1))}`;
+  return { start: start.toISOString(), end: end.toISOString(), label };
+}
+
 export function summarize(logs: ReportLogRow[], durationSeconds: number, screens: Map<string, ScreenInfo>) {
   const perScreen = new Map<string, number>();
   for (const log of logs) {
