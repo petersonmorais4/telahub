@@ -155,6 +155,38 @@ export type Database = {
         }
         Relationships: []
       }
+      media_contacts: {
+        Row: {
+          client_email: string | null
+          client_name: string | null
+          media_id: string
+          send_report: boolean
+          updated_at: string
+        }
+        Insert: {
+          client_email?: string | null
+          client_name?: string | null
+          media_id: string
+          send_report?: boolean
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string | null
+          client_name?: string | null
+          media_id?: string
+          send_report?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_contacts_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: true
+            referencedRelation: "media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_leads: {
         Row: {
           address: string

@@ -52,6 +52,9 @@ function AnunciosPage() {
   const [editDuration, setEditDuration] = useState(10);
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [sendReport, setSendReport] = useState(true);
   const { data, isLoading } = useQuery({
     queryKey: ["anuncios"],
     queryFn: async () => {
@@ -170,10 +173,40 @@ function AnunciosPage() {
     setEditDuration(media.duration || defaultDuration);
     setEditStartDate(media.start_date ?? "");
     setEditEndDate(media.end_date ?? "");
+    setClientName("");
+    setClientEmail("");
+    setSendReport(true);
+    void supabase
+      .from("media_contacts")
+      .select("client_name, client_email, send_report")
+      .eq("media_id", media.id)
+      .maybeSingle()
+      .then(({ data: contact }) => {
+        if (!contact) return;
+        setClientName(contact.client_name ?? "");
+        setClientEmail(contact.client_email ?? "");
+        setSendReport(contact.send_report);
+      });
   }
 
-  function saveEdit() {
+  async function saveEdit() {
     if (!editingMedia) return;
+    const email = clientEmail.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("E-mail do anunciante inválido");
+      return;
+    }
+    const { error: contactError } = await supabase.from("media_contacts").upsert({
+      media_id: editingMedia.id,
+      client_name: clientName.trim() || null,
+      client_email: email || null,
+      send_report: sendReport,
+      updated_at: new Date().toISOString(),
+    });
+    if (contactError) {
+      toast.error("Não foi possível salvar o anunciante", { description: contactError.message });
+      return;
+    }
     const normalizedTitle = editTitle.trim();
     if (!normalizedTitle) {
       toast.error("Informe o título do anúncio");
@@ -384,6 +417,23 @@ function AnunciosPage() {
               <div className="space-y-2">
                 <Label htmlFor="edit-end">Fim da veiculação</Label>
                 <Input id="edit-end" type="date" value={editEndDate} onChange={(event) => setEditEndDate(event.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-3 rounded-lg border border-border p-3">
+              <p className="text-sm font-medium">Anunciante (relatório mensal por e-mail)</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="client-name">Nome do anunciante</Label>
+                  <Input id="client-name" value={clientName} onChange={(e) => setClientName(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="client-email">E-mail do anunciante</Label>
+                  <Input id="client-email" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} />
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="send-report">Enviar relatório automático todo dia 1º</Label>
+                <Switch id="send-report" checked={sendReport} onCheckedChange={setSendReport} />
               </div>
             </div>
           </div>
