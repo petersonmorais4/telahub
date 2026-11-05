@@ -420,7 +420,7 @@ function AnunciosPage() {
               </div>
             </div>
             <div className="space-y-3 rounded-lg border border-border p-3">
-              <p className="text-sm font-medium">Anunciante (relatório mensal por e-mail)</p>
+              <p className="text-sm font-medium">Anunciante (relatório semanal por e-mail)</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="client-name">Nome do anunciante</Label>
@@ -432,7 +432,7 @@ function AnunciosPage() {
                 </div>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <Label htmlFor="send-report">Enviar relatório automático todo dia 1º</Label>
+                <Label htmlFor="send-report">Enviar relatório automático toda segunda-feira</Label>
                 <Switch id="send-report" checked={sendReport} onCheckedChange={setSendReport} />
               </div>
             </div>
