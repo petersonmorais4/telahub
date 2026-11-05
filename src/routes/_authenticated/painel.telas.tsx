@@ -273,7 +273,15 @@ function TelasPage() {
                 </span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {screen.location || "Sem local"} · Código{" "}
+                {(() => {
+                  const line1 = [screen.street, screen.address_number].filter(Boolean).join(", ");
+                  const line2 = [screen.neighborhood, [screen.city, screen.state].filter(Boolean).join(" - ")]
+                    .filter(Boolean)
+                    .join(", ");
+                  const addr = [line1, line2].filter(Boolean).join(" · ");
+                  return [screen.location, addr].filter(Boolean).join(" · ") || "Sem endereço";
+                })()}{" "}
+                · Código{" "}
                 <span className="font-mono font-medium text-foreground">{screen.code}</span> ·
                 Sincronizou: {formatDateTime(screen.last_seen)}
               </p>
