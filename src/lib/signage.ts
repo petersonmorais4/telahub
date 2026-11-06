@@ -36,7 +36,7 @@ export interface PlaylistItemRow {
 }
 
 export interface ScreenRow {
-  orientation?: string | null;
+  orientation?: string;
   id: string;
   name: string;
   code: string;
