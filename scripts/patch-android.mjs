@@ -28,7 +28,7 @@ if (headerAdds.length) m = m.replace(/<application/, `${headerAdds.join("\n    "
 m = m.replace(/<activity([^>]*android:name="[^"]*MainActivity"[^>]*)>/, (full, attrs) => {
   let a = attrs;
   if (!a.includes("android:banner")) a += '\n            android:banner="@drawable/banner"';
-  if (!a.includes("android:screenOrientation")) a += '\n            android:screenOrientation="sensorLandscape"';
+  if (!a.includes("android:screenOrientation")) a += '\n            android:screenOrientation="fullUser"';
   return `<activity${a}>`;
 });
 if (!m.includes("LEANBACK_LAUNCHER")) {
