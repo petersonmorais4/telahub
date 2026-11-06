@@ -580,6 +580,7 @@ export type Database = {
           longitude: number | null
           name: string
           neighborhood: string | null
+          orientation: string
           playlist_id: string | null
           show_on_map: boolean
           state: string | null
@@ -600,6 +601,7 @@ export type Database = {
           longitude?: number | null
           name: string
           neighborhood?: string | null
+          orientation?: string
           playlist_id?: string | null
           show_on_map?: boolean
           state?: string | null
@@ -620,6 +622,7 @@ export type Database = {
           longitude?: number | null
           name?: string
           neighborhood?: string | null
+          orientation?: string
           playlist_id?: string | null
           show_on_map?: boolean
           state?: string | null
