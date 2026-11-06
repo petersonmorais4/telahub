@@ -343,6 +343,14 @@ function PlayerPage() {
     };
   }, [settings?.logo_url]);
 
+  const [viewportLandscape, setViewportLandscape] = useState(false);
+  useEffect(() => {
+    const update = () => setViewportLandscape(window.innerWidth > window.innerHeight);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const background = settings?.player_bg || "#000000";
   const animation = settings?.transition === "slide" ? "signage-slide-in" : "signage-fade-in";
 
@@ -359,11 +367,23 @@ function PlayerPage() {
     setPreviousPlayKey(null);
   }
 
+  const rotate = data?.screen?.orientation === "vertical" && viewportLandscape;
   return (
     <div
       onClick={goFullscreen}
-      className="fixed inset-0 flex cursor-none items-center justify-center overflow-hidden"
-      style={{ backgroundColor: background }}
+      className={`fixed flex cursor-none items-center justify-center overflow-hidden ${rotate ? "" : "inset-0"}`}
+      style={
+        rotate
+          ? {
+              backgroundColor: background,
+              top: "50%",
+              left: "50%",
+              width: "100vh",
+              height: "100vw",
+              transform: "translate(-50%, -50%) rotate(90deg)",
+            }
+          : { backgroundColor: background }
+      }
     >
       <div className="absolute inset-x-0 top-0 bottom-11 overflow-hidden md:bottom-14">
         {previousItem && previousUrl && previousPlayKey && (

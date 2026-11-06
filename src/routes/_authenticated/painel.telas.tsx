@@ -56,6 +56,7 @@ function TelasPage() {
   const [location, setLocation] = useState("");
   const [code, setCode] = useState(randomCode());
   const [playlistId, setPlaylistId] = useState<string>(NONE);
+  const [orientation, setOrientation] = useState<string>("horizontal");
   const [address, setAddress] = useState<AddressForm>(emptyAddress());
   const [editing, setEditing] = useState<{
     id: string;
@@ -91,6 +92,7 @@ function TelasPage() {
         location: location || null,
         code: code.trim().toUpperCase(),
         playlist_id: playlistId === NONE ? null : playlistId,
+        orientation,
         ...addressToRow(address),
         latitude: coords?.latitude ?? null,
         longitude: coords?.longitude ?? null,
@@ -106,6 +108,7 @@ function TelasPage() {
       setLocation("");
       setCode(randomCode());
       setPlaylistId(NONE);
+      setOrientation("horizontal");
       setAddress(emptyAddress());
       queryClient.invalidateQueries({ queryKey: ["telas"] });
     },
@@ -241,6 +244,18 @@ function TelasPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label>Orientação da TV</Label>
+                <Select value={orientation} onValueChange={setOrientation}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="horizontal">Horizontal (TV deitada)</SelectItem>
+                    <SelectItem value="vertical">Vertical / Totem (TV em pé)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <AddressFields value={address} onChange={setAddress} />
             </div>
             <DialogFooter>
@@ -285,6 +300,21 @@ function TelasPage() {
                 <span className="font-mono font-medium text-foreground">{screen.code}</span> ·
                 Sincronizou: {formatDateTime(screen.last_seen)}
               </p>
+            </div>
+
+            <div className="w-44">
+              <Select
+                value={screen.orientation ?? "horizontal"}
+                onValueChange={(value) => updateScreen.mutate({ id: screen.id, values: { orientation: value } })}
+              >
+                <SelectTrigger aria-label="Orientação da TV">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="horizontal">Horizontal</SelectItem>
+                  <SelectItem value="vertical">Vertical / Totem</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="w-52">

@@ -1,0 +1,1 @@
+ALTER TABLE public.screens ADD COLUMN IF NOT EXISTS orientation text NOT NULL DEFAULT 'horizontal' CHECK (orientation IN ('horizontal','vertical'));
