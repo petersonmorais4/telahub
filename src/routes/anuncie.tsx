@@ -237,7 +237,7 @@ function Anuncie() {
         <div className="mt-10 grid gap-4 grid-cols-2 lg:grid-cols-4">
           {places.map((p, i) => (
             <Reveal key={p.img} delay={i * 120} className="group overflow-hidden rounded-xl border border-border bg-card">
-              <img src={p.img} alt={p.alt} className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
+              <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
             </Reveal>
           ))}
         </div>
