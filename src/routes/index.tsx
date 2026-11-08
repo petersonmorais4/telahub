@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 
 const NetworkMap = lazy(() => import("@/components/NetworkMap").then((m) => ({ default: m.NetworkMap })));
-import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
+import { Eye, Users, MonitorPlay, BarChart3, Instagram } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -162,7 +162,16 @@ function Index() {
       </section>
 
       <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-center px-6 py-10 sm:justify-end">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row">
+          <a
+            href="https://www.instagram.com/telahubjundiai/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
+          >
+            <Instagram className="h-5 w-5" />
+            @telahubjundiai
+          </a>
           <Link
             to={signedIn ? "/painel" : "/auth"}
             className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
