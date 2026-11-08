@@ -1,23 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createFileRoute, Link, ClientOnly } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+
+const NetworkMap = lazy(() => import("@/components/NetworkMap").then((m) => ({ default: m.NetworkMap })));
 import {
   ArrowRight,
   ChevronDown,
-  Dumbbell,
   Handshake,
   MonitorSmartphone,
-  Pill,
-  ShoppingCart,
   Sparkles,
   Wallet,
   Wrench,
 } from "lucide-react";
 
+import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
+import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
+import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
+import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
-import academiaTv from "@/assets/home-gallery/academia-2.png.asset.json";
-import farmaciaTv from "@/assets/home-gallery/farmacia-2.png.asset.json";
-import mercadoTv from "@/assets/home-gallery/mercado-2.png.asset.json";
 
 export const Route = createFileRoute("/apresentacao")({
   head: () => ({
@@ -62,12 +62,13 @@ const benefits = [
 ];
 
 const places = [
-  { icon: Dumbbell, label: "Academias", img: academiaTv.url },
-  { icon: ShoppingCart, label: "Mercados", img: mercadoTv.url },
-  { icon: Pill, label: "Farmácias", img: farmaciaTv.url },
+  { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
+  { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
+  { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
+  { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
 ];
 
-const slideIds = ["abertura", "mercado", "como-funciona", "beneficios", "locais", "contato"];
+const slideIds = ["abertura", "mercado", "como-funciona", "beneficios", "locais", "mapa", "contato"];
 
 function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -189,9 +190,9 @@ function Apresentacao() {
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/20 blur-3xl" aria-hidden />
             <img
-              src={academiaTv.url}
-              alt="Tela TelaHUB exibindo anúncio em uma academia"
-              className="aspect-[4/3] w-full rounded-2xl border border-border object-cover shadow-[var(--shadow-lift)]"
+              src={localStudioSA.url}
+              alt="Tela TelaHUB exibindo anúncio no Studio S&A"
+              className="aspect-[4/3] w-full rounded-2xl border border-border object-cover object-[center_40%] shadow-[var(--shadow-lift)]"
             />
           </div>
         </div>
@@ -269,22 +270,25 @@ function Apresentacao() {
       {/* Onde estamos */}
       <section id="locais" className="mx-auto w-full max-w-6xl px-6 py-20 snap-start min-h-screen flex flex-col justify-center">
         <h2 className="text-3xl font-bold sm:text-4xl">Onde a TelaHUB brilha</h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 grid-cols-2 lg:grid-cols-4">
           {places.map((p, i) => (
-            <Reveal key={p.label} delay={i * 120} className="group relative overflow-hidden rounded-xl border border-border">
-              <img
-                src={p.img}
-                alt={`Tela TelaHUB em ${p.label.toLowerCase()}`}
-                className="aspect-[3/4] max-h-[60vh] w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 flex items-center gap-2 p-5">
-                <p.icon className="h-5 w-5 text-primary" aria-hidden />
-                <span className="font-display text-lg font-semibold">{p.label}</span>
-              </div>
+            <Reveal key={p.img} delay={i * 120} className="group overflow-hidden rounded-xl border border-border bg-card">
+              <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* Mapa */}
+      <section id="mapa" className="mx-auto w-full max-w-6xl px-6 py-20 snap-start min-h-screen flex flex-col justify-center">
+        <h2 className="text-3xl font-bold sm:text-4xl">Nossos pontos</h2>
+        <p className="mt-3 text-muted-foreground">Locais onde a rede TelaHUB já está no ar.</p>
+        <div className="mt-8">
+          <ClientOnly fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+            <Suspense fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+              <NetworkMap />
+            </Suspense>
+          </ClientOnly>
         </div>
       </section>
 

@@ -6,24 +6,20 @@ import {
   ArrowRight,
   BarChart3,
   ChevronDown,
-  Dumbbell,
   Eye,
   MapPin,
   Newspaper,
-  Pill,
   QrCode,
   RefreshCw,
-  Scissors,
-  ShoppingCart,
 } from "lucide-react";
 
+import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
+import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
+import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
+import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import academiaTv from "@/assets/home-gallery/academia-new.png.asset.json";
-import farmaciaTv from "@/assets/home-gallery/farmacia-2.png.asset.json";
-import mercadoTv from "@/assets/home-gallery/mercado-2.png.asset.json";
-import barbeariaTv from "@/assets/home-gallery/barbearia-new.png.asset.json";
 
 const WHATS = "https://wa.me/5511964424040";
 
@@ -64,10 +60,10 @@ const reasons = [
 ];
 
 const places = [
-  { icon: Dumbbell, label: "Academias", img: academiaTv.url },
-  { icon: ShoppingCart, label: "Mercados", img: mercadoTv.url },
-  { icon: Pill, label: "Farmácias", img: farmaciaTv.url },
-  { icon: Scissors, label: "Barbearias", img: barbeariaTv.url },
+  { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
+  { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
+  { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
+  { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
 ];
 
 const steps = [
@@ -194,7 +190,7 @@ function Anuncie() {
           </div>
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/20 blur-3xl" aria-hidden />
-            <img src={mercadoTv.url} alt="Tela TelaHUB exibindo anúncio em um mercado" className="aspect-[4/3] w-full rounded-2xl border border-border object-cover shadow-[var(--shadow-lift)]" />
+            <img src={localBarbearia.url} alt="Tela TelaHUB exibindo anúncio na Evandro Barbearia" className="aspect-[4/3] w-full rounded-2xl border border-border object-cover object-[center_30%] shadow-[var(--shadow-lift)]" />
           </div>
         </div>
       </section>
@@ -240,13 +236,8 @@ function Anuncie() {
         <p className="mt-3 text-muted-foreground">Lugares onde as pessoas param, esperam e olham para a tela.</p>
         <div className="mt-10 grid gap-4 grid-cols-2 lg:grid-cols-4">
           {places.map((p, i) => (
-            <Reveal key={p.label} delay={i * 120} className="group relative overflow-hidden rounded-xl border border-border">
-              <img src={p.img} alt={`Tela TelaHUB em ${p.label.toLowerCase()}`} className="aspect-[3/4] max-h-[55vh] w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 flex items-center gap-2 p-5">
-                <p.icon className="h-5 w-5 text-primary" aria-hidden />
-                <span className="font-display text-lg font-semibold">{p.label}</span>
-              </div>
+            <Reveal key={p.img} delay={i * 120} className="group overflow-hidden rounded-xl border border-border bg-card">
+              <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
             </Reveal>
           ))}
         </div>
