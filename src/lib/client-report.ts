@@ -83,7 +83,7 @@ export function reportHtml(input: {
   return `<!doctype html><html><body style="margin:0;background:#070b0a;font-family:Arial,Helvetica,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#070b0a;padding:24px 12px"><tr><td align="center">
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px">
-<tr><td style="padding:8px 6px 20px"><img src="${EMAIL_LOGO_URL}" alt="TelaHUB" height="56" style="display:block;height:56px;width:auto;border:0"></td></tr>
+<tr><td style="background:#000000;height:28px;line-height:28px;font-size:0;border-radius:12px 12px 0 0">&nbsp;</td></tr><tr><td style="height:20px;font-size:0">&nbsp;</td></tr>
 <tr><td style="padding:0 6px;color:#e6f2ee"><h1 style="font-size:22px;margin:0 0 8px">Relatório de exibição — ${esc(input.monthLabel)}</h1>
 <p style="color:#9fb5ad;margin:0 0 16px">${input.clientName ? `Olá, ${esc(input.clientName)}! ` : ""}Veja como o anúncio <strong style="color:#e6f2ee">${esc(input.adTitle)}</strong> foi exibido na rede TelaHUB.</p></td></tr>
 <tr><td><table width="100%" cellpadding="0" cellspacing="0"><tr>${card(fmt(summary.total), "exibições")}${card(fmt(summary.minutes), "minutos em tela")}${card(fmt(summary.screens), "telas")}</tr></table></td></tr>
