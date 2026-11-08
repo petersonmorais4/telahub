@@ -1,0 +1,1 @@
+ALTER TABLE public.expenses ADD COLUMN funding_source text NOT NULL DEFAULT 'caixa' CHECK (funding_source IN ('peterson','jonathan','caixa'));

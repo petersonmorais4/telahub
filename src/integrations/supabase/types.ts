@@ -85,6 +85,7 @@ export type Database = {
           created_by: string | null
           description: string
           expense_date: string
+          funding_source: string
           id: string
           notes: string | null
           quantity: number
@@ -97,6 +98,7 @@ export type Database = {
           created_by?: string | null
           description: string
           expense_date?: string
+          funding_source?: string
           id?: string
           notes?: string | null
           quantity?: number
@@ -109,6 +111,7 @@ export type Database = {
           created_by?: string | null
           description?: string
           expense_date?: string
+          funding_source?: string
           id?: string
           notes?: string | null
           quantity?: number
