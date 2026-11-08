@@ -56,7 +56,7 @@ export function summarize(logs: ReportLogRow[], durationSeconds: number, screens
 }
 
 export const EMAIL_LOGO_URL =
-  "https://telahub.app/__l5e/assets-v1/441ca208-0691-43bb-bd0c-5f6c4a610080/telahub-email-logo.png";
+  "https://telahub.app/__l5e/assets-v1/d53f61a4-819b-4e38-8711-f21446341a8c/telahub-logo-sem-fundo.png";
 
 export const TELAHUB_LOGO_URL =
   "https://telahub.app/__l5e/assets-v1/fcf8c042-a9c4-4cf2-8e4e-219d0af59744/telahub-logo.png";
