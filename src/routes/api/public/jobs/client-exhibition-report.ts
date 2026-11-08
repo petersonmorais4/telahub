@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 import { previousWeekRange, reportHtml, summarize, TELAHUB_LOGO_URL, type ScreenInfo } from "@/lib/client-report";
+import { brandedHtml } from "@/lib/email-brand";
 import { reportPdf } from "@/lib/client-report-pdf";
 
 const ADMIN_TO = "petersonmorais4@gmail.com";
@@ -150,8 +151,8 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
           await sendMail(
             ADMIN_TO,
             `TelaHUB: relatórios semanais (${range.label}) enviados`,
-            ["Relatórios semanais enviados aos anunciantes:", "", ...report].join("\n"),
-            false,
+            brandedHtml(["Relatórios semanais enviados aos anunciantes:", "", ...report].join("\n")),
+            true,
           );
         }
         return Response.json({ sent: report.length });

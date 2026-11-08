@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { brandedHtml } from "@/lib/email-brand";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const CODE_TTL_MS = 10 * 60_000;
@@ -64,9 +65,9 @@ export const sendMfaCode = createServerFn({ method: "POST" })
         `To: ${email}`,
         `Subject: ${header(`Código de acesso TelaHUB: ${code}`)}`,
         "MIME-Version: 1.0",
-        'Content-Type: text/plain; charset="UTF-8"',
+        'Content-Type: text/html; charset="UTF-8"',
         "",
-        body,
+        brandedHtml(body),
       ].join("\r\n"),
     )
       .replace(/\+/g, "-")
