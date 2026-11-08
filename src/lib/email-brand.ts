@@ -1,5 +1,3 @@
-import { EMAIL_LOGO_URL } from "@/lib/client-report";
-
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
