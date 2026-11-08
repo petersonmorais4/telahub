@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
+import { brandedHtml, parseEmails } from "@/lib/email-brand";
 
 const ADMIN_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -11,7 +12,7 @@ const header = (v: string) => (/^[\x00-\x7F]*$/.test(v) ? v : `=?UTF-8?B?${b64(v
 
 async function sendMail(to: string, subject: string, body: string) {
   const raw = b64(
-    [`To: ${to}`, `Subject: ${header(subject)}`, "MIME-Version: 1.0", 'Content-Type: text/plain; charset="UTF-8"', "", body].join("\r\n"),
+    [`To: ${to}`, `Subject: ${header(subject)}`, "MIME-Version: 1.0", 'Content-Type: text/html; charset="UTF-8"', "", brandedHtml(body)].join("\r\n"),
   )
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -71,9 +72,10 @@ export const Route = createFileRoute("/api/public/jobs/partner-tv-reminder")({
         const report: string[] = [];
         for (const s of offline) {
           const c = contacts.get(s.id);
-          const email = c?.partner_email?.trim();
+          const emails = parseEmails(c?.partner_email);
+          const email = emails.join(", ");
           const place = s.location ? `${s.name} (${s.location})` : s.name;
-          if (!email) {
+          if (emails.length === 0) {
             report.push(`- ${place}: sem e-mail de parceiro cadastrado`);
             continue;
           }

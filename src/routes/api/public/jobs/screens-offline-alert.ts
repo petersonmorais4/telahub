@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
+import { brandedHtml } from "@/lib/email-brand";
 
 const ALERT_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -49,9 +50,9 @@ export const Route = createFileRoute("/api/public/jobs/screens-offline-alert")({
             `To: ${ALERT_TO}`,
             `Subject: ${header(`TelaHUB: ${offline.length} ponto(s) offline às 8h`)}`,
             "MIME-Version: 1.0",
-            'Content-Type: text/plain; charset="UTF-8"',
+            'Content-Type: text/html; charset="UTF-8"',
             "",
-            body,
+            brandedHtml(body),
           ].join("\r\n"),
         )
           .replace(/\+/g, "-")

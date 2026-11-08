@@ -127,8 +127,10 @@ function TelasPage() {
       partnerName: string;
       partnerEmail: string;
     }) => {
-      const email = partnerEmail.trim();
-      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("E-mail do parceiro inválido");
+      const list = partnerEmail.split(/[\s,;]+/).map((e) => e.trim()).filter(Boolean);
+      const bad = list.find((e) => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e));
+      if (bad) throw new Error(`E-mail inválido: ${bad}`);
+      const email = list.join(", ");
       const coords = await geocodeAddress(form).catch(() => null);
       const { error } = await supabase
         .from("screens")
@@ -434,9 +436,10 @@ function TelasPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>E-mail do parceiro</Label>
+                  <Label>E-mails do local (separe por vírgula)</Label>
                   <Input
-                    type="email"
+                    type="text"
+                    placeholder="loja@exemplo.com, gerente@exemplo.com"
                     value={editing.partnerEmail}
                     onChange={(e) => setEditing({ ...editing, partnerEmail: e.target.value })}
                   />
