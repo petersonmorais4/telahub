@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
-import { previousWeekRange, reportHtml, summarize, TELAHUB_LOGO_URL, type ScreenInfo } from "@/lib/client-report";
+import { previousWeekRange, reportHtml, summarize, EMAIL_LOGO_URL, type ScreenInfo } from "@/lib/client-report";
 import { brandedHtml } from "@/lib/email-brand";
 import { reportPdf } from "@/lib/client-report-pdf";
 
@@ -98,7 +98,7 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
 
         let logoPng: Uint8Array | null = null;
         try {
-          const r = await fetch(TELAHUB_LOGO_URL);
+          const r = await fetch(EMAIL_LOGO_URL);
           if (r.ok) logoPng = new Uint8Array(await r.arrayBuffer());
         } catch {
           logoPng = null;
