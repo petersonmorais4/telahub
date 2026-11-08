@@ -56,10 +56,10 @@ export function summarize(logs: ReportLogRow[], durationSeconds: number, screens
 }
 
 export const EMAIL_LOGO_URL =
-  "https://telahub.app/__l5e/assets-v1/d53f61a4-819b-4e38-8711-f21446341a8c/telahub-logo-sem-fundo.png";
+  "https://telahub.app/__l5e/assets-v1/a3429117-1023-4c1e-87dc-40ce130fcaa4/telahub-logo-oficial.png";
 
 export const TELAHUB_LOGO_URL =
-  "https://telahub.app/__l5e/assets-v1/fcf8c042-a9c4-4cf2-8e4e-219d0af59744/telahub-logo.png";
+  "https://telahub.app/__l5e/assets-v1/88a0f8ce-a049-46a8-9b0b-5f04faf60edb/telahub-logo-oficial-pdf.png";
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
