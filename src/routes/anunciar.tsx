@@ -93,7 +93,9 @@ function Anunciar() {
     }
     setErrors({});
     setSubmitting(true);
-    const { error } = await supabase.from("advertiser_leads").insert(parsed.data);
+    const leadId = crypto.randomUUID();
+    const { error } = await supabase.from("advertiser_leads").insert({ ...parsed.data, id: leadId });
+    if (!error) void fetch("/api/public/lead-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "advertiser", id: leadId }) }).catch(() => {});
     setSubmitting(false);
     if (error) {
       toast.error("Não foi possível enviar. Tente novamente.");
