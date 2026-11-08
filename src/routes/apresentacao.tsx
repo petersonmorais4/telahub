@@ -190,9 +190,9 @@ function Apresentacao() {
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/20 blur-3xl" aria-hidden />
             <img
-              src={academiaTv.url}
-              alt="Tela TelaHUB exibindo anúncio em uma academia"
-              className="aspect-[4/3] w-full rounded-2xl border border-border object-cover shadow-[var(--shadow-lift)]"
+              src={localStudioSA.url}
+              alt="Tela TelaHUB exibindo anúncio no Studio S&A"
+              className="aspect-[4/3] w-full rounded-2xl border border-border object-cover object-[center_40%] shadow-[var(--shadow-lift)]"
             />
           </div>
         </div>

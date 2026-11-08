@@ -190,7 +190,7 @@ function Anuncie() {
           </div>
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/20 blur-3xl" aria-hidden />
-            <img src={mercadoTv.url} alt="Tela TelaHUB exibindo anúncio em um mercado" className="aspect-[4/3] w-full rounded-2xl border border-border object-cover shadow-[var(--shadow-lift)]" />
+            <img src={localBarbearia.url} alt="Tela TelaHUB exibindo anúncio na Evandro Barbearia" className="aspect-[4/3] w-full rounded-2xl border border-border object-cover object-[center_30%] shadow-[var(--shadow-lift)]" />
           </div>
         </div>
       </section>
