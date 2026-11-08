@@ -438,7 +438,8 @@ function TelasPage() {
                 <div className="space-y-2">
                   <Label>E-mails do local (separe por vírgula)</Label>
                   <Input
-                    type="email"
+                    type="text"
+                    placeholder="loja@exemplo.com, gerente@exemplo.com"
                     value={editing.partnerEmail}
                     onChange={(e) => setEditing({ ...editing, partnerEmail: e.target.value })}
                   />
