@@ -88,6 +88,12 @@ const tooltipStyle = {
   itemStyle: { color: "var(--primary)", fontWeight: 600 },
 };
 
+const SOURCES = [
+  { value: "peterson", label: "Investimento Peterson", color: "#22c55e" },
+  { value: "jonathan", label: "Investimento Jonathan", color: "#3b82f6" },
+  { value: "caixa", label: "Caixa TelaHUB", color: "#f59e0b" },
+];
+const srcLabel = (v: string) => SOURCES.find((c) => c.value === v)?.label ?? "Caixa TelaHUB";
 const catLabel = (v: string) => CATEGORIES.find((c) => c.value === v)?.label ?? "Outros";
 const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -98,6 +104,7 @@ interface Expense {
   amount: number;
   expense_date: string;
   quantity: number;
+  funding_source: string;
   supplier: string | null;
   notes: string | null;
 }
@@ -109,6 +116,7 @@ type Form = {
   amount: string;
   expense_date: string;
   quantity: string;
+  funding_source: string;
   supplier: string;
   notes: string;
 };
@@ -120,6 +128,7 @@ const emptyForm = (): Form => ({
   amount: "",
   expense_date: today(),
   quantity: "1",
+  funding_source: "caixa",
   supplier: "",
   notes: "",
 });
@@ -154,6 +163,7 @@ function FinancePage() {
         amount,
         expense_date: f.expense_date,
         quantity: Math.max(1, Number(f.quantity) || 1),
+        funding_source: f.funding_source,
         supplier: f.supplier.trim() || null,
         notes: f.notes.trim() || null,
       };
@@ -220,6 +230,16 @@ function FinancePage() {
       .map(([k, v]) => ({ name: catLabel(k), value: v }))
       .sort((a, b) => b.value - a.value);
   }, [filtered]);
+
+  const bySource = useMemo(
+    () =>
+      SOURCES.map((s) => ({
+        name: s.label,
+        color: s.color,
+        value: filtered.filter((e) => (e.funding_source ?? "caixa") === s.value).reduce((t, e) => t + e.amount, 0),
+      })).filter((s) => s.value > 0),
+    [filtered],
+  );
 
   const activeMonths = monthly.filter((m) => m.total > 0).length || 1;
 
@@ -318,6 +338,37 @@ function FinancePage() {
         </div>
       </div>
 
+      <div className="mt-6 rounded-xl border border-border bg-card p-5">
+        <h3 className="mb-4 font-display font-semibold">Origem do investimento</h3>
+        {bySource.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">Sem custos no período.</p>
+        ) : (
+          <div className="grid items-center gap-6 md:grid-cols-2">
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={bySource} dataKey="value" nameKey="name" innerRadius={50} outerRadius={90}>
+                    {bySource.map((s) => <Cell key={s.name} fill={s.color} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => brl(v)} {...tooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <ul className="space-y-3 text-sm">
+              {bySource.map((s) => (
+                <li key={s.name} className="flex items-center justify-between gap-2 rounded-lg border border-border p-3">
+                  <span className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full" style={{ background: s.color }} />
+                    {s.name}
+                  </span>
+                  <span className="font-semibold">{brl(s.value)} <span className="text-muted-foreground">({total ? Math.round((s.value / total) * 100) : 0}%)</span></span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
       <div className="mt-6 overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="border-b border-border text-left text-muted-foreground">
@@ -325,6 +376,7 @@ function FinancePage() {
               <th className="p-3">Data</th>
               <th className="p-3">Descrição</th>
               <th className="p-3">Categoria</th>
+              <th className="p-3">Origem</th>
               <th className="p-3">Qtd.</th>
               <th className="p-3">Fornecedor</th>
               <th className="p-3 text-right">Valor</th>
@@ -333,15 +385,16 @@ function FinancePage() {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Carregando…</td></tr>
+              <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">Carregando…</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Nenhum custo registrado. Clique em "Novo custo".</td></tr>
+              <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">Nenhum custo registrado. Clique em "Novo custo".</td></tr>
             ) : (
               filtered.map((e) => (
                 <tr key={e.id} className="border-b border-border last:border-0">
                   <td className="p-3 whitespace-nowrap">{e.expense_date.split("-").reverse().join("/")}</td>
                   <td className="p-3">{e.description}{e.notes && <div className="text-xs text-muted-foreground">{e.notes}</div>}</td>
                   <td className="p-3">{catLabel(e.category)}</td>
+                  <td className="p-3 whitespace-nowrap">{srcLabel(e.funding_source)}</td>
                   <td className="p-3">{e.quantity}</td>
                   <td className="p-3">{e.supplier ?? "—"}</td>
                   <td className="p-3 text-right font-medium">{brl(e.amount)}</td>
@@ -350,7 +403,7 @@ function FinancePage() {
                       <Button size="icon" variant="ghost" aria-label="Editar" onClick={() => setForm({
                         id: e.id, description: e.description, category: e.category,
                         amount: String(e.amount), expense_date: e.expense_date,
-                        quantity: String(e.quantity), supplier: e.supplier ?? "", notes: e.notes ?? "",
+                        quantity: String(e.quantity), funding_source: e.funding_source ?? "caixa", supplier: e.supplier ?? "", notes: e.notes ?? "",
                       })}><Pencil className="h-4 w-4" /></Button>
                       <Button size="icon" variant="ghost" aria-label="Excluir" onClick={() => {
                         if (confirm("Excluir este custo?")) remove.mutate(e.id);
@@ -383,6 +436,15 @@ function FinancePage() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label>Origem do custo</Label>
+                <Select value={form.funding_source} onValueChange={(v) => setForm({ ...form, funding_source: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SOURCES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
