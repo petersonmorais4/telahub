@@ -35,6 +35,7 @@ import { Route as AuthenticatedPainelPlaylistsRouteImport } from './routes/_auth
 import { Route as AuthenticatedPainelRelatoriosRouteImport } from './routes/_authenticated/painel.relatorios'
 import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenticated/painel.telas'
 import { Route as AuthenticatedPainelUsuariosRouteImport } from './routes/_authenticated/painel.usuarios'
+import { Route as ApiPublicLeadNotifyRouteImport } from './routes/api/public/lead-notify'
 import { Route as ApiPublicLiveContentRouteImport } from './routes/api/public/live-content'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
 import { Route as ApiPublicJobsClientExhibitionReportRouteImport } from './routes/api/public/jobs/client-exhibition-report'
@@ -182,6 +183,11 @@ const AuthenticatedPainelUsuariosRoute =
     path: '/usuarios',
     getParentRoute: () => AuthenticatedPainelRoute,
   } as any)
+const ApiPublicLeadNotifyRoute = ApiPublicLeadNotifyRouteImport.update({
+  id: '/api/public/lead-notify',
+  path: '/api/public/lead-notify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLiveContentRoute = ApiPublicLiveContentRouteImport.update({
   id: '/api/public/live-content',
   path: '/api/public/live-content',
@@ -236,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
+  '/api/public/lead-notify': typeof ApiPublicLeadNotifyRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
@@ -267,6 +274,7 @@ export interface FileRoutesByTo {
   '/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
+  '/api/public/lead-notify': typeof ApiPublicLeadNotifyRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/relatorios': typeof AuthenticatedPainelRelatoriosRoute
   '/_authenticated/painel/telas': typeof AuthenticatedPainelTelasRoute
   '/_authenticated/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
+  '/api/public/lead-notify': typeof ApiPublicLeadNotifyRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/painel/relatorios'
     | '/painel/telas'
     | '/painel/usuarios'
+    | '/api/public/lead-notify'
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel/'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/painel/relatorios'
     | '/painel/telas'
     | '/painel/usuarios'
+    | '/api/public/lead-notify'
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/painel'
@@ -399,6 +410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/relatorios'
     | '/_authenticated/painel/telas'
     | '/_authenticated/painel/usuarios'
+    | '/api/public/lead-notify'
     | '/api/public/live-content'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
@@ -422,6 +434,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   PlayerCodeRoute: typeof PlayerCodeRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicLeadNotifyRoute: typeof ApiPublicLeadNotifyRoute
   ApiPublicLiveContentRoute: typeof ApiPublicLiveContentRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
   ApiPublicJobsClientExhibitionReportRoute: typeof ApiPublicJobsClientExhibitionReportRoute
@@ -613,6 +626,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelUsuariosRouteImport
       parentRoute: typeof AuthenticatedPainelRoute
     }
+    '/api/public/lead-notify': {
+      id: '/api/public/lead-notify'
+      path: '/api/public/lead-notify'
+      fullPath: '/api/public/lead-notify'
+      preLoaderRoute: typeof ApiPublicLeadNotifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/live-content': {
       id: '/api/public/live-content'
       path: '/api/public/live-content'
@@ -709,6 +729,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   PlayerCodeRoute: PlayerCodeRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicLeadNotifyRoute: ApiPublicLeadNotifyRoute,
   ApiPublicLiveContentRoute: ApiPublicLiveContentRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
   ApiPublicJobsClientExhibitionReportRoute:

@@ -91,9 +91,11 @@ function Indique() {
     setErrors({});
     setSubmitting(true);
     const { referrer, name, email, phone, referred } = parsed.data;
+    const leadId = crypto.randomUUID();
     const { error } = await supabase
       .from("advertiser_leads")
-      .insert({ name, email, phone, company: `[Indicação de ${referrer}] ${referred}`.slice(0, 250) });
+      .insert({ id: leadId, name, email, phone, company: `[Indicação de ${referrer}] ${referred}`.slice(0, 250) });
+    if (!error) void fetch("/api/public/lead-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "advertiser", id: leadId }) }).catch(() => {});
     setSubmitting(false);
     if (error) {
       toast.error("Não foi possível enviar. Tente novamente.");
