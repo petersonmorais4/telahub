@@ -1,13 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createFileRoute, Link, ClientOnly } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+
+const NetworkMap = lazy(() => import("@/components/NetworkMap").then((m) => ({ default: m.NetworkMap })));
 import {
   ArrowRight,
   ChevronDown,
-  Dumbbell,
   Handshake,
   MonitorSmartphone,
-  Pill,
-  ShoppingCart,
   Sparkles,
   Wallet,
   Wrench,
@@ -69,7 +68,7 @@ const places = [
   { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
 ];
 
-const slideIds = ["abertura", "mercado", "como-funciona", "beneficios", "locais", "contato"];
+const slideIds = ["abertura", "mercado", "como-funciona", "beneficios", "locais", "mapa", "contato"];
 
 function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -277,6 +276,19 @@ function Apresentacao() {
               <img src={p.img} alt={p.alt} className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
             </Reveal>
           ))}
+        </div>
+      </section>
+
+      {/* Mapa */}
+      <section id="mapa" className="mx-auto w-full max-w-6xl px-6 py-20 snap-start min-h-screen flex flex-col justify-center">
+        <h2 className="text-3xl font-bold sm:text-4xl">Nossos pontos</h2>
+        <p className="mt-3 text-muted-foreground">Locais onde a rede TelaHUB já está no ar.</p>
+        <div className="mt-8">
+          <ClientOnly fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+            <Suspense fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
+              <NetworkMap />
+            </Suspense>
+          </ClientOnly>
         </div>
       </section>
 

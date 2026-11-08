@@ -6,15 +6,11 @@ import {
   ArrowRight,
   BarChart3,
   ChevronDown,
-  Dumbbell,
   Eye,
   MapPin,
   Newspaper,
-  Pill,
   QrCode,
   RefreshCw,
-  Scissors,
-  ShoppingCart,
 } from "lucide-react";
 
 import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
