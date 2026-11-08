@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, Download, FileBarChart, Images, MonitorPlay, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
-import telahubLogo from "@/assets/telahub-logo.png.asset.json";
+import telahubLogo from "@/assets/telahub-logo-oficial.png.asset.json";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

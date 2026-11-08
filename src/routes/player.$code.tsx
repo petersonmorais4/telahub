@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import telahubLogo from "@/assets/telahub-logo.png.asset.json";
+import telahubLogo from "@/assets/telahub-logo-oficial.png.asset.json";
 import { DynamicMedia } from "@/components/DynamicMedia";
 import { LiveInfoFooter } from "@/components/LiveInfoFooter";
 import { supabase } from "@/integrations/supabase/client";
