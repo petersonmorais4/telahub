@@ -116,6 +116,36 @@ export type Database = {
         }
         Relationships: []
       }
+      login_mfa: {
+        Row: {
+          attempts: number
+          code_hash: string | null
+          created_at: string
+          expires_at: string | null
+          session_id: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash?: string | null
+          created_at?: string
+          expires_at?: string | null
+          session_id: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string | null
+          created_at?: string
+          expires_at?: string | null
+          session_id?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           active: boolean
