@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/lead-notify")({
           .maybeSingle();
         if (!row) return Response.json({ ok: true });
 
-        const r = row as Record<string, string>;
+        const r = row as unknown as { company: string; name: string; email: string; phone: string; business_name: string; cnpj: string; address: string };
         const fields: [string, string][] =
           kind === "advertiser"
             ? [["Empresa", r.company], ["Contato", r.name], ["E-mail", r.email], ["Telefone", r.phone]]
