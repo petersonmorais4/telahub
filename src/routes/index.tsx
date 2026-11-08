@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 
 const NetworkMap = lazy(() => import("@/components/NetworkMap").then((m) => ({ default: m.NetworkMap })));
-import { Eye, Users, MonitorPlay, BarChart3, Instagram } from "lucide-react";
+import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -169,7 +169,21 @@ function Index() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
           >
-            <Instagram className="h-5 w-5" />
+            <svg viewBox="0 0 24 24" className="h-9 w-9" aria-hidden="true">
+              <defs>
+                <radialGradient id="ig-grad" cx="30%" cy="107%" r="150%">
+                  <stop offset="0%" stopColor="#fdf497" />
+                  <stop offset="5%" stopColor="#fdf497" />
+                  <stop offset="45%" stopColor="#fd5949" />
+                  <stop offset="60%" stopColor="#d6249f" />
+                  <stop offset="90%" stopColor="#285AEB" />
+                </radialGradient>
+              </defs>
+              <rect width="24" height="24" rx="6" fill="url(#ig-grad)" />
+              <rect x="5" y="5" width="14" height="14" rx="4" fill="none" stroke="#fff" strokeWidth="1.8" />
+              <circle cx="12" cy="12" r="3.3" fill="none" stroke="#fff" strokeWidth="1.8" />
+              <circle cx="16.4" cy="7.6" r="1" fill="#fff" />
+            </svg>
             @telahubjundiai
           </a>
           <Link
