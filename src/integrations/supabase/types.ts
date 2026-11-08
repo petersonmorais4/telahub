@@ -21,6 +21,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          notified_at: string | null
           phone: string
         }
         Insert: {
@@ -29,6 +30,7 @@ export type Database = {
           email: string
           id?: string
           name: string
+          notified_at?: string | null
           phone: string
         }
         Update: {
@@ -37,6 +39,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          notified_at?: string | null
           phone?: string
         }
         Relationships: []
@@ -227,6 +230,7 @@ export type Database = {
           cnpj: string
           created_at: string
           id: string
+          notified_at: string | null
         }
         Insert: {
           address: string
@@ -234,6 +238,7 @@ export type Database = {
           cnpj: string
           created_at?: string
           id?: string
+          notified_at?: string | null
         }
         Update: {
           address?: string
@@ -241,6 +246,7 @@ export type Database = {
           cnpj?: string
           created_at?: string
           id?: string
+          notified_at?: string | null
         }
         Relationships: []
       }
