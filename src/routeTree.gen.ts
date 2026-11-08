@@ -22,6 +22,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ParceiroRouteImport } from './routes/parceiro'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedVerificacaoRouteImport } from './routes/_authenticated/verificacao'
 import { Route as PlayerCodeRouteImport } from './routes/player.$code'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated/painel.index'
@@ -105,6 +106,12 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVerificacaoRoute =
+  AuthenticatedVerificacaoRouteImport.update({
+    id: '/verificacao',
+    path: '/verificacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const PlayerCodeRoute = PlayerCodeRouteImport.update({
   id: '/player/$code',
   path: '/player/$code',
@@ -217,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/parceiro': typeof ParceiroRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/painel': typeof AuthenticatedPainelRouteWithChildren
+  '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/player/$code': typeof PlayerCodeRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
@@ -247,6 +255,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/parceiro': typeof ParceiroRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/verificacao': typeof AuthenticatedVerificacaoRoute
   '/player/$code': typeof PlayerCodeRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
@@ -280,6 +289,7 @@ export interface FileRoutesById {
   '/parceiro': typeof ParceiroRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRouteWithChildren
+  '/_authenticated/verificacao': typeof AuthenticatedVerificacaoRoute
   '/player/$code': typeof PlayerCodeRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/_authenticated/painel/agendamentos': typeof AuthenticatedPainelAgendamentosRoute
@@ -313,6 +323,7 @@ export interface FileRouteTypes {
     | '/parceiro'
     | '/.well-known/oauth-protected-resource'
     | '/painel'
+    | '/verificacao'
     | '/player/$code'
     | '/.lovable/oauth/consent'
     | '/painel/agendamentos'
@@ -343,6 +354,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/parceiro'
     | '/.well-known/oauth-protected-resource'
+    | '/verificacao'
     | '/player/$code'
     | '/.lovable/oauth/consent'
     | '/painel/agendamentos'
@@ -375,6 +387,7 @@ export interface FileRouteTypes {
     | '/parceiro'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/painel'
+    | '/_authenticated/verificacao'
     | '/player/$code'
     | '/.lovable/oauth/consent'
     | '/_authenticated/painel/agendamentos'
@@ -507,6 +520,13 @@ declare module '@tanstack/react-router' {
       path: '/painel'
       fullPath: '/painel'
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/verificacao': {
+      id: '/_authenticated/verificacao'
+      path: '/verificacao'
+      fullPath: '/verificacao'
+      preLoaderRoute: typeof AuthenticatedVerificacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/player/$code': {
@@ -662,10 +682,12 @@ const AuthenticatedPainelRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRouteWithChildren
+  AuthenticatedVerificacaoRoute: typeof AuthenticatedVerificacaoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPainelRoute: AuthenticatedPainelRouteWithChildren,
+  AuthenticatedVerificacaoRoute: AuthenticatedVerificacaoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
