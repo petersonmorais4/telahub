@@ -4,6 +4,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Copy, ExternalLink, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import { AddressFields } from "@/components/admin/AddressFields";
+import { BusinessHoursFields } from "@/components/admin/BusinessHoursFields";
+import { businessHoursSchema, type BusinessHours } from "@/lib/business-hours";
 import { addressToRow, emptyAddress, geocodeAddress, type AddressForm } from "@/lib/address";
 
 import { AdminShell } from "@/components/admin/AdminShell";
@@ -37,6 +39,8 @@ export const Route = createFileRoute("/_authenticated/painel/telas")({
       { property: "og:title", content: "TelaHUB — Telas" },
       { property: "og:description", content: "Gestão das telas físicas da rede de mídia indoor." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: TelasPage,
@@ -58,12 +62,14 @@ function TelasPage() {
   const [playlistId, setPlaylistId] = useState<string>(NONE);
   const [orientation, setOrientation] = useState<string>("horizontal");
   const [address, setAddress] = useState<AddressForm>(emptyAddress());
+  const [businessHours, setBusinessHours] = useState<BusinessHours | null>(null);
   const [editing, setEditing] = useState<{
     id: string;
     name: string;
     form: AddressForm;
     partnerName: string;
     partnerEmail: string;
+    businessHours: BusinessHours | null;
   } | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -86,6 +92,7 @@ function TelasPage() {
 
   const createScreen = useMutation({
     mutationFn: async () => {
+      if (businessHours !== null) businessHoursSchema.parse(businessHours);
       const coords = await geocodeAddress(address).catch(() => null);
       const { error } = await supabase.from("screens").insert({
         name,
@@ -93,6 +100,7 @@ function TelasPage() {
         code: code.trim().toUpperCase(),
         playlist_id: playlistId === NONE ? null : playlistId,
         orientation,
+        business_hours: businessHours,
         ...addressToRow(address),
         latitude: coords?.latitude ?? null,
         longitude: coords?.longitude ?? null,
@@ -110,6 +118,7 @@ function TelasPage() {
       setPlaylistId(NONE);
       setOrientation("horizontal");
       setAddress(emptyAddress());
+      setBusinessHours(null);
       queryClient.invalidateQueries({ queryKey: ["telas"] });
     },
     onError: (error: Error) => toast.error("Não foi possível salvar", { description: error.message }),
@@ -121,12 +130,15 @@ function TelasPage() {
       form,
       partnerName,
       partnerEmail,
+      businessHours,
     }: {
       id: string;
       form: AddressForm;
       partnerName: string;
       partnerEmail: string;
+      businessHours: BusinessHours | null;
     }) => {
+      if (businessHours !== null) businessHoursSchema.parse(businessHours);
       const list = partnerEmail.split(/[\s,;]+/).map((e) => e.trim()).filter(Boolean);
       const bad = list.find((e) => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e));
       if (bad) throw new Error(`E-mail inválido: ${bad}`);
@@ -134,7 +146,7 @@ function TelasPage() {
       const coords = await geocodeAddress(form).catch(() => null);
       const { error } = await supabase
         .from("screens")
-        .update({ ...addressToRow(form), latitude: coords?.latitude ?? null, longitude: coords?.longitude ?? null })
+        .update({ ...addressToRow(form), business_hours: businessHours, latitude: coords?.latitude ?? null, longitude: coords?.longitude ?? null })
         .eq("id", id);
       if (error) throw error;
       const { error: contactError } = await db.from("screen_contacts").upsert({
@@ -148,7 +160,7 @@ function TelasPage() {
     },
     onSuccess: ({ coords, form }) => {
       if (form.show_on_map && !coords) toast.warning("Endereço salvo, mas não localizado no mapa — revise rua/CEP.");
-      else toast.success("Endereço salvo");
+      else toast.success("Dados do ponto salvos");
       setEditing(null);
       queryClient.invalidateQueries({ queryKey: ["telas"] });
     },
@@ -259,6 +271,7 @@ function TelasPage() {
                 </Select>
               </div>
               <AddressFields value={address} onChange={setAddress} />
+              <BusinessHoursFields value={businessHours} onChange={setBusinessHours} />
             </div>
             <DialogFooter>
               <Button
@@ -347,7 +360,8 @@ function TelasPage() {
               <Button
                 variant="outline"
                 size="icon"
-                aria-label="Endereço e mapa"
+                aria-label="Dados do ponto e horários"
+                title="Dados do ponto e horários"
                 onClick={() =>
                   setEditing({
                     id: screen.id,
@@ -364,6 +378,7 @@ function TelasPage() {
                     },
                     partnerName: data?.contacts[screen.id]?.partner_name ?? "",
                     partnerEmail: data?.contacts[screen.id]?.partner_email ?? "",
+                    businessHours: businessHoursSchema.safeParse(screen.business_hours).success ? businessHoursSchema.parse(screen.business_hours) : null,
                   })
                 }
               >
@@ -416,9 +431,9 @@ function TelasPage() {
         ) : null}
       </div>
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Endereço — {editing?.name}</DialogTitle>
+            <DialogTitle>Dados do ponto — {editing?.name}</DialogTitle>
             <DialogDescription>Digite o CEP para preencher o endereço. O ponto aparece no mapa da página inicial se marcado.</DialogDescription>
           </DialogHeader>
           {editing ? (
@@ -426,7 +441,7 @@ function TelasPage() {
               <AddressFields value={editing.form} onChange={(form) => setEditing({ ...editing, form })} />
               <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
                 <p className="text-sm text-muted-foreground sm:col-span-2">
-                  Lembrete às 9h: se a TV não estiver ligada, o parceiro recebe um e-mail.
+                  Lembrete às 9h: enviado somente se o ponto estiver aberto e a TV estiver offline.
                 </p>
                 <div className="space-y-2">
                   <Label>Nome do parceiro</Label>
@@ -445,14 +460,15 @@ function TelasPage() {
                   />
                 </div>
               </div>
+              <BusinessHoursFields value={editing.businessHours} onChange={(businessHours) => setEditing({ ...editing, businessHours })} />
             </div>
           ) : null}
           <DialogFooter>
             <Button
               disabled={saveAddress.isPending}
-              onClick={() => editing && saveAddress.mutate({ id: editing.id, form: editing.form, partnerName: editing.partnerName, partnerEmail: editing.partnerEmail })}
+              onClick={() => editing && saveAddress.mutate({ id: editing.id, form: editing.form, partnerName: editing.partnerName, partnerEmail: editing.partnerEmail, businessHours: editing.businessHours })}
             >
-              {saveAddress.isPending ? "Localizando…" : "Salvar endereço"}
+              {saveAddress.isPending ? "Salvando…" : "Salvar dados do ponto"}
             </Button>
           </DialogFooter>
         </DialogContent>
