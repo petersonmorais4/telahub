@@ -173,6 +173,36 @@
   box-shadow: var(--shadow-panel);
 }
 
+/* News sizing follows the actual player area, including rotated displays. */
+.news-slide-layout {
+  container-type: size;
+  padding: 4cqh 5% 9cqh;
+}
+.news-slide-logo { width: 72px; height: 72px; }
+.news-slide-content { gap: 16px; padding-top: 20px; }
+.news-slide-title { font-size: 3rem; }
+.news-slide-summary { font-size: 1.5rem; line-height: 1.4; }
+.news-slide-others { padding-top: 16px; font-size: 1rem; line-height: 1.4; }
+.news-slide-source { font-size: 0.875rem; line-height: 1.4; }
+@container (max-height: 620px) {
+  .news-slide-logo { width: 48px; height: 48px; }
+  .news-slide-content { gap: 12px; padding-top: 12px; }
+  .news-slide-title { font-size: 2rem; }
+  .news-slide-summary { font-size: 1.125rem; }
+  .news-slide-others { padding-top: 12px; font-size: 0.875rem; }
+}
+@container (max-height: 460px) {
+  .news-slide-title { font-size: 1.5rem; }
+  .news-slide-summary { font-size: 1rem; }
+  .news-slide-content { gap: 8px; }
+  .news-slide-others { display: none; }
+}
+@container (max-width: 600px) {
+  .news-slide-title { font-size: 1.75rem; }
+  .news-slide-summary { font-size: 1.125rem; }
+  .news-slide-others { grid-template-columns: 1fr; gap: 12px; }
+}
+
 /* Player: transições suaves entre itens (crossfade sem piscadas) */
 @keyframes signage-fade-in {
   from {
