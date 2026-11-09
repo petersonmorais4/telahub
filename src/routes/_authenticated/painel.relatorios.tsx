@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { CalendarDays, Download, FileBarChart, Images, MonitorPlay, RefreshCw } from "lucide-react";
+import { CalendarDays, ChevronDown, Download, FileBarChart, Images, MonitorPlay, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import telahubLogo from "@/assets/telahub-logo-oficial.png.asset.json";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { filterReportScreens } from "@/lib/report-screen-filter";
 import {
   Select,
   SelectContent,
@@ -113,13 +116,13 @@ function formatPlayedAt(value: string) {
 function RelatoriosPage() {
   const [period, setPeriod] = useState<Period>("daily");
   const [mediaId, setMediaId] = useState(ALL);
-  const [screenId, setScreenId] = useState(ALL);
+  const [selectedScreenIds, setSelectedScreenIds] = useState<string[] | null>(null);
   const [page, setPage] = useState(1);
   const [exporting, setExporting] = useState(false);
   const range = useMemo(() => getPeriodRange(period), [period]);
 
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
-    queryKey: ["reports", period, mediaId, screenId],
+    queryKey: ["reports", period, mediaId],
     refetchInterval: 10_000,
     refetchOnWindowFocus: true,
     queryFn: async () => {
@@ -142,7 +145,6 @@ function RelatoriosPage() {
           .order("played_at", { ascending: false })
           .range(from, from + 999);
         if (mediaId !== ALL) query = query.eq("media_id", mediaId);
-        if (screenId !== ALL) query = query.eq("screen_id", screenId);
         const result = await query.returns<ReportLog[]>();
         if (result.error) throw result.error;
         logs.push(...(result.data ?? []));
@@ -157,7 +159,17 @@ function RelatoriosPage() {
     },
   });
 
-  const logs = data?.logs ?? [];
+  const screens = (data?.screens ?? []).filter((screen) => !/teste/i.test(screen.name));
+  const logs = useMemo(() => filterReportScreens(data?.logs ?? [], selectedScreenIds), [data?.logs, selectedScreenIds]);
+  const screenLabel = selectedScreenIds === null ? "Todos os pontos"
+    : selectedScreenIds.length === 0 ? "Nenhum ponto selecionado"
+    : selectedScreenIds.length === 1 ? screens.find((screen) => screen.id === selectedScreenIds[0])?.name ?? "1 ponto selecionado"
+    : `${selectedScreenIds.length} pontos selecionados`;
+
+  function changeScreens(ids: string[] | null) {
+    setSelectedScreenIds(ids);
+    setPage(1);
+  }
   const totalPages = Math.max(1, Math.ceil(logs.length / PAGE_SIZE));
   const visibleLogs = logs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const uniqueMedia = new Set(logs.map((log) => log.media_id).filter(Boolean)).size;
@@ -189,7 +201,8 @@ function RelatoriosPage() {
         reader.readAsDataURL(logoBlob);
       });
       const selectedMedia = data?.media.find((item) => item.id === mediaId)?.title ?? "Todos";
-      const selectedScreen = data?.screens.find((item) => item.id === screenId)?.name ?? "Todas";
+      const selectedScreen = selectedScreenIds === null ? "Todos os pontos"
+        : screens.filter((screen) => selectedScreenIds.includes(screen.id)).map((screen) => screen.name).join(", ");
       const generatedAt = new Intl.DateTimeFormat("pt-BR", {
         timeZone: "America/Sao_Paulo",
         dateStyle: "short",
@@ -206,11 +219,13 @@ function RelatoriosPage() {
       document.setTextColor(31, 41, 39);
       document.setFont("helvetica", "normal");
       document.setFontSize(9);
-      document.text(`Período: ${periodNames[period]}  |  Anúncio: ${selectedMedia}  |  Tela: ${selectedScreen}`, 14, 29);
-      document.text(`Exibições: ${logs.length}  |  Anúncios: ${uniqueMedia}  |  Telas: ${uniqueScreens}  |  Gerado em: ${generatedAt}`, 14, 34);
+      const filterLines = document.splitTextToSize(`Período: ${periodNames[period]}  |  Anúncio: ${selectedMedia}  |  Pontos: ${selectedScreen}`, 269);
+      document.text(filterLines, 14, 29);
+      const summaryY = 29 + filterLines.length * 4.5;
+      document.text(`Exibições: ${logs.length}  |  Anúncios: ${uniqueMedia}  |  Telas: ${uniqueScreens}  |  Gerado em: ${generatedAt}`, 14, summaryY);
 
       autoTable(document, {
-        startY: 40,
+        startY: summaryY + 6,
         head: [["Anúncio", "Tela", "Local", "Data", "Horário"]],
         body: logs.map((log) => {
           const played = formatPlayedAt(log.played_at);
@@ -287,16 +302,36 @@ function RelatoriosPage() {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Tela</Label>
-            <Select value={screenId} onValueChange={(value) => { setScreenId(value); setPage(1); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL}>Todas as telas</SelectItem>
-                {(data?.screens ?? []).map((screen) => (
-                  <SelectItem key={screen.id} value={screen.id}>{screen.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="report-points">Pontos</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button id="report-points" variant="outline" className="w-full justify-between gap-2" disabled={isLoading}>
+                  <span className="truncate">{screenLabel}</span>
+                  <ChevronDown className="h-4 w-4 shrink-0" aria-hidden />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] min-w-64 max-w-[calc(100vw-2rem)] p-2">
+                <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+                  <Button size="sm" variant="ghost" onClick={() => changeScreens(null)}>Marcar todos</Button>
+                  <Button size="sm" variant="ghost" onClick={() => changeScreens([])}>Desmarcar todos</Button>
+                </div>
+                <div className="max-h-72 overflow-y-auto py-1">
+                  {screens.map((screen) => (
+                    <Label key={screen.id} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-3 hover:bg-accent">
+                      <Checkbox
+                        checked={selectedScreenIds === null || selectedScreenIds.includes(screen.id)}
+                        onCheckedChange={(checked) => {
+                          const current = selectedScreenIds ?? screens.map((item) => item.id);
+                          changeScreens(checked === true ? [...current.filter((id) => id !== screen.id), screen.id] : current.filter((id) => id !== screen.id));
+                        }}
+                      />
+                      <span className="min-w-0 break-words">{screen.name || screen.code}</span>
+                    </Label>
+                  ))}
+                  {screens.length === 0 ? <p className="p-3 text-sm text-muted-foreground">Nenhum ponto disponível.</p> : null}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </section>
