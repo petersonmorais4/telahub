@@ -401,6 +401,7 @@ function PlayerPage() {
             url={previousUrl}
             animation={exitAnimation}
             advance={advance}
+            fill={data?.screen?.orientation === "vertical"}
             onAnimationEnd={onExitEnd}
           />
         )}
@@ -411,6 +412,7 @@ function PlayerPage() {
             url={currentUrl}
             animation={animation}
             advance={advance}
+            fill={data?.screen?.orientation === "vertical"}
             onPresented={recordPresentedMedia}
           />
         ) : (
@@ -530,7 +532,9 @@ function MediaElement({
   advance,
   onAnimationEnd,
   onPresented,
+  fill = false,
 }: {
+  fill?: boolean;
   item: PlayableItem;
   url: string;
   animation: string;
@@ -575,7 +579,7 @@ function MediaElement({
       {isVideo ? (
         <video
           src={url}
-          className="absolute inset-0 h-full w-full object-contain"
+          className={`absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`}
           autoPlay
           muted
           playsInline
@@ -588,7 +592,7 @@ function MediaElement({
           src={url}
           alt=""
           decoding="async"
-          className="absolute inset-0 h-full w-full object-contain"
+          className={`absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`}
           onLoad={reportPresented}
           onError={advance}
         />
