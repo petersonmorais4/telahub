@@ -622,6 +622,7 @@ export type Database = {
           neighborhood: string | null
           orientation: string
           playlist_id: string | null
+          rotation: number | null
           show_on_map: boolean
           state: string | null
           status: string
@@ -644,6 +645,7 @@ export type Database = {
           neighborhood?: string | null
           orientation?: string
           playlist_id?: string | null
+          rotation?: number | null
           show_on_map?: boolean
           state?: string | null
           status?: string
@@ -666,6 +668,7 @@ export type Database = {
           neighborhood?: string | null
           orientation?: string
           playlist_id?: string | null
+          rotation?: number | null
           show_on_map?: boolean
           state?: string | null
           status?: string
