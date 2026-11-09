@@ -248,9 +248,9 @@ function PlayerPage() {
 
     const loadUrl = isDynamicMedia(current.media)
       ? Promise.resolve<string | null>("dynamic")
-      : getSignedUrl(current.media.storage_path).then((url) =>
-          url && current.media.type === "image" ? preloadImage(url).then(() => url) : url,
-        );
+      : current.media.type === "image"
+        ? loadCachedImage(current.media.storage_path)
+        : getSignedUrl(current.media.storage_path);
     loadUrl.then((value) => {
       // Ignora apenas se outro item já assumiu; refetch não cancela o carregamento
       if (preparedPlayRef.current !== playKey) return;
@@ -266,11 +266,19 @@ function PlayerPage() {
   // Pré-carrega o próximo item (link + arquivo da imagem) para a troca ser imediata
   useEffect(() => {
     if (queue.length < 2) return;
-    const next = queue[(currentIndex + 1) % queue.length];
-    if (!next || isDynamicMedia(next.media)) return;
-    void getSignedUrl(next.media.storage_path).then((url) => {
-      if (url && next.media.type === "image") void preloadImage(url);
-    });
+    // Próximo primeiro, depois o restante da grade em segundo plano
+    let cancelled = false;
+    void (async () => {
+      for (let i = 1; i <= queue.length && !cancelled; i++) {
+        const item = queue[(currentIndex + i) % queue.length];
+        if (!item || isDynamicMedia(item.media)) continue;
+        if (item.media.type === "image") await loadCachedImage(item.media.storage_path);
+        else await getSignedUrl(item.media.storage_path);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [queue, currentIndex]);
 
   // Tempo de exibição: começa só quando o item está carregado e visível,
@@ -437,6 +445,54 @@ function PlayerPage() {
   );
 }
 
+const MEDIA_CACHE = "telahub-media-v1";
+const blobUrls = new Map<string, Promise<string | null>>();
+
+/**
+ * Baixa a imagem por completo (com cache persistente no aparelho, chaveado pelo
+ * caminho do arquivo), decodifica e devolve um endereço local. Assim a imagem
+ * nunca aparece "aos poucos" e as próximas voltas não dependem da internet.
+ */
+function loadCachedImage(path: string): Promise<string | null> {
+  const existing = blobUrls.get(path);
+  if (existing) return existing;
+  const promise = (async () => {
+    const key = `https://cache.telahub.local/${encodeURIComponent(path)}`;
+    let blob: Blob | null = null;
+    let cache: Cache | null = null;
+    try {
+      if (typeof caches !== "undefined") {
+        cache = await caches.open(MEDIA_CACHE);
+        const hit = await cache.match(key);
+        if (hit) blob = await hit.blob();
+      }
+    } catch {
+      cache = null;
+    }
+    if (!blob) {
+      const signed = await getSignedUrl(path);
+      if (!signed) return null;
+      try {
+        const res = await fetch(signed);
+        if (!res.ok) return signed;
+        blob = await res.blob();
+        if (cache) void cache.put(key, new Response(blob)).catch(() => undefined);
+      } catch {
+        await preloadImage(signed);
+        return signed;
+      }
+    }
+    const local = URL.createObjectURL(blob);
+    await preloadImage(local);
+    return local;
+  })();
+  blobUrls.set(path, promise);
+  promise.then((v) => {
+    if (!v) blobUrls.delete(path);
+  });
+  return promise;
+}
+
 const preloadedImages = new Map<string, Promise<void>>();
 
 /** Baixa e decodifica a imagem antes de exibi-la (máx. 4 s de espera). */
@@ -446,7 +502,7 @@ function preloadImage(url: string): Promise<void> {
   const promise = new Promise<void>((resolve) => {
     const img = new Image();
     const done = () => resolve();
-    const timeout = setTimeout(done, 4_000);
+    const timeout = setTimeout(done, 20_000);
     img.onload = () => {
       clearTimeout(timeout);
       if (img.decode) img.decode().then(done, done);
@@ -531,6 +587,7 @@ function MediaElement({
         <img
           src={url}
           alt=""
+          decoding="async"
           className="absolute inset-0 h-full w-full object-contain"
           onLoad={reportPresented}
           onError={advance}
