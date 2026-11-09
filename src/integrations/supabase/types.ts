@@ -607,6 +607,7 @@ export type Database = {
       screens: {
         Row: {
           address_number: string | null
+          business_hours: Json | null
           cep: string | null
           city: string | null
           code: string
@@ -628,6 +629,7 @@ export type Database = {
         }
         Insert: {
           address_number?: string | null
+          business_hours?: Json | null
           cep?: string | null
           city?: string | null
           code: string
@@ -649,6 +651,7 @@ export type Database = {
         }
         Update: {
           address_number?: string | null
+          business_hours?: Json | null
           cep?: string | null
           city?: string | null
           code?: string
@@ -881,6 +884,7 @@ export type Database = {
         }[]
       }
       touch_screen: { Args: { p_code: string }; Returns: undefined }
+      valid_business_hours: { Args: { value: Json }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "operator" | "viewer" | "operacional"
