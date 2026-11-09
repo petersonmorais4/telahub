@@ -407,7 +407,7 @@ function PlayerPage() {
             url={previousUrl}
             animation={exitAnimation}
             advance={advance}
-            fill={data?.screen?.orientation === "vertical"}
+            fill={data?.screen?.orientation === "vertical" || sideways}
             onAnimationEnd={onExitEnd}
           />
         )}
@@ -418,7 +418,7 @@ function PlayerPage() {
             url={currentUrl}
             animation={animation}
             advance={advance}
-            fill={data?.screen?.orientation === "vertical"}
+            fill={data?.screen?.orientation === "vertical" || sideways}
             onPresented={recordPresentedMedia}
           />
         ) : (
