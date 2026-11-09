@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, Download, FileBarChart, Images, MonitorPlay, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
-import telahubLogo from "@/assets/telahub-logo-oficial.png.asset.json";
+import telahubLogo from "@/assets/telahub-logo-oficial-pdf.png.asset.json";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -211,11 +211,15 @@ function RelatoriosPage() {
 
       document.setFillColor(5, 12, 11);
       document.rect(0, 0, 297, 23, "F");
-      document.addImage(logoDataUrl, "PNG", 12, 2.5, 35, 17.5);
+      const logoProperties = document.getImageProperties(logoDataUrl);
+      const logoScale = Math.min(48 / logoProperties.width, 17 / logoProperties.height);
+      const logoWidth = logoProperties.width * logoScale;
+      const logoHeight = logoProperties.height * logoScale;
+      document.addImage(logoDataUrl, "PNG", 14, (23 - logoHeight) / 2, logoWidth, logoHeight);
       document.setTextColor(255, 255, 255);
       document.setFont("helvetica", "bold");
       document.setFontSize(18);
-      document.text("Relatório de exibições", 52, 14);
+      document.text("Relatório de exibições", 72, 14);
       document.setTextColor(31, 41, 39);
       document.setFont("helvetica", "normal");
       document.setFontSize(9);
