@@ -1,0 +1,1 @@
+ALTER TABLE public.screens ADD COLUMN IF NOT EXISTS rotation integer CHECK (rotation IN (0,90,180,270));

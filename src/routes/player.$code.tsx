@@ -375,22 +375,28 @@ function PlayerPage() {
     setPreviousPlayKey(null);
   }
 
-  const rotate = data?.screen?.orientation === "vertical" && viewportLandscape;
+  const manualRotation = data?.screen?.rotation;
+  const degrees =
+    manualRotation ?? (data?.screen?.orientation === "vertical" && viewportLandscape ? 90 : 0);
+  const sideways = degrees === 90 || degrees === 270;
+  const rotate = degrees !== 0;
   return (
     <div
       onClick={goFullscreen}
-      className={`fixed flex cursor-none items-center justify-center overflow-hidden ${rotate ? "" : "inset-0"}`}
+      className={`fixed flex cursor-none items-center justify-center overflow-hidden ${sideways ? "" : "inset-0"}`}
       style={
-        rotate
+        sideways
           ? {
               backgroundColor: background,
               top: "50%",
               left: "50%",
               width: "100vh",
               height: "100vw",
-              transform: "translate(-50%, -50%) rotate(90deg)",
+              transform: `translate(-50%, -50%) rotate(${degrees}deg)`,
             }
-          : { backgroundColor: background }
+          : rotate
+            ? { backgroundColor: background, transform: `rotate(${degrees}deg)` }
+            : { backgroundColor: background }
       }
     >
       <div className="absolute inset-x-0 top-0 bottom-11 overflow-hidden md:bottom-14">
@@ -401,7 +407,7 @@ function PlayerPage() {
             url={previousUrl}
             animation={exitAnimation}
             advance={advance}
-            fill={data?.screen?.orientation === "vertical"}
+            fill={data?.screen?.orientation === "vertical" || sideways}
             onAnimationEnd={onExitEnd}
           />
         )}
@@ -412,7 +418,7 @@ function PlayerPage() {
             url={currentUrl}
             animation={animation}
             advance={advance}
-            fill={data?.screen?.orientation === "vertical"}
+            fill={data?.screen?.orientation === "vertical" || sideways}
             onPresented={recordPresentedMedia}
           />
         ) : (
