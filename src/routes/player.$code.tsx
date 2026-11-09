@@ -250,7 +250,7 @@ function PlayerPage() {
       ? Promise.resolve<string | null>("dynamic")
       : current.media.type === "image"
         ? loadCachedImage(current.media.storage_path)
-        : getSignedUrl(current.media.storage_path);
+        : getSignedUrl(current.media.storage_path).then((u) => (u ? preloadVideo(u).then(() => u) : u));
     loadUrl.then((value) => {
       // Ignora apenas se outro item já assumiu; refetch não cancela o carregamento
       if (preparedPlayRef.current !== playKey) return;
@@ -501,6 +501,69 @@ function loadCachedImage(path: string): Promise<string | null> {
   return promise;
 }
 
+/** Espera o vídeo ter dados suficientes para começar sem tela preta (máx. 15 s). */
+function preloadVideo(url: string): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const v = document.createElement("video");
+    let finished = false;
+    const done = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(t);
+      v.removeAttribute("src");
+      v.load();
+      resolve();
+    };
+    const t = setTimeout(done, 15_000);
+    v.muted = true;
+    v.preload = "auto";
+    v.oncanplay = done;
+    v.onerror = done;
+    v.src = url;
+    v.load();
+  });
+}
+
+const TRANSPARENT_POSTER =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+function PlayerVideo({
+  url,
+  fill,
+  onPlaying,
+  onEnded,
+}: {
+  url: string;
+  fill: boolean;
+  onPlaying: () => void;
+  onEnded: () => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <video
+      src={url}
+      poster={TRANSPARENT_POSTER}
+      className={`signage-video absolute inset-0 h-full w-full transition-opacity duration-300 ${fill ? "object-cover" : "object-contain"} ${visible ? "opacity-100" : "opacity-0"}`}
+      autoPlay
+      muted
+      playsInline
+      preload="auto"
+      disablePictureInPicture
+      controls={false}
+      onPlaying={() => {
+        setVisible(true);
+        onPlaying();
+      }}
+      onEnded={(e) => {
+        // Mantém o último quadro na tela durante a transição (sem ícone de play)
+        e.currentTarget.pause();
+        onEnded();
+      }}
+      onError={onEnded}
+    />
+  );
+}
+
 const preloadedImages = new Map<string, Promise<void>>();
 
 /** Baixa e decodifica a imagem antes de exibi-la (máx. 4 s de espera). */
@@ -583,16 +646,7 @@ function MediaElement({
         />
       )}
       {isVideo ? (
-        <video
-          src={url}
-          className={`absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`}
-          autoPlay
-          muted
-          playsInline
-          onPlaying={reportPresented}
-          onEnded={advance}
-          onError={advance}
-        />
+        <PlayerVideo url={url} fill={fill} onPlaying={reportPresented} onEnded={advance} />
       ) : (
         <img
           src={url}
