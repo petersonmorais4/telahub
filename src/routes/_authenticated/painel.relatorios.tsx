@@ -58,7 +58,7 @@ interface ReportLog {
   media_id: string | null;
   screen_id: string | null;
   media: { title: string } | null;
-  screens: { name: string; location: string | null } | null;
+  screens: { name: string; location: string | null; business_hours?: unknown } | null;
 }
 
 const ALL = "__all__";
@@ -135,7 +135,7 @@ function RelatoriosPage() {
 
       const logs: ReportLog[] = [];
       const selection: string =
-        "id, played_at, media_id, screen_id, media(title), screens(name, location)";
+        "id, played_at, media_id, screen_id, media(title), screens(name, location, business_hours)";
       for (let from = 0; ; from += 1000) {
         let query = supabase
           .from("play_logs")

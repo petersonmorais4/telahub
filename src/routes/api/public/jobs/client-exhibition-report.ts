@@ -3,6 +3,7 @@ import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 import { previousWeekRange, reportHtml, summarize, EMAIL_LOGO_URL, type ScreenInfo } from "@/lib/client-report";
 import { brandedHtml } from "@/lib/email-brand";
 import { reportPdf } from "@/lib/client-report-pdf";
+import { isWithinBusinessHours } from "@/lib/business-hours";
 
 const ADMIN_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -83,12 +84,13 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
             .select("media_id, client_name, client_email, send_report, media(title, duration)")
             .eq("send_report", true)
             .not("client_email", "is", null),
-          supabaseAdmin.from("screens").select("id, name, location"),
+          supabaseAdmin.from("screens").select("id, name, location, business_hours"),
         ]);
         if (contactsRes.error) return Response.json({ error: contactsRes.error.message }, { status: 500 });
         if (screensRes.error) return Response.json({ error: screensRes.error.message }, { status: 500 });
 
         const screens = new Map<string, ScreenInfo>();
+        const screenHours = new Map((screensRes.data ?? []).map((s) => [s.id, s.business_hours]));
         // Test screens never appear in client reports.
         const testScreenIds = new Set<string>();
         for (const s of screensRes.data ?? []) {
@@ -119,7 +121,7 @@ export const Route = createFileRoute("/api/public/jobs/client-exhibition-report"
               .order("played_at", { ascending: true })
               .range(from, from + 999);
             if (error) return Response.json({ error: error.message }, { status: 500 });
-            logs.push(...(data ?? []).filter((l) => !l.screen_id || !testScreenIds.has(l.screen_id)));
+            logs.push(...(data ?? []).filter((l) => l.screen_id !== null && screens.has(l.screen_id) && !testScreenIds.has(l.screen_id) && isWithinBusinessHours(screenHours.get(l.screen_id), l.played_at)));
             if (!data || data.length < 1000) break;
           }
           const summary = summarize(logs, media.duration || 10, screens);
