@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Copy, ExternalLink, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, MapPin, Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AddressFields } from "@/components/admin/AddressFields";
 import { BusinessHoursFields } from "@/components/admin/BusinessHoursFields";
 import { businessHoursSchema, type BusinessHours } from "@/lib/business-hours";
@@ -331,6 +332,35 @@ function TelasPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" aria-label="Girar imagem da TV" className="gap-1">
+                  <RotateCw className="h-4 w-4" />
+                  {screen.rotation ?? (screen.orientation === "vertical" ? 90 : 0)}°
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56">
+                <p className="mb-2 text-sm font-medium">Girar imagem na TV</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[0, 90, 180, 270].map((deg) => {
+                    const current = screen.rotation ?? (screen.orientation === "vertical" ? 90 : 0);
+                    return (
+                      <Button
+                        key={deg}
+                        size="sm"
+                        variant={current === deg ? "default" : "outline"}
+                        onClick={() => updateScreen.mutate({ id: screen.id, values: { rotation: deg } })}
+                      >
+                        <RotateCw className="h-4 w-4" style={{ transform: `rotate(${deg}deg)` }} />
+                        {deg}°
+                      </Button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">Use se a imagem aparecer deitada ou de cabeça para baixo.</p>
+              </PopoverContent>
+            </Popover>
 
             <div className="w-52">
               <Select

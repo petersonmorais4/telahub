@@ -38,6 +38,7 @@ export interface PlaylistItemRow {
 export interface ScreenRow {
   business_hours?: Json | null;
   orientation?: string;
+  rotation?: number | null;
   id: string;
   name: string;
   code: string;
