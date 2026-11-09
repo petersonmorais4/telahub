@@ -128,8 +128,8 @@ function NewsSlide({ items, className }: { items: Array<{ title: string; summary
         alt="g1"
         className="h-[clamp(3.5rem,8vw,8rem)] w-[clamp(3.5rem,8vw,8rem)] shrink-0 rounded-xl object-cover drop-shadow-lg"
       />
-      <div className="mt-[6vh] flex min-h-0 flex-1 flex-col justify-end overflow-hidden">
-        <h2 className="line-clamp-3 max-w-[85vw] shrink-0 font-display text-[clamp(1.8rem,4vw,4.4rem)] font-bold leading-[1.1]">{main.title}</h2>
+      <div className="mt-[6vh] flex min-h-0 flex-1 flex-col overflow-hidden">
+        <h2 className="mt-auto line-clamp-3 max-w-[85vw] shrink-0 pt-[0.15em] font-display text-[clamp(1.6rem,3.6vw,4rem)] font-bold leading-[1.22]">{main.title}</h2>
         {main.summary && <p className="mt-5 line-clamp-2 max-w-[75vw] text-[clamp(1.1rem,2vw,2rem)] text-muted-foreground">{main.summary}</p>}
         {others.length > 0 && (
           <ul className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6">
