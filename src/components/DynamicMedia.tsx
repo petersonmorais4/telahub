@@ -122,23 +122,23 @@ function NewsSlide({ items, className }: { items: Array<{ title: string; summary
         <img src={main.image} alt="" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/20" />
-      <div className="relative flex h-full flex-col px-[5vw] pb-[14vh] pt-[5vh]">
+      <div className="news-slide-layout relative flex h-full flex-col">
       <img
         src={g1Logo.url}
         alt="g1"
-        className="h-[clamp(3.5rem,8vw,8rem)] w-[clamp(3.5rem,8vw,8rem)] shrink-0 rounded-xl object-cover drop-shadow-lg"
+        className="news-slide-logo shrink-0 rounded-xl object-cover drop-shadow-lg"
       />
-      <div className="mt-[6vh] flex min-h-0 flex-1 flex-col overflow-hidden">
-        <h2 className="mt-auto line-clamp-3 max-w-[85vw] shrink-0 pt-[0.15em] font-display text-[clamp(1.6rem,3.6vw,4rem)] font-bold leading-[1.22]">{main.title}</h2>
-        {main.summary && <p className="mt-5 line-clamp-2 max-w-[75vw] text-[clamp(1.1rem,2vw,2rem)] text-muted-foreground">{main.summary}</p>}
+      <div className="news-slide-content mt-auto flex shrink-0 flex-col">
+        <h2 className="news-slide-title line-clamp-3 shrink-0 pt-[0.15em] font-display font-bold leading-[1.22]">{main.title}</h2>
+        {main.summary && <p className="news-slide-summary line-clamp-2 shrink-0 text-muted-foreground">{main.summary}</p>}
         {others.length > 0 && (
-          <ul className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6">
+          <ul className="news-slide-others grid shrink-0 grid-cols-3 gap-6 border-t border-border">
             {others.map((item) => (
-              <li key={item!.title} className="line-clamp-2 text-[clamp(0.9rem,1.3vw,1.3rem)] text-foreground/80">{item!.title}</li>
+              <li key={item?.title} className="line-clamp-2 text-foreground/80">{item?.title}</li>
             ))}
           </ul>
         )}
-        <p className="mt-6 text-[clamp(0.8rem,1vw,1rem)] text-muted-foreground">Fonte: g1.globo.com</p>
+        <p className="news-slide-source shrink-0 text-muted-foreground">Fonte: g1.globo.com</p>
       </div>
       </div>
     </div>
