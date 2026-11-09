@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 import { brandedHtml, parseEmails } from "@/lib/email-brand";
+import { isWithinBusinessHours } from "@/lib/business-hours";
 
 const ADMIN_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -40,6 +41,7 @@ type Row = {
   code: string;
   location: string | null;
   last_seen: string | null;
+  business_hours: unknown;
 };
 type Contact = { screen_id: string; partner_name: string | null; partner_email: string | null };
 
@@ -54,7 +56,7 @@ export const Route = createFileRoute("/api/public/jobs/partner-tv-reminder")({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const db = supabaseAdmin as unknown as { from: (t: string) => any };
         const [screensRes, contactsRes] = await Promise.all([
-          supabaseAdmin.from("screens").select("id, name, code, location, last_seen").order("name"),
+          supabaseAdmin.from("screens").select("id, name, code, location, last_seen, business_hours").order("name"),
           db.from("screen_contacts").select("screen_id, partner_name, partner_email"),
         ]);
         if (screensRes.error) return Response.json({ error: screensRes.error.message }, { status: 500 });
@@ -65,7 +67,7 @@ export const Route = createFileRoute("/api/public/jobs/partner-tv-reminder")({
 
         const now = Date.now();
         const offline = ((screensRes.data ?? []) as Row[]).filter(
-          (s) => !s.last_seen || now - new Date(s.last_seen).getTime() > OFFLINE_AFTER_MS,
+          (s) => isWithinBusinessHours(s.business_hours, new Date(now)) && (!s.last_seen || now - new Date(s.last_seen).getTime() > OFFLINE_AFTER_MS),
         );
         if (offline.length === 0) return Response.json({ offline: 0 });
 
