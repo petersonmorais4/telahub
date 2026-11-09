@@ -299,3 +299,11 @@
 }
 .network-map .leaflet-popup-content strong { color: var(--primary); }
 .network-map.leaflet-container { background: var(--background); }
+
+/* Esconde o ícone de play nativo do Android WebView nos vídeos do player */
+video.signage-video::-webkit-media-controls,
+video.signage-video::-webkit-media-controls-start-playback-button,
+video.signage-video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
