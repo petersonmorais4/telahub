@@ -1,7 +1,7 @@
+import { EMAIL_HEADER_LOGO_URL } from "@/lib/client-report";
+
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-import { EMAIL_HEADER_LOGO_URL } from "@/lib/client-report";
 
 /** Wraps a plain-text email body in the TelaHUB layout with the logo on top. */
 export function brandedHtml(text: string) {
@@ -12,7 +12,7 @@ export function brandedHtml(text: string) {
   return `<!doctype html><html><body style="margin:0;background:#070b0a;font-family:Arial,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#070b0a"><tr><td align="center" style="padding:24px 12px">
 <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#0c1311;border:1px solid #1f3a31;border-radius:12px;overflow:hidden">
-<tr><td style="background:#000000;height:28px;line-height:28px;font-size:0">&nbsp;</td></tr>
+<tr><td align="center" style="background:#000000;padding:20px 12px"><img src="${EMAIL_HEADER_LOGO_URL}" width="320" height="135" alt="TelaHub" style="display:block;width:320px;max-width:100%;height:auto;border:0;margin:0 auto"></td></tr>
 <tr><td style="padding:24px;color:#e6f2ee;font-size:15px;line-height:1.55">${body}</td></tr>
 </table></td></tr></table></body></html>`;
 }
