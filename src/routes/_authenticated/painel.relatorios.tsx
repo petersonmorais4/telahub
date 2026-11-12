@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatScreenAddress } from "@/lib/address";
 import { filterReportScreens } from "@/lib/report-screen-filter";
 import {
   Select,
@@ -58,7 +59,7 @@ interface ReportLog {
   media_id: string | null;
   screen_id: string | null;
   media: { title: string } | null;
-  screens: { name: string; location: string | null; business_hours?: unknown } | null;
+  screens: { name: string; location: string | null; street?: string | null; address_number?: string | null; neighborhood?: string | null; city?: string | null; state?: string | null; business_hours?: unknown } | null;
 }
 
 const ALL = "__all__";
@@ -135,7 +136,7 @@ function RelatoriosPage() {
 
       const logs: ReportLog[] = [];
       const selection: string =
-        "id, played_at, media_id, screen_id, media(title), screens(name, location, business_hours)";
+        "id, played_at, media_id, screen_id, media(title), screens(name, location, street, address_number, neighborhood, city, state, business_hours)";
       for (let from = 0; ; from += 1000) {
         let query = supabase
           .from("play_logs")
@@ -236,7 +237,7 @@ function RelatoriosPage() {
           return [
             log.media?.title ?? "Anúncio removido",
             log.screens?.name ?? "Tela removida",
-            log.screens?.location ?? "—",
+            formatScreenAddress(log.screens) || "—",
             played.date,
             played.time,
           ];
@@ -385,7 +386,7 @@ function RelatoriosPage() {
                     <TableRow key={log.id}>
                       <TableCell className="px-5 font-medium">{log.media?.title ?? "Anúncio removido"}</TableCell>
                       <TableCell>{log.screens?.name ?? "Tela removida"}</TableCell>
-                      <TableCell className="text-muted-foreground">{log.screens?.location ?? "—"}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatScreenAddress(log.screens) || "—"}</TableCell>
                       <TableCell>{played.date}</TableCell>
                       <TableCell className="pr-5 font-mono">{played.time}</TableCell>
                     </TableRow>

@@ -89,3 +89,21 @@ export function addressToRow(a: AddressForm) {
     show_on_map: a.show_on_map,
   };
 }
+
+export interface ScreenAddressParts {
+  location?: string | null;
+  street?: string | null;
+  address_number?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+}
+
+/** One-line address for a screen, built from the registered address fields (falls back to the free-text location). */
+export function formatScreenAddress(s: ScreenAddressParts | null | undefined): string {
+  if (!s) return "";
+  const line1 = [s.street, s.address_number].filter(Boolean).join(", ");
+  const cityState = [s.city, s.state].filter(Boolean).join(" - ");
+  const full = [line1, s.neighborhood, cityState].filter(Boolean).join(", ");
+  return full || s.location?.trim() || "";
+}
