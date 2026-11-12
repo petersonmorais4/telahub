@@ -289,8 +289,9 @@ function PlayerPage() {
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (!currentPlayKey || !visibleType) return;
-    if (visibleType === "video") return;
-    const seconds = visibleDuration || defaultDuration || 10;
+    // Vídeo avança no fim; o cronômetro é só segurança contra travas do aparelho
+    const seconds =
+      visibleType === "video" ? Math.max(visibleDuration || 0, 0) + 120 : visibleDuration || defaultDuration || 10;
     timerRef.current = setTimeout(advance, Math.max(1, seconds) * 1000);
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -642,7 +643,7 @@ function MediaElement({
           src={url}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-md [transform:translateZ(0)]"
         />
       )}
       {isVideo ? (

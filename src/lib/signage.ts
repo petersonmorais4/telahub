@@ -88,23 +88,40 @@ export const MEDIA_BUCKET = "media";
 const signedUrlCache = new Map<string, { url: string; expiresAt: number }>();
 
 /** Links temporários para arquivos do armazenamento privado, com cache. */
+const signedUrlInflight = new Map<string, Promise<string | null>>();
+
 export async function getSignedUrl(path: string, ttlSeconds = 60 * 60 * 6): Promise<string | null> {
   const cached = signedUrlCache.get(path);
   if (cached && cached.expiresAt > Date.now() + 60_000) return cached.url;
 
-  let signed: string | null = null;
-  const { data, error } = await supabase.storage.from(MEDIA_BUCKET).createSignedUrl(path, ttlSeconds);
-  if (!error && data?.signedUrl) signed = data.signedUrl;
-  else {
-    // TVs sem login: o servidor assina apenas arquivos de anúncios ativos/logo
-    try {
-      const res = await fetch(`/api/public/media-url?path=${encodeURIComponent(path)}`);
-      if (res.ok) signed = ((await res.json()) as { url?: string }).url ?? null;
-    } catch {
-      signed = null;
+  const inflight = signedUrlInflight.get(path);
+  if (inflight) return inflight;
+  const task = (async () => {
+    let signed: string | null = null;
+    // TVs sem login vão direto ao servidor (evita ~5 s de recusa por arquivo)
+    const { data: sess } = await supabase.auth.getSession();
+    if (sess.session) {
+      const { data, error } = await supabase.storage.from(MEDIA_BUCKET).createSignedUrl(path, ttlSeconds);
+      if (!error && data?.signedUrl) signed = data.signedUrl;
     }
-    ttlSeconds = Math.min(ttlSeconds, 60 * 60 * 6);
+    if (!signed) {
+      try {
+        const res = await fetch(`/api/public/media-url?path=${encodeURIComponent(path)}`);
+        if (res.ok) signed = ((await res.json()) as { url?: string }).url ?? null;
+      } catch {
+        signed = null;
+      }
+    }
+    return signed;
+  })();
+  signedUrlInflight.set(path, task);
+  let signed: string | null;
+  try {
+    signed = await task;
+  } finally {
+    signedUrlInflight.delete(path);
   }
+  ttlSeconds = Math.min(ttlSeconds, 60 * 60 * 6);
   if (!signed) return null;
 
   signedUrlCache.set(path, {
