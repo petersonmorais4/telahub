@@ -81,6 +81,50 @@ const showcaseImages = [
   { src: mercadoTv.url, alt: "Anúncio exibido em uma TV de supermercado", position: "object-center" },
 ];
 
+function PlacesCarousel() {
+  const [start, setStart] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [fading, setFading] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const id = setInterval(() => {
+      setFading(true);
+      t = setTimeout(() => {
+        setStart((s) => (s + 1) % places.length);
+        setFading(false);
+      }, 400);
+    }, 4000);
+    return () => {
+      clearInterval(id);
+      if (t) clearTimeout(t);
+    };
+  }, [paused]);
+  const visible = [0, 1, 2].map((i) => places[(start + i) % places.length]!);
+  return (
+    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className={`mt-8 grid gap-4 grid-cols-1 sm:grid-cols-3 transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"}`}>
+        {visible.map((p, i) => (
+          <div key={p.img} className={`overflow-hidden rounded-xl border border-border bg-card ${i > 0 ? "hidden sm:block" : ""}`}>
+            <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom" loading="lazy" />
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex justify-center gap-2">
+        {places.map((p, i) => (
+          <button
+            key={p.img}
+            type="button"
+            aria-label={`Ver foto ${i + 1}`}
+            onClick={() => setStart(i)}
+            className={`h-2 rounded-full transition-all ${i === start ? "w-6 bg-primary" : "w-2 bg-muted-foreground/40"}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Index() {
   const [signedIn, setSignedIn] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -166,13 +210,7 @@ function Index() {
 
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <h2 className="text-2xl font-bold">Onde nossas telas estão</h2>
-        <div className="mt-8 grid gap-4 grid-cols-2 lg:grid-cols-3">
-          {places.map((p) => (
-            <div key={p.img} className="overflow-hidden rounded-xl border border-border bg-card">
-              <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom" loading="lazy" />
-            </div>
-          ))}
-        </div>
+        <PlacesCarousel />
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-20">
