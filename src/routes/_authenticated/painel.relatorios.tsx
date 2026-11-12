@@ -124,7 +124,7 @@ function RelatoriosPage() {
 
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["reports", period, mediaId],
-    refetchInterval: 10_000,
+    refetchInterval: 120_000,
     refetchOnWindowFocus: true,
     queryFn: async () => {
       const [mediaResult, screensResult] = await Promise.all([

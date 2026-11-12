@@ -198,5 +198,5 @@ export function formatDateTime(value: string | null): string {
 
 export function isOnline(lastSeen: string | null): boolean {
   if (!lastSeen) return false;
-  return Date.now() - new Date(lastSeen).getTime() < 45 * 1000;
+  return Date.now() - new Date(lastSeen).getTime() < 3 * 60 * 1000;
 }
