@@ -81,31 +81,69 @@ const showcaseImages = [
   { src: mercadoTv.url, alt: "Anúncio exibido em uma TV de supermercado", position: "object-center" },
 ];
 
+function shuffled(n: number) {
+  const a = Array.from({ length: n }, (_, i) => i);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j]!, a[i]!];
+  }
+  return a;
+}
+
 function PlacesCarousel() {
-  const [start, setStart] = useState(0);
+  const n = places.length;
+  const [order, setOrder] = useState<number[]>(() => Array.from({ length: n }, (_, i) => i));
+  const [pos, setPos] = useState(0);
   const [paused, setPaused] = useState(false);
   const [fading, setFading] = useState(false);
+  const [tick, setTick] = useState(0);
+  const fadeRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    setOrder(shuffled(n));
+  }, [n]);
+
+  const transition = (fn: () => void) => {
+    if (fadeRef.current) clearTimeout(fadeRef.current);
+    setFading(true);
+    fadeRef.current = setTimeout(() => {
+      fn();
+      setFading(false);
+    }, 400);
+  };
+
   useEffect(() => {
     if (paused) return;
-    let t: ReturnType<typeof setTimeout> | undefined;
     const id = setInterval(() => {
-      setFading(true);
-      t = setTimeout(() => {
-        setStart((s) => (s + 1) % places.length);
-        setFading(false);
-      }, 400);
+      transition(() => {
+        setPos((p) => {
+          const next = p + 1;
+          if (next >= n) {
+            setOrder(shuffled(n));
+            return 0;
+          }
+          return next;
+        });
+      });
     }, 4000);
-    return () => {
-      clearInterval(id);
-      if (t) clearTimeout(t);
-    };
-  }, [paused]);
-  const visible = [0, 1, 2].map((i) => places[(start + i) % places.length]!);
+    return () => clearInterval(id);
+  }, [paused, tick, n]);
+
+  useEffect(() => () => { if (fadeRef.current) clearTimeout(fadeRef.current); }, []);
+
+  const currentPlace = order[pos] ?? 0;
+  const goTo = (placeIdx: number) => {
+    if (placeIdx === currentPlace) return;
+    setTick((t) => t + 1);
+    transition(() => setPos(order.indexOf(placeIdx)));
+  };
+
+  const visible = [0, 1, 2].map((i) => places[order[(pos + i) % n] ?? 0]!);
   return (
     <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div className={`mt-8 grid gap-4 grid-cols-1 sm:grid-cols-3 transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"}`}>
+      <div className={`mt-8 grid gap-4 grid-cols-1 sm:grid-cols-3 transition-opacity duration-400 ${fading ? "opacity-0" : "opacity-100"}`}>
         {visible.map((p, i) => (
-          <div key={p.img} className={`overflow-hidden rounded-xl border border-border bg-card ${i > 0 ? "hidden sm:block" : ""}`}>
+          <div key={`${p.img}-${i}`} className={`overflow-hidden rounded-xl border border-border bg-card ${i > 0 ? "hidden sm:block" : ""}`}>
             <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom" loading="lazy" />
           </div>
         ))}
@@ -116,8 +154,9 @@ function PlacesCarousel() {
             key={p.img}
             type="button"
             aria-label={`Ver foto ${i + 1}`}
-            onClick={() => setStart(i)}
-            className={`h-2 rounded-full transition-all ${i === start ? "w-6 bg-primary" : "w-2 bg-muted-foreground/40"}`}
+            aria-current={i === currentPlace}
+            onClick={() => goTo(i)}
+            className={`h-2 rounded-full transition-all ${i === currentPlace ? "w-6 bg-primary" : "w-2 bg-muted-foreground/40"}`}
           />
         ))}
       </div>
