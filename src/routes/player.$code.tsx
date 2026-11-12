@@ -251,7 +251,7 @@ function PlayerPage() {
       ? Promise.resolve<string | null>("dynamic")
       : current.media.type === "image"
         ? loadCachedImage(current.media.storage_path)
-        : getSignedUrl(current.media.storage_path).then((u) => (u ? preloadVideo(u).then(() => u) : u));
+        : loadCachedVideo(current.media.storage_path).then((u) => (u ? preloadVideo(u).then(() => u) : u));
     loadUrl.then((value) => {
       // Ignora apenas se outro item já assumiu; refetch não cancela o carregamento
       if (preparedPlayRef.current !== playKey) return;
@@ -275,8 +275,8 @@ function PlayerPage() {
         if (!item || isDynamicMedia(item.media)) continue;
         if (item.media.type === "image") await loadCachedImage(item.media.storage_path);
         else {
-          const u = await getSignedUrl(item.media.storage_path);
-          // Só aquece o próximo vídeo (arquivos grandes)
+          // Baixa o vídeo inteiro para o aparelho (toca sem depender da internet)
+          const u = await loadCachedVideo(item.media.storage_path);
           if (u && i === 1) void preloadVideo(u);
         }
       }
@@ -510,6 +510,47 @@ function loadCachedImage(path: string): Promise<string | null> {
   return promise;
 }
 
+const videoBlobUrls = new Map<string, Promise<string | null>>();
+
+/** Guarda o vídeo completo no aparelho e devolve endereço local (sem streaming). */
+function loadCachedVideo(path: string): Promise<string | null> {
+  const existing = videoBlobUrls.get(path);
+  if (existing) return existing;
+  const promise = (async () => {
+    const key = `https://cache.telahub.local/${encodeURIComponent(path)}`;
+    let cache: Cache | null = null;
+    try {
+      if (typeof caches !== "undefined") {
+        cache = await caches.open(MEDIA_CACHE);
+        const hit = await cache.match(key);
+        if (hit) return URL.createObjectURL(await hit.blob());
+      }
+    } catch {
+      cache = null;
+    }
+    const signed = await getSignedUrl(path);
+    if (!signed) return null;
+    try {
+      const res = await fetch(signed);
+      if (!res.ok) return signed;
+      const blob = await res.blob();
+      if (cache) {
+        void cache
+          .put(key, new Response(blob, { headers: { "Content-Type": blob.type || "video/mp4" } }))
+          .catch(() => undefined);
+      }
+      return URL.createObjectURL(blob);
+    } catch {
+      return signed;
+    }
+  })();
+  videoBlobUrls.set(path, promise);
+  promise.then((v) => {
+    if (!v) videoBlobUrls.delete(path);
+  });
+  return promise;
+}
+
 const warmVideos = new Map<string, { el: HTMLVideoElement; ready: Promise<void> }>();
 
 function getWarmVideo(url: string) {
@@ -609,10 +650,12 @@ function PlayerVideo({
     v.addEventListener("ended", finish);
     v.addEventListener("error", finish);
     v.addEventListener("waiting", waiting);
-    try {
-      v.currentTime = 0;
-    } catch {
-      /* ignore */
+    if (v.ended || v.currentTime > 0.5) {
+      try {
+        v.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
     }
     const p = v.play();
     if (p) p.catch(() => setTimeout(finish, 1000));
