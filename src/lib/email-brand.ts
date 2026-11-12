@@ -1,6 +1,8 @@
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+import { EMAIL_HEADER_LOGO_URL } from "@/lib/client-report";
+
 /** Wraps a plain-text email body in the TelaHUB layout with the logo on top. */
 export function brandedHtml(text: string) {
   const body = text
