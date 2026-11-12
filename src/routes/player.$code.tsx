@@ -226,6 +226,7 @@ function PlayerPage() {
   const current = queue[currentIndex] ?? null;
   const settings = data?.settings ?? null;
 
+  const [readyKey, setReadyKey] = useState<string | null>(null);
   const advance = useCallback(() => {
     setIndex((prev) => prev + 1);
   }, []);
@@ -372,6 +373,8 @@ function PlayerPage() {
     if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.();
   }
 
+  const currentReady =
+    !currentItem || currentItem.media.type !== "video" || readyKey === currentPlayKey;
   const exitAnimation = settings?.transition === "slide" ? "signage-slide-out" : "signage-fade-out";
 
   function onExitEnd() {
@@ -410,7 +413,7 @@ function PlayerPage() {
             key={`previous-${previousPlayKey}`}
             item={previousItem}
             url={previousUrl}
-            animation={exitAnimation}
+            animation={currentReady ? exitAnimation : ""}
             advance={advance}
             fill={data?.screen?.orientation === "vertical" || sideways}
             onAnimationEnd={onExitEnd}
@@ -421,10 +424,11 @@ function PlayerPage() {
             key={`current-${currentPlayKey}`}
             item={currentItem}
             url={currentUrl}
-            animation={animation}
+            animation={currentItem.media.type === "video" ? "" : animation}
             advance={advance}
             fill={data?.screen?.orientation === "vertical" || sideways}
             onPresented={recordPresentedMedia}
+            onReady={() => setReadyKey(currentPlayKey)}
           />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-6 px-10 text-center">
@@ -508,39 +512,47 @@ function loadCachedImage(path: string): Promise<string | null> {
 
 const warmVideos = new Map<string, { el: HTMLVideoElement; ready: Promise<void> }>();
 
-/**
- * Começa a baixar o vídeo com antecedência e mantém o buffer vivo (não descarta),
- * para a troca ser rápida. Espera no máximo 6 s pelo início.
- */
-function preloadVideo(url: string): Promise<void> {
+function getWarmVideo(url: string) {
   const existing = warmVideos.get(url);
-  if (existing) return existing.ready;
+  if (existing) return existing;
   const v = document.createElement("video");
   v.muted = true;
   v.playsInline = true;
   v.preload = "auto";
+  v.disablePictureInPicture = true;
+  v.setAttribute("muted", "");
+  v.setAttribute("playsinline", "");
+  v.poster = TRANSPARENT_POSTER;
   const ready = new Promise<void>((resolve) => {
     const t = setTimeout(resolve, 6_000);
     const done = () => {
       clearTimeout(t);
       resolve();
     };
-    v.oncanplay = done;
-    v.onerror = done;
+    v.addEventListener("canplay", done, { once: true });
+    v.addEventListener("error", done, { once: true });
   });
   v.src = url;
   v.load();
-  warmVideos.set(url, { el: v, ready });
-  while (warmVideos.size > 2) {
-    const firstKey = warmVideos.keys().next().value as string;
-    const first = warmVideos.get(firstKey);
-    if (first) {
-      first.el.removeAttribute("src");
-      first.el.load();
-    }
-    warmVideos.delete(firstKey);
+  const entry = { el: v, ready };
+  warmVideos.set(url, entry);
+  // Mantém poucos vídeos em memória; nunca descarta um que está na tela
+  for (const [key, val] of warmVideos) {
+    if (warmVideos.size <= 3) break;
+    if (key === url || val.el.isConnected) continue;
+    val.el.removeAttribute("src");
+    val.el.load();
+    warmVideos.delete(key);
   }
-  return ready;
+  return entry;
+}
+
+/**
+ * Começa a baixar o vídeo com antecedência. O MESMO elemento é usado na
+ * exibição, então o arquivo é baixado uma única vez (sem disputar a internet).
+ */
+function preloadVideo(url: string): Promise<void> {
+  return getWarmVideo(url).ready;
 }
 
 const TRANSPARENT_POSTER =
@@ -549,38 +561,74 @@ const TRANSPARENT_POSTER =
 function PlayerVideo({
   url,
   fill,
+  active,
   onPlaying,
   onEnded,
 }: {
   url: string;
   fill: boolean;
+  active: boolean;
   onPlaying: () => void;
   onEnded: () => void;
 }) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <video
-      src={url}
-      poster={TRANSPARENT_POSTER}
-      className={`signage-video absolute inset-0 h-full w-full transition-opacity duration-300 ${fill ? "object-cover" : "object-contain"} ${visible ? "opacity-100" : "opacity-0"}`}
-      autoPlay
-      muted
-      playsInline
-      preload="auto"
-      disablePictureInPicture
-      controls={false}
-      onPlaying={() => {
-        setVisible(true);
-        onPlaying();
-      }}
-      onEnded={(e) => {
-        // Mantém o último quadro na tela durante a transição (sem ícone de play)
-        e.currentTarget.pause();
-        onEnded();
-      }}
-      onError={onEnded}
-    />
-  );
+  const hostRef = useRef<HTMLDivElement>(null);
+  const cbRef = useRef({ onPlaying, onEnded });
+  cbRef.current = { onPlaying, onEnded };
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const v = getWarmVideo(url).el;
+    v.className = `absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`;
+    host.appendChild(v);
+    if (!active) {
+      v.pause();
+      return () => {
+        if (v.parentNode === host) host.removeChild(v);
+      };
+    }
+    let ended = false;
+    const finish = () => {
+      if (ended) return;
+      ended = true;
+      v.pause();
+      cbRef.current.onEnded();
+    };
+    const playing = () => cbRef.current.onPlaying();
+    // Travou no buffer por muito tempo: segue para o próximo
+    let stall: ReturnType<typeof setTimeout> | null = null;
+    const waiting = () => {
+      if (stall) clearTimeout(stall);
+      stall = setTimeout(finish, 12_000);
+    };
+    const resume = () => {
+      if (stall) clearTimeout(stall);
+      stall = null;
+    };
+    v.addEventListener("playing", playing);
+    v.addEventListener("playing", resume);
+    v.addEventListener("ended", finish);
+    v.addEventListener("error", finish);
+    v.addEventListener("waiting", waiting);
+    try {
+      v.currentTime = 0;
+    } catch {
+      /* ignore */
+    }
+    const p = v.play();
+    if (p) p.catch(() => setTimeout(finish, 1000));
+    if (!v.paused && v.readyState >= 3) playing();
+    return () => {
+      if (stall) clearTimeout(stall);
+      v.removeEventListener("playing", playing);
+      v.removeEventListener("playing", resume);
+      v.removeEventListener("ended", finish);
+      v.removeEventListener("error", finish);
+      v.removeEventListener("waiting", waiting);
+      if (v.parentNode === host) host.removeChild(v);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [url, active]);
+  return <div ref={hostRef} className="absolute inset-0" />;
 }
 
 const preloadedImages = new Map<string, Promise<void>>();
@@ -620,6 +668,7 @@ function MediaElement({
   advance,
   onAnimationEnd,
   onPresented,
+  onReady,
   fill = false,
 }: {
   fill?: boolean;
@@ -629,6 +678,7 @@ function MediaElement({
   advance: () => void;
   onAnimationEnd?: () => void;
   onPresented?: (mediaId: string) => void;
+  onReady?: () => void;
 }) {
   const hasReportedRef = useRef(false);
   const reportPresented = () => {
@@ -653,7 +703,7 @@ function MediaElement({
   return (
     <div
       key={item.itemId}
-      className={`absolute inset-0 h-full w-full overflow-hidden bg-black ${animation}`}
+      className={`absolute inset-0 h-full w-full overflow-hidden ${isVideo ? "" : "bg-black"} ${animation}`}
       onAnimationEnd={onAnimationEnd}
     >
       {!isVideo && (
@@ -665,14 +715,17 @@ function MediaElement({
         />
       )}
       {isVideo ? (
-        <PlayerVideo url={url} fill={fill} onPlaying={reportPresented} onEnded={advance} />
+        <PlayerVideo url={url} fill={fill} active={!!onPresented} onPlaying={() => { reportPresented(); onReady?.(); }} onEnded={advance} />
       ) : (
         <img
           src={url}
           alt=""
           decoding="async"
           className={`absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`}
-          onLoad={reportPresented}
+          onLoad={() => {
+            reportPresented();
+            onReady?.();
+          }}
           onError={advance}
         />
       )}
