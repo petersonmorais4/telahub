@@ -113,6 +113,13 @@
       "when": 1794244010132,
       "tag": "0015_screen_rotation",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794500264225,
+      "tag": "0016_restrict_media_files_read",
+      "breakpoints": true
     }
   ]
 }
