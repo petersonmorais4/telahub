@@ -178,7 +178,7 @@ function PlayerPage() {
     };
     const scheduleRetry = () => {
       if (!alive || retry) return;
-      const base = BACKOFF[Math.min(attempt, BACKOFF.length - 1)];
+      const base = BACKOFF[Math.min(attempt, BACKOFF.length - 1)] ?? 300_000;
       attempt++;
       const wait = Math.round(base * (0.8 + Math.random() * 0.4));
       retry = setTimeout(() => {
