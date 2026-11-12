@@ -16,6 +16,8 @@ import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json"
 import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
 import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
 import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
+import localNoveJulho from "@/assets/locais/av-nove-de-julho-jundiai.jpg.asset.json";
+import localBragantina from "@/assets/locais/estrada-bragantina-campo-limpo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 
@@ -66,6 +68,8 @@ const places = [
   { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
   { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
   { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
+  { alt: "Tela TelaHUB na Av. Nove de Julho, Jundiaí", img: localNoveJulho.url },
+  { alt: "Tela TelaHUB na Estrada da Bragantina, Campo Limpo Paulista", img: localBragantina.url },
 ];
 
 const slideIds = ["abertura", "mercado", "como-funciona", "beneficios", "locais", "mapa", "contato"];
@@ -270,7 +274,7 @@ function Apresentacao() {
       {/* Onde estamos */}
       <section id="locais" className="mx-auto w-full max-w-6xl px-6 py-20 snap-start min-h-screen flex flex-col justify-center">
         <h2 className="text-3xl font-bold sm:text-4xl">Onde a TelaHUB brilha</h2>
-        <div className="mt-10 grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 grid-cols-2 lg:grid-cols-3">
           {places.map((p, i) => (
             <Reveal key={p.img} delay={i * 120} className="group overflow-hidden rounded-xl border border-border bg-card">
               <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
