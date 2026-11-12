@@ -92,14 +92,26 @@ export async function getSignedUrl(path: string, ttlSeconds = 60 * 60 * 6): Prom
   const cached = signedUrlCache.get(path);
   if (cached && cached.expiresAt > Date.now() + 60_000) return cached.url;
 
+  let signed: string | null = null;
   const { data, error } = await supabase.storage.from(MEDIA_BUCKET).createSignedUrl(path, ttlSeconds);
-  if (error || !data?.signedUrl) return null;
+  if (!error && data?.signedUrl) signed = data.signedUrl;
+  else {
+    // TVs sem login: o servidor assina apenas arquivos de anúncios ativos/logo
+    try {
+      const res = await fetch(`/api/public/media-url?path=${encodeURIComponent(path)}`);
+      if (res.ok) signed = ((await res.json()) as { url?: string }).url ?? null;
+    } catch {
+      signed = null;
+    }
+    ttlSeconds = Math.min(ttlSeconds, 60 * 60 * 6);
+  }
+  if (!signed) return null;
 
   signedUrlCache.set(path, {
-    url: data.signedUrl,
+    url: signed,
     expiresAt: Date.now() + ttlSeconds * 1000,
   });
-  return data.signedUrl;
+  return signed;
 }
 
 export function toMinutes(time: string): number {
