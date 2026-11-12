@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { canSeeFinance, fetchMyRoles } from "@/lib/my-role";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Pencil, Plus, Trash2, Wallet, TrendingUp, Receipt, CalendarDays } from "lucide-react";
+import { Download, Pencil, Plus, Trash2, Wallet, TrendingUp, Receipt, CalendarDays } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { RevenuesTab } from "@/components/admin/RevenuesTab";
+import { exportFinanceXlsx } from "@/lib/finance-export";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -243,15 +244,42 @@ function FinancePage() {
 
   const activeMonths = monthly.filter((m) => m.total > 0).length || 1;
 
+  const onExport = async () => {
+    try {
+      const { data: rev, error } = await supabase.from("revenues").select("*, media:media_id(title)").order("payment_date");
+      if (error) throw error;
+      const d = (x: string) => x.split("-").reverse().join("/");
+      const costs = expenses.filter((e) => e.expense_date.startsWith(year)).slice().reverse().map((e) => ({
+        Data: d(e.expense_date), "Descrição": e.description, Categoria: catLabel(e.category),
+        Origem: srcLabel(e.funding_source), Quantidade: e.quantity, Fornecedor: e.supplier ?? "",
+        Valor: e.amount, "Observações": e.notes ?? "",
+      }));
+      const revenues = (rev ?? []).filter((r) => r.payment_date.startsWith(year)).map((r) => ({
+        Data: d(r.payment_date), Cliente: r.client_name,
+        "Anúncio": (r as { media?: { title?: string } | null }).media?.title ?? "",
+        "Descrição": r.description ?? "", Pagamento: r.payment_method,
+        Recorrente: r.recurring ? "Sim" : "Não", Valor: Number(r.amount), "Observações": r.notes ?? "",
+      }));
+      await exportFinanceXlsx(year, costs, revenues);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao exportar.");
+    }
+  };
+
   return (
     <AdminShell
       title="Financeiro"
       description="Custos e receitas do TelaHUB, com lembretes de cobrança."
-      actions={tab === "custos" && (
+      actions={<div className="flex gap-2">
+        <Button variant="outline" onClick={onExport}>
+          <Download className="mr-2 h-4 w-4" /> Exportar Excel
+        </Button>
+        {tab === "custos" && (
         <Button onClick={() => setForm(emptyForm())}>
           <Plus className="mr-2 h-4 w-4" /> Novo custo
         </Button>
-      )}
+        )}
+      </div>}
     >
       <div className="mb-6 inline-flex rounded-lg border border-border bg-card p-1">
         {(["custos", "receitas"] as const).map((t) => (
