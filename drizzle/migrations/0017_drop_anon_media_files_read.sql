@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Player reads active media files" ON storage.objects;
