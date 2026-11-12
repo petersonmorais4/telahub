@@ -12,7 +12,22 @@ import { supabase } from "@/integrations/supabase/client";
 import academiaTv from "@/assets/home-gallery/academia-new.png.asset.json";
 import farmaciaTv from "@/assets/home-gallery/farmacia-new.png.asset.json";
 import barbeariaTv from "@/assets/home-gallery/barbearia-new.png.asset.json";
+import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
+import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
+import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
+import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
+import localNoveJulho from "@/assets/locais/av-nove-de-julho-jundiai.jpg.asset.json";
+import localBragantina from "@/assets/locais/estrada-bragantina-campo-limpo.jpg.asset.json";
 import mercadoTv from "@/assets/home-gallery/mercado-new.png.asset.json";
+
+const places = [
+  { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
+  { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
+  { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
+  { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
+  { alt: "Tela TelaHUB na Av. Nove de Julho, Jundiaí", img: localNoveJulho.url },
+  { alt: "Tela TelaHUB na Estrada da Bragantina, Campo Limpo Paulista", img: localBragantina.url },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -146,6 +161,17 @@ function Index() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <h2 className="text-2xl font-bold">Onde nossas telas estão</h2>
+        <div className="mt-8 grid gap-4 grid-cols-2 lg:grid-cols-3">
+          {places.map((p) => (
+            <div key={p.img} className="overflow-hidden rounded-xl border border-border bg-card">
+              <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom" loading="lazy" />
+            </div>
+          ))}
         </div>
       </section>
 
