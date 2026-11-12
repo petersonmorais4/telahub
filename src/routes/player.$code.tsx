@@ -108,9 +108,17 @@ function PlayerPage() {
     },
   });
 
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["player", code] });
+    if (refreshTimer.current) return;
+    refreshTimer.current = setTimeout(() => {
+      refreshTimer.current = null;
+      queryClient.invalidateQueries({ queryKey: ["player", code] });
+    }, 2_000);
   }, [queryClient, code]);
+  useEffect(() => () => {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current);
+  }, []);
 
   // Reavalia agendamentos a cada 30s sem recarregar a página
   useEffect(() => {
@@ -136,44 +144,98 @@ function PlayerPage() {
     };
   }, [data?.screen?.code]);
 
-  // Atualização em tempo real quando o admin publica ou reordena
+  // Recarrega a página a cada 6 h para pegar novas versões do player
   useEffect(() => {
+    const reload = setTimeout(() => window.location.reload(), 6 * 60 * 60 * 1000);
+    return () => clearTimeout(reload);
+  }, []);
+
+  // Atualização em tempo real (enxuta): só a própria tela e os itens da sua playlist.
+  // Mídias, agendamentos e configurações são cobertos pelo polling de 120s.
+  const rtScreenId = data?.screen?.id as string | undefined;
+  const rtPlaylistId = (data?.screen?.playlist_id ?? null) as string | null;
+  useEffect(() => {
+    if (!rtScreenId) return;
+    const BACKOFF = [5_000, 15_000, 60_000, 120_000, 300_000];
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let retry: ReturnType<typeof setTimeout> | null = null;
+    let stable: ReturnType<typeof setTimeout> | null = null;
+    let attempt = 0;
+    let hadDrop = false;
     let alive = true;
+    const IGNORED = new Set(["last_seen", "status"]);
+    const onScreen = (payload: { old?: Record<string, unknown>; new?: Record<string, unknown> }) => {
+      const o = payload.old ?? {};
+      const n = payload.new ?? {};
+      const keys = Object.keys(n).filter((k) => !IGNORED.has(k));
+      // Sem "old" completo (replica identity padrão), compara com os dados atuais
+      const changed = keys.some((k) => k in o && JSON.stringify(o[k]) !== JSON.stringify(n[k]));
+      const current = queryClient.getQueryData<{ screen?: Record<string, unknown> | null }>(["player", code])?.screen;
+      const changedVsCache = current
+        ? keys.some((k) => k in current && JSON.stringify(current[k]) !== JSON.stringify(n[k]))
+        : true;
+      if (changed || changedVsCache) refresh();
+    };
+    const scheduleRetry = () => {
+      if (!alive || retry) return;
+      const base = BACKOFF[Math.min(attempt, BACKOFF.length - 1)];
+      attempt++;
+      const wait = Math.round(base * (0.8 + Math.random() * 0.4));
+      retry = setTimeout(() => {
+        retry = null;
+        subscribe();
+      }, wait);
+    };
     const subscribe = () => {
       if (!alive) return;
-      channel = supabase
-        .channel(`player-${code}-${Date.now()}`)
-        .on("postgres_changes", { event: "*", schema: "public", table: "media" }, refresh)
-        .on("postgres_changes", { event: "*", schema: "public", table: "playlist_items" }, refresh)
-        .on("postgres_changes", { event: "*", schema: "public", table: "playlists" }, refresh)
-        .on("postgres_changes", { event: "*", schema: "public", table: "screens" }, refresh)
-        .on("postgres_changes", { event: "*", schema: "public", table: "schedules" }, refresh)
-        .on("postgres_changes", { event: "*", schema: "public", table: "app_settings" }, refresh)
-        .subscribe((status) => {
-          if (status === "SUBSCRIBED") refresh();
-          if ((status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") && alive && !retry) {
-            const old = channel;
-            channel = null;
-            if (old) void supabase.removeChannel(old);
-            retry = setTimeout(() => {
-              retry = null;
-              subscribe();
-            }, 5_000);
+      const ch = supabase
+        .channel(`player-${code}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "screens", filter: `id=eq.${rtScreenId}` },
+          onScreen,
+        );
+      if (rtPlaylistId) {
+        ch.on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "playlist_items", filter: `playlist_id=eq.${rtPlaylistId}` },
+          refresh,
+        );
+      }
+      channel = ch;
+      ch.subscribe((status, err) => {
+        if (ch !== channel) return; // eventos de canais já removidos
+        if (status !== "SUBSCRIBED") console.warn("[player realtime]", status, err?.message ?? "");
+        if (status === "SUBSCRIBED") {
+          if (hadDrop) {
+            hadDrop = false;
+            refresh();
           }
-        });
+          if (stable) clearTimeout(stable);
+          stable = setTimeout(() => {
+            attempt = 0;
+          }, 120_000);
+          return;
+        }
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+          hadDrop = true;
+          if (stable) clearTimeout(stable);
+          channel = null;
+          void supabase.removeChannel(ch);
+          scheduleRetry();
+        }
+      });
     };
     subscribe();
-    // Recarrega a página a cada 6 h para pegar novas versões do player
-    const reload = setTimeout(() => window.location.reload(), 6 * 60 * 60 * 1000);
     return () => {
       alive = false;
       if (retry) clearTimeout(retry);
-      clearTimeout(reload);
-      if (channel) void supabase.removeChannel(channel);
+      if (stable) clearTimeout(stable);
+      const ch = channel;
+      channel = null;
+      if (ch) void supabase.removeChannel(ch);
     };
-  }, [code, refresh]);
+  }, [code, refresh, queryClient, rtScreenId, rtPlaylistId]);
 
   // Reconexão automática após queda de internet
   useEffect(() => {
