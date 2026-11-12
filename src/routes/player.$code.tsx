@@ -416,6 +416,7 @@ function PlayerPage() {
             animation={currentReady ? exitAnimation : ""}
             advance={advance}
             fill={data?.screen?.orientation === "vertical" || sideways}
+            rotated={rotate}
             onAnimationEnd={onExitEnd}
           />
         )}
@@ -427,6 +428,7 @@ function PlayerPage() {
             animation={currentItem.media.type === "video" ? "" : animation}
             advance={advance}
             fill={data?.screen?.orientation === "vertical" || sideways}
+            rotated={rotate}
             onPresented={recordPresentedMedia}
             onReady={() => setReadyKey(currentPlayKey)}
           />
@@ -605,25 +607,47 @@ function PlayerVideo({
   active,
   onPlaying,
   onEnded,
+  rotated = false,
 }: {
   url: string;
   fill: boolean;
   active: boolean;
   onPlaying: () => void;
   onEnded: () => void;
+  rotated?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const cbRef = useRef({ onPlaying, onEnded });
   cbRef.current = { onPlaying, onEnded };
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     const v = getWarmVideo(url).el;
-    v.className = `absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`;
+    v.className = rotated
+      ? "pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
+      : `absolute inset-0 h-full w-full ${fill ? "object-cover" : "object-contain"}`;
     host.appendChild(v);
+    // Android WebView desenha o vídeo numa camada própria que ignora a rotação
+    // da tela (aparece cortado/meia tela). Em telas giradas, pintamos os
+    // quadros num canvas, que respeita a rotação.
+    let raf = 0;
+    const canvas = canvasRef.current;
+    const ctx = rotated && canvas ? canvas.getContext("2d") : null;
+    const draw = () => {
+      raf = requestAnimationFrame(draw);
+      if (!ctx || !canvas || v.readyState < 2 || !v.videoWidth) return;
+      const cw = canvas.clientWidth, ch = canvas.clientHeight;
+      if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+      const s = (fill ? Math.max : Math.min)(cw / v.videoWidth, ch / v.videoHeight);
+      const w = v.videoWidth * s, h = v.videoHeight * s;
+      ctx.drawImage(v, (cw - w) / 2, (ch - h) / 2, w, h);
+    };
+    if (ctx) draw();
     if (!active) {
       v.pause();
       return () => {
+        cancelAnimationFrame(raf);
         if (v.parentNode === host) host.removeChild(v);
       };
     }
@@ -661,6 +685,7 @@ function PlayerVideo({
     if (p) p.catch(() => setTimeout(finish, 1000));
     if (!v.paused && v.readyState >= 3) playing();
     return () => {
+      cancelAnimationFrame(raf);
       if (stall) clearTimeout(stall);
       v.removeEventListener("playing", playing);
       v.removeEventListener("playing", resume);
@@ -670,8 +695,12 @@ function PlayerVideo({
       if (v.parentNode === host) host.removeChild(v);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url, active]);
-  return <div ref={hostRef} className="absolute inset-0" />;
+  }, [url, active, rotated]);
+  return (
+    <div ref={hostRef} className="absolute inset-0">
+      {rotated && <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />}
+    </div>
+  );
 }
 
 const preloadedImages = new Map<string, Promise<void>>();
@@ -713,8 +742,10 @@ function MediaElement({
   onPresented,
   onReady,
   fill = false,
+  rotated = false,
 }: {
   fill?: boolean;
+  rotated?: boolean;
   item: PlayableItem;
   url: string;
   animation: string;
@@ -758,7 +789,7 @@ function MediaElement({
         />
       )}
       {isVideo ? (
-        <PlayerVideo url={url} fill={fill} active={!!onPresented} onPlaying={() => { reportPresented(); onReady?.(); }} onEnded={advance} />
+        <PlayerVideo url={url} fill={fill} rotated={rotated} active={!!onPresented} onPlaying={() => { reportPresented(); onReady?.(); }} onEnded={advance} />
       ) : (
         <img
           src={url}
