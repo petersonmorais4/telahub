@@ -14,7 +14,7 @@ export async function exportFinanceXlsx(year: string, costs: Row[], revenues: Ro
     if (col > 0 && rows.length) {
       ws.getColumn(col).numFmt = '"R$" #,##0.00';
       const L = ws.getColumn(col).letter;
-      const t = ws.addRow({ [keys[0]]: "TOTAL" });
+      const t = ws.addRow({ [String(keys[0])]: "TOTAL" });
       t.getCell(col).value = { formula: `SUM(${L}2:${L}${rows.length + 1})` };
       t.font = { bold: true };
     }
