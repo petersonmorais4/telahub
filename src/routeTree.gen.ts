@@ -37,6 +37,7 @@ import { Route as AuthenticatedPainelTelasRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPainelUsuariosRouteImport } from './routes/_authenticated/painel.usuarios'
 import { Route as ApiPublicLeadNotifyRouteImport } from './routes/api/public/lead-notify'
 import { Route as ApiPublicLiveContentRouteImport } from './routes/api/public/live-content'
+import { Route as ApiPublicMediaUrlRouteImport } from './routes/api/public/media-url'
 import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public/player-manifest'
 import { Route as ApiPublicJobsClientExhibitionReportRouteImport } from './routes/api/public/jobs/client-exhibition-report'
 import { Route as ApiPublicJobsPartnerTvReminderRouteImport } from './routes/api/public/jobs/partner-tv-reminder'
@@ -193,6 +194,11 @@ const ApiPublicLiveContentRoute = ApiPublicLiveContentRouteImport.update({
   path: '/api/public/live-content',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMediaUrlRoute = ApiPublicMediaUrlRouteImport.update({
+  id: '/api/public/media-url',
+  path: '/api/public/media-url',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPlayerManifestRoute = ApiPublicPlayerManifestRouteImport.update({
   id: '/api/public/player-manifest',
   path: '/api/public/player-manifest',
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
   '/api/public/lead-notify': typeof ApiPublicLeadNotifyRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
+  '/api/public/media-url': typeof ApiPublicMediaUrlRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
   '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
   '/api/public/lead-notify': typeof ApiPublicLeadNotifyRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
+  '/api/public/media-url': typeof ApiPublicMediaUrlRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
   '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
@@ -311,6 +319,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/usuarios': typeof AuthenticatedPainelUsuariosRoute
   '/api/public/lead-notify': typeof ApiPublicLeadNotifyRoute
   '/api/public/live-content': typeof ApiPublicLiveContentRoute
+  '/api/public/media-url': typeof ApiPublicMediaUrlRoute
   '/api/public/player-manifest': typeof ApiPublicPlayerManifestRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
   '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
@@ -346,6 +355,7 @@ export interface FileRouteTypes {
     | '/painel/usuarios'
     | '/api/public/lead-notify'
     | '/api/public/live-content'
+    | '/api/public/media-url'
     | '/api/public/player-manifest'
     | '/painel/'
     | '/api/public/jobs/client-exhibition-report'
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
     | '/painel/usuarios'
     | '/api/public/lead-notify'
     | '/api/public/live-content'
+    | '/api/public/media-url'
     | '/api/public/player-manifest'
     | '/painel'
     | '/api/public/jobs/client-exhibition-report'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/usuarios'
     | '/api/public/lead-notify'
     | '/api/public/live-content'
+    | '/api/public/media-url'
     | '/api/public/player-manifest'
     | '/_authenticated/painel/'
     | '/api/public/jobs/client-exhibition-report'
@@ -436,6 +448,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicLeadNotifyRoute: typeof ApiPublicLeadNotifyRoute
   ApiPublicLiveContentRoute: typeof ApiPublicLiveContentRoute
+  ApiPublicMediaUrlRoute: typeof ApiPublicMediaUrlRoute
   ApiPublicPlayerManifestRoute: typeof ApiPublicPlayerManifestRoute
   ApiPublicJobsClientExhibitionReportRoute: typeof ApiPublicJobsClientExhibitionReportRoute
   ApiPublicJobsPartnerTvReminderRoute: typeof ApiPublicJobsPartnerTvReminderRoute
@@ -640,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLiveContentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/media-url': {
+      id: '/api/public/media-url'
+      path: '/api/public/media-url'
+      fullPath: '/api/public/media-url'
+      preLoaderRoute: typeof ApiPublicMediaUrlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/player-manifest': {
       id: '/api/public/player-manifest'
       path: '/api/public/player-manifest'
@@ -731,6 +751,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicLeadNotifyRoute: ApiPublicLeadNotifyRoute,
   ApiPublicLiveContentRoute: ApiPublicLiveContentRoute,
+  ApiPublicMediaUrlRoute: ApiPublicMediaUrlRoute,
   ApiPublicPlayerManifestRoute: ApiPublicPlayerManifestRoute,
   ApiPublicJobsClientExhibitionReportRoute:
     ApiPublicJobsClientExhibitionReportRoute,
