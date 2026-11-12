@@ -58,6 +58,10 @@ export function summarize(logs: ReportLogRow[], durationSeconds: number, screens
 export const EMAIL_LOGO_URL =
   "https://telahub.app/__l5e/assets-v1/a3429117-1023-4c1e-87dc-40ce130fcaa4/telahub-logo-oficial.png";
 
+/** Full-resolution (1254×530) PNG shown in the header of every e-mail. */
+export const EMAIL_HEADER_LOGO_URL =
+  "https://telahub.app/__l5e/assets-v1/e374b120-9dd5-4ff7-8b4a-9e069773eef9/telahub-logo-email.png";
+
 export const TELAHUB_LOGO_URL =
   "https://telahub.app/__l5e/assets-v1/88a0f8ce-a049-46a8-9b0b-5f04faf60edb/telahub-logo-oficial-pdf.png";
 
