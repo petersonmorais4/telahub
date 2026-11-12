@@ -127,6 +127,13 @@
       "when": 1794501461745,
       "tag": "0017_drop_anon_media_files_read",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794510000000,
+      "tag": "0018_play_logs_indexes",
+      "breakpoints": true
     }
   ]
 }
