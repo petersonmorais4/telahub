@@ -273,7 +273,11 @@ function PlayerPage() {
         const item = queue[(currentIndex + i) % queue.length];
         if (!item || isDynamicMedia(item.media)) continue;
         if (item.media.type === "image") await loadCachedImage(item.media.storage_path);
-        else await getSignedUrl(item.media.storage_path);
+        else {
+          const u = await getSignedUrl(item.media.storage_path);
+          // Só aquece o próximo vídeo (arquivos grandes)
+          if (u && i === 1) void preloadVideo(u);
+        }
       }
     })();
     return () => {
@@ -502,27 +506,41 @@ function loadCachedImage(path: string): Promise<string | null> {
   return promise;
 }
 
-/** Espera o vídeo ter dados suficientes para começar sem tela preta (máx. 15 s). */
+const warmVideos = new Map<string, { el: HTMLVideoElement; ready: Promise<void> }>();
+
+/**
+ * Começa a baixar o vídeo com antecedência e mantém o buffer vivo (não descarta),
+ * para a troca ser rápida. Espera no máximo 6 s pelo início.
+ */
 function preloadVideo(url: string): Promise<void> {
-  return new Promise<void>((resolve) => {
-    const v = document.createElement("video");
-    let finished = false;
+  const existing = warmVideos.get(url);
+  if (existing) return existing.ready;
+  const v = document.createElement("video");
+  v.muted = true;
+  v.playsInline = true;
+  v.preload = "auto";
+  const ready = new Promise<void>((resolve) => {
+    const t = setTimeout(resolve, 6_000);
     const done = () => {
-      if (finished) return;
-      finished = true;
       clearTimeout(t);
-      v.removeAttribute("src");
-      v.load();
       resolve();
     };
-    const t = setTimeout(done, 15_000);
-    v.muted = true;
-    v.preload = "auto";
     v.oncanplay = done;
     v.onerror = done;
-    v.src = url;
-    v.load();
   });
+  v.src = url;
+  v.load();
+  warmVideos.set(url, { el: v, ready });
+  while (warmVideos.size > 2) {
+    const firstKey = warmVideos.keys().next().value as string;
+    const first = warmVideos.get(firstKey);
+    if (first) {
+      first.el.removeAttribute("src");
+      first.el.load();
+    }
+    warmVideos.delete(firstKey);
+  }
+  return ready;
 }
 
 const TRANSPARENT_POSTER =
