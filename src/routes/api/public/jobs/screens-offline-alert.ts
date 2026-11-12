@@ -4,7 +4,7 @@ import { brandedHtml } from "@/lib/email-brand";
 
 const ALERT_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
-const OFFLINE_AFTER_MS = 45_000;
+const OFFLINE_AFTER_MS = 3 * 60_000;
 
 const b64 = (s: string) =>
   btoa(Array.from(new TextEncoder().encode(s), (b) => String.fromCharCode(b)).join(""));

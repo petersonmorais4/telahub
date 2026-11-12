@@ -76,7 +76,7 @@ function PlayerPage() {
     queryKey: ["player", code],
     // TV boxes (WebView) podem reportar a página como oculta/offline;
     // força a atualização periódica mesmo assim.
-    refetchInterval: 30_000,
+    refetchInterval: 120_000,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
     networkMode: "always",
@@ -129,7 +129,7 @@ function PlayerPage() {
       await supabase.rpc("touch_screen", { p_code: screenCode });
     };
     void beat();
-    const id = window.setInterval(() => void beat(), 15_000);
+    const id = window.setInterval(() => void beat(), 60_000);
     return () => {
       active = false;
       window.clearInterval(id);
