@@ -100,7 +100,7 @@ function PlacesCarousel() {
       if (t) clearTimeout(t);
     };
   }, [paused]);
-  const visible = [0, 1, 2].map((i) => places[(start + i) % places.length]);
+  const visible = [0, 1, 2].map((i) => places[(start + i) % places.length]!);
   return (
     <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className={`mt-8 grid gap-4 grid-cols-1 sm:grid-cols-3 transition-opacity duration-500 ${fading ? "opacity-0" : "opacity-100"}`}>
