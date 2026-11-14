@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Medir créditos, consultas, índices, armazenamento e tarefas agendadas; otimizar gargalos comprovados sem alterar exibições.
-- [ ] Comparar planos e tempos antes/depois e registrar os limites da economia mensurável.
+- [x] Medir créditos, consultas, índices, armazenamento e tarefas agendadas; otimizar gargalos comprovados sem alterar exibições.
+- [x] Comparar planos e tempos antes/depois e registrar os limites da economia mensurável.
+- [ ] Verificar relatórios no painel autenticado: bloqueado porque a conta do solicitante não foi encontrada para criar sessão; precisa de login na prévia.
 
 - [x] Cadastrar horários por dia da semana com dias fechados e intervalos nos pontos novos e existentes.
 - [x] Aplicar horários aos relatórios manuais, PDF e relatórios semanais dos clientes.
