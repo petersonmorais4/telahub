@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Medir créditos, consultas, índices, armazenamento e tarefas agendadas; otimizar gargalos comprovados sem alterar exibições.
+- [ ] Comparar planos e tempos antes/depois e registrar os limites da economia mensurável.
+
 - [x] Cadastrar horários por dia da semana com dias fechados e intervalos nos pontos novos e existentes.
 - [x] Aplicar horários aos relatórios manuais, PDF e relatórios semanais dos clientes.
 - [x] Restringir lembretes das 9h a pontos offline abertos naquele horário.
