@@ -134,6 +134,13 @@
       "when": 1794510000000,
       "tag": "0018_play_logs_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794666505274,
+      "tag": "0019_optimize_exhibition_report_indexes",
+      "breakpoints": true
     }
   ]
 }
