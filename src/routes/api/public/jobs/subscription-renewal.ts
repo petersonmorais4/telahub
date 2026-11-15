@@ -114,7 +114,7 @@ export const Route = createFileRoute("/api/public/jobs/subscription-renewal")({
               .eq("media_id", d.last.media_id).gte("played_at", start).lt("played_at", end)
               .order("played_at", { ascending: true }).range(from, from + 999);
             if (error) return Response.json({ error: error.message }, { status: 500 });
-            logs.push(...(data ?? []).filter((l) => l.screen_id && screens.has(l.screen_id) && isWithinBusinessHours(hours.get(l.screen_id) as never, l.played_at)));
+            logs.push(...(data ?? []).filter((l) => l.screen_id && screens.has(l.screen_id) && isWithinBusinessHours(hours.get(l.screen_id), l.played_at)));
             if (!data || data.length < 1000) break;
           }
           const label = `${brDate(d.last.payment_date)} a ${brDate(today)}`;
