@@ -42,6 +42,7 @@ import { Route as ApiPublicPlayerManifestRouteImport } from './routes/api/public
 import { Route as ApiPublicJobsClientExhibitionReportRouteImport } from './routes/api/public/jobs/client-exhibition-report'
 import { Route as ApiPublicJobsPartnerTvReminderRouteImport } from './routes/api/public/jobs/partner-tv-reminder'
 import { Route as ApiPublicJobsScreensOfflineAlertRouteImport } from './routes/api/public/jobs/screens-offline-alert'
+import { Route as ApiPublicJobsSubscriptionRenewalRouteImport } from './routes/api/public/jobs/subscription-renewal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -222,6 +223,12 @@ const ApiPublicJobsScreensOfflineAlertRoute =
     path: '/api/public/jobs/screens-offline-alert',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicJobsSubscriptionRenewalRoute =
+  ApiPublicJobsSubscriptionRenewalRouteImport.update({
+    id: '/api/public/jobs/subscription-renewal',
+    path: '/api/public/jobs/subscription-renewal',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -256,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
   '/api/public/jobs/partner-tv-reminder': typeof ApiPublicJobsPartnerTvReminderRoute
   '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
+  '/api/public/jobs/subscription-renewal': typeof ApiPublicJobsSubscriptionRenewalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -289,6 +297,7 @@ export interface FileRoutesByTo {
   '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
   '/api/public/jobs/partner-tv-reminder': typeof ApiPublicJobsPartnerTvReminderRoute
   '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
+  '/api/public/jobs/subscription-renewal': typeof ApiPublicJobsSubscriptionRenewalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -325,6 +334,7 @@ export interface FileRoutesById {
   '/api/public/jobs/client-exhibition-report': typeof ApiPublicJobsClientExhibitionReportRoute
   '/api/public/jobs/partner-tv-reminder': typeof ApiPublicJobsPartnerTvReminderRoute
   '/api/public/jobs/screens-offline-alert': typeof ApiPublicJobsScreensOfflineAlertRoute
+  '/api/public/jobs/subscription-renewal': typeof ApiPublicJobsSubscriptionRenewalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/client-exhibition-report'
     | '/api/public/jobs/partner-tv-reminder'
     | '/api/public/jobs/screens-offline-alert'
+    | '/api/public/jobs/subscription-renewal'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -394,6 +405,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/client-exhibition-report'
     | '/api/public/jobs/partner-tv-reminder'
     | '/api/public/jobs/screens-offline-alert'
+    | '/api/public/jobs/subscription-renewal'
   id:
     | '__root__'
     | '/'
@@ -429,6 +441,7 @@ export interface FileRouteTypes {
     | '/api/public/jobs/client-exhibition-report'
     | '/api/public/jobs/partner-tv-reminder'
     | '/api/public/jobs/screens-offline-alert'
+    | '/api/public/jobs/subscription-renewal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -453,6 +466,7 @@ export interface RootRouteChildren {
   ApiPublicJobsClientExhibitionReportRoute: typeof ApiPublicJobsClientExhibitionReportRoute
   ApiPublicJobsPartnerTvReminderRoute: typeof ApiPublicJobsPartnerTvReminderRoute
   ApiPublicJobsScreensOfflineAlertRoute: typeof ApiPublicJobsScreensOfflineAlertRoute
+  ApiPublicJobsSubscriptionRenewalRoute: typeof ApiPublicJobsSubscriptionRenewalRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -688,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsScreensOfflineAlertRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/subscription-renewal': {
+      id: '/api/public/jobs/subscription-renewal'
+      path: '/api/public/jobs/subscription-renewal'
+      fullPath: '/api/public/jobs/subscription-renewal'
+      preLoaderRoute: typeof ApiPublicJobsSubscriptionRenewalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -757,6 +778,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicJobsClientExhibitionReportRoute,
   ApiPublicJobsPartnerTvReminderRoute: ApiPublicJobsPartnerTvReminderRoute,
   ApiPublicJobsScreensOfflineAlertRoute: ApiPublicJobsScreensOfflineAlertRoute,
+  ApiPublicJobsSubscriptionRenewalRoute: ApiPublicJobsSubscriptionRenewalRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
