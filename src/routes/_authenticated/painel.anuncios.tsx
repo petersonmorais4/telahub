@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Newspaper, Pencil, Plus, Trash2 } from "lucide-react";
+import { Download, Newspaper, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MediaPreview } from "@/components/admin/MediaPreview";
@@ -52,6 +52,8 @@ function AnunciosPage() {
   const [editDuration, setEditDuration] = useState(10);
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
+  const [replaceFile, setReplaceFile] = useState<File | null>(null);
+  const [replacing, setReplacing] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [sendReport, setSendReport] = useState(true);
@@ -167,7 +169,27 @@ function AnunciosPage() {
     return `Imagem · ${media.duration}s`;
   }
 
+  async function downloadMedia(media: MediaRow) {
+    try {
+      const { data: blob, error } = await supabase.storage.from(MEDIA_BUCKET).download(media.storage_path);
+      if (error || !blob) throw error ?? new Error("Arquivo não encontrado");
+      const ext = media.storage_path.split(".").pop() ?? "bin";
+      const safe = media.title.replace(/[^\p{L}\p{N} _-]/gu, "").trim() || "anuncio";
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safe}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (err) {
+      toast.error("Não foi possível baixar", { description: (err as Error).message });
+    }
+  }
+
   function openEditor(media: MediaRow) {
+    setReplaceFile(null);
     setEditingMedia(media);
     setEditTitle(media.title);
     setEditDuration(media.duration || defaultDuration);
@@ -217,19 +239,41 @@ function AnunciosPage() {
       return;
     }
 
+    let newPath: string | null = null;
+    let newType: MediaType | null = null;
+    if (replaceFile) {
+      newType = replaceFile.type.startsWith("video") ? "video" : "image";
+      const ext = replaceFile.name.split(".").pop()?.toLowerCase() ?? "bin";
+      newPath = `${crypto.randomUUID()}.${ext}`;
+      setReplacing(true);
+      const up = await supabase.storage.from(MEDIA_BUCKET).upload(newPath, replaceFile, {
+        cacheControl: "3600",
+        contentType: replaceFile.type || "application/octet-stream",
+      });
+      setReplacing(false);
+      if (up.error) {
+        toast.error("Não foi possível enviar o novo arquivo", { description: up.error.message });
+        return;
+      }
+    }
+    const oldPath = editingMedia.storage_path;
+    const finalType = newType ?? editingMedia.type;
+
     updateMedia.mutate(
       {
         id: editingMedia.id,
         values: {
+          ...(newPath ? { storage_path: newPath, type: finalType, ...(finalType === "video" ? { duration: 0 } : {}) } : {}),
           title: normalizedTitle,
-          ...(editingMedia.type === "image" ? { duration: Math.round(editDuration) } : {}),
+          ...(finalType === "image" ? { duration: Math.round(editDuration) || defaultDuration } : {}),
           start_date: editStartDate || null,
           end_date: editEndDate || null,
         },
       },
       {
         onSuccess: () => {
-          toast.success("Anúncio atualizado");
+          if (newPath) void supabase.storage.from(MEDIA_BUCKET).remove([oldPath]);
+          toast.success(newPath ? "Arquivo substituído — campanha mantida" : "Anúncio atualizado");
           setEditingMedia(null);
         },
       },
@@ -341,6 +385,15 @@ function AnunciosPage() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    aria-label={`Baixar ${media.title}`}
+                    title="Baixar arquivo"
+                    onClick={() => void downloadMedia(media)}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     aria-label={`Editar ${media.title}`}
                     title="Editar anúncio"
                     onClick={() => openEditor(media)}
@@ -419,6 +472,23 @@ function AnunciosPage() {
                 <Input id="edit-end" type="date" value={editEndDate} onChange={(event) => setEditEndDate(event.target.value)} />
               </div>
             </div>
+            <div className="space-y-2 rounded-lg border border-border p-3">
+              <Label htmlFor="replace-file">Substituir arquivo (imagem ou vídeo)</Label>
+              <Input
+                id="replace-file"
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => setReplaceFile(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Mantém playlists, período, anunciante e histórico de exibições. Deixe vazio para não trocar.
+              </p>
+              {editingMedia ? (
+                <Button type="button" variant="outline" size="sm" onClick={() => void downloadMedia(editingMedia)}>
+                  <Download className="mr-2 h-4 w-4" /> Baixar arquivo atual
+                </Button>
+              ) : null}
+            </div>
             <div className="space-y-3 rounded-lg border border-border p-3">
               <p className="text-sm font-medium">Anunciante (relatório semanal por e-mail)</p>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -439,8 +509,8 @@ function AnunciosPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingMedia(null)}>Cancelar</Button>
-            <Button onClick={saveEdit} disabled={updateMedia.isPending}>
-              {updateMedia.isPending ? "Salvando…" : "Salvar alterações"}
+            <Button onClick={saveEdit} disabled={updateMedia.isPending || replacing}>
+              {replacing ? "Enviando arquivo…" : updateMedia.isPending ? "Salvando…" : "Salvar alterações"}
             </Button>
           </DialogFooter>
         </DialogContent>
