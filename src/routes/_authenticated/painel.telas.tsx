@@ -288,7 +288,9 @@ function TelasPage() {
     >
       <div className="panel divide-y divide-border">
         {isLoading ? <p className="p-6 text-sm text-muted-foreground">Carregando…</p> : null}
-        {(data?.screens ?? []).map((screen) => (
+        {[...(data?.screens ?? [])]
+          .sort((a, b) => Number(isOnline(b.last_seen)) - Number(isOnline(a.last_seen)))
+          .map((screen) => (
           <div key={screen.id} className="flex flex-wrap items-center gap-4 p-5">
             <div className="min-w-48 flex-1">
               <div className="flex items-center gap-2">
