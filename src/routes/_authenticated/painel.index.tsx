@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MonitorPlay, Images, ListOrdered, Radio } from "lucide-react";
+import { MonitorPlay, Images, ListOrdered, Radio, Percent } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,9 +83,16 @@ function Dashboard() {
   );
   const onlineScreens = (data?.screens ?? []).filter((s) => isOnline(s.last_seen));
 
+  const totalScreens = data?.screens.length ?? 0;
+  const onlinePct = totalScreens ? Math.round((onlineScreens.length / totalScreens) * 100) : 0;
+  const sortedScreens = [...(data?.screens ?? [])].sort(
+    (a, b) => Number(isOnline(b.last_seen)) - Number(isOnline(a.last_seen)),
+  );
+
   const cards = [
     { label: "Telas cadastradas", value: data?.screens.length ?? 0, icon: MonitorPlay },
     { label: "Telas online agora", value: onlineScreens.length, icon: Radio },
+    { label: "Telas ligadas agora (%)", value: `${onlinePct}%`, icon: Percent },
     { label: "Anúncios no ar", value: activeMedia.length, icon: Images },
     { label: "Playlists", value: data?.playlists.length ?? 0, icon: ListOrdered },
   ];
@@ -100,7 +107,7 @@ function Dashboard() {
         </Button>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {cards.map((card) => (
           <div key={card.label} className="panel p-5">
             <div className="flex items-center justify-between">
@@ -118,7 +125,7 @@ function Dashboard() {
         <section className="panel p-5">
           <h2 className="text-base font-semibold">Telas</h2>
           <ul className="mt-4 divide-y divide-border">
-            {(data?.screens ?? []).slice(0, 8).map((screen) => (
+            {sortedScreens.map((screen) => (
               <li key={screen.id} className="flex items-center justify-between py-3 text-sm">
                 <div>
                   <p className="font-medium">{screen.name}</p>
