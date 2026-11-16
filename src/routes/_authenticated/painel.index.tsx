@@ -38,7 +38,7 @@ interface LogRow {
 function Dashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
-    refetchInterval: 30_000,
+    refetchInterval: 120_000,
     refetchOnWindowFocus: true,
     queryFn: async () => {
       const [screens, media, playlists, logs] = await Promise.all([
