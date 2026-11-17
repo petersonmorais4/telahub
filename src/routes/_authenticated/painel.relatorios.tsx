@@ -124,38 +124,50 @@ function RelatoriosPage() {
 
   const { data, isLoading, isError, isFetching, refetch } = useQuery({
     queryKey: ["reports", period, mediaId],
-    refetchInterval: 120_000,
-    refetchOnWindowFocus: true,
+    staleTime: 60_000,
+    refetchInterval: 300_000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       const [mediaResult, screensResult] = await Promise.all([
-        supabase.from("media").select("*").in("type", ["image", "video"]).order("title"),
+        supabase.from("media").select("*").order("title"),
         supabase.from("screens").select("*").order("name"),
       ]);
       if (mediaResult.error) throw mediaResult.error;
       if (screensResult.error) throw screensResult.error;
+      const allMedia = (mediaResult.data ?? []) as MediaRow[];
+      const allScreens = (screensResult.data ?? []) as ScreenRow[];
+      const mediaById = new Map(allMedia.map((m) => [m.id, { title: m.title }]));
+      const screenById = new Map(allScreens.map((sc) => [sc.id, sc as unknown as NonNullable<ReportLog["screens"]>]));
 
+      // Light rows only (no joins): names/addresses are resolved from the lists above.
+      type RawLog = { id: string; played_at: string; media_id: string | null; screen_id: string | null };
       const logs: ReportLog[] = [];
-      const selection: string =
-        "id, played_at, media_id, screen_id, media(title), screens(name, location, street, address_number, neighborhood, city, state, business_hours)";
+      const end = new Date().toISOString();
       for (let from = 0; ; from += 1000) {
         let query = supabase
           .from("play_logs")
-          .select(selection)
+          .select("id, played_at, media_id, screen_id")
           .gte("played_at", range.start)
-          .lte("played_at", new Date().toISOString())
+          .lte("played_at", end)
           .order("played_at", { ascending: false })
           .range(from, from + 999);
         if (mediaId !== ALL) query = query.eq("media_id", mediaId);
-        const result = await query.returns<ReportLog[]>();
+        const result = await query.returns<RawLog[]>();
         if (result.error) throw result.error;
-        logs.push(...(result.data ?? []));
+        for (const row of result.data ?? []) {
+          logs.push({
+            ...row,
+            media: row.media_id ? mediaById.get(row.media_id) ?? null : null,
+            screens: row.screen_id ? screenById.get(row.screen_id) ?? null : null,
+          });
+        }
         if ((result.data?.length ?? 0) < 1000) break;
       }
 
       return {
         logs,
-        media: (mediaResult.data ?? []) as MediaRow[],
-        screens: (screensResult.data ?? []) as ScreenRow[],
+        media: allMedia.filter((m) => m.type === "image" || m.type === "video"),
+        screens: allScreens,
       };
     },
   });

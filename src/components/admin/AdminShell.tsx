@@ -60,6 +60,7 @@ export function AdminShell({
   async function handleSignOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
+    Object.keys(sessionStorage).filter((k) => k.startsWith("telahub_mfa_ok_")).forEach((k) => sessionStorage.removeItem(k));
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { next: "" }, replace: true });
   }

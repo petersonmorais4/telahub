@@ -50,6 +50,7 @@ function AuthPage() {
   async function signIn(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true);
+    Object.keys(sessionStorage).filter((k) => k.startsWith("telahub_mfa_ok_")).forEach((k) => sessionStorage.removeItem(k));
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
