@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Aplicar e validar carrossel de três fotos nas apresentações para anunciantes e parceiros.
+- [x] Aplicar e validar carrossel de três fotos nas apresentações para anunciantes e parceiros.
 
 - [x] Medir créditos, consultas, índices, armazenamento e tarefas agendadas; otimizar gargalos comprovados sem alterar exibições.
 - [x] Comparar planos e tempos antes/depois e registrar os limites da economia mensurável.
