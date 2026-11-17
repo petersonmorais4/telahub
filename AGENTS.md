@@ -21,3 +21,4 @@
 - Financial data (expenses, revenues) is gated by `can_finance_read/write()` which excludes the `operacional` role; sales funnel tables (`sales_leads`, `sales_lead_events`) are gated by `is_sales()` (admin + operacional), because RLS, not the menu, must enforce who sees money.
 - Player Realtime uses one fixed-name channel per screen with only screens (filtered by id, ignoring heartbeat columns) and playlist_items (filtered), exponential backoff and refresh only after a real drop, because unfiltered multi-table channels caused a join/refresh storm that dominated database load.
 - Keep exhibition log indexes on played_at and (media_id, played_at): dashboard and report date-order queries must avoid full-history scans without changing logging or report contents.
+- Advertiser and partner presentations share a prop-driven PlacesCarousel to keep gallery transitions consistent without changing page-specific content.

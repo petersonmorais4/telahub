@@ -22,6 +22,7 @@ import localBragantina from "@/assets/locais/estrada-bragantina-campo-limpo.jpg.
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { PlacesCarousel } from "@/components/PlacesCarousel";
 
 const WHATS = "https://wa.me/5511964424040";
 
@@ -238,13 +239,7 @@ function Anuncie() {
       <section id="locais" className={section}>
         <h2 className="text-3xl font-bold sm:text-4xl">Onde seu anúncio aparece</h2>
         <p className="mt-3 text-muted-foreground">Lugares onde as pessoas param, esperam e olham para a tela.</p>
-        <div className="mt-10 grid gap-4 grid-cols-2 lg:grid-cols-3">
-          {places.map((p, i) => (
-            <Reveal key={p.img} delay={i * 120} className="group overflow-hidden rounded-xl border border-border bg-card">
-              <img src={p.img} alt={p.alt} className="aspect-[9/19] w-full object-cover object-bottom transition-transform duration-500 group-hover:scale-[1.03]" loading="lazy" />
-            </Reveal>
-          ))}
-        </div>
+        <PlacesCarousel places={places} />
       </section>
 
       {/* Mapa */}
