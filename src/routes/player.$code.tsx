@@ -81,8 +81,26 @@ function PlayerPage() {
     refetchOnWindowFocus: true,
     networkMode: "always",
     retry: true,
+    initialData: () => readSnapshot(code),
+    initialDataUpdatedAt: 0,
     queryFn: async () => {
+      try {
+        const fresh = await fetchPlayerData();
+        saveSnapshot(code, fresh);
+        return fresh;
+      } catch (err) {
+        // Sem internet: continua com a última grade salva no aparelho.
+        const snap = queryClient.getQueryData<PlayerData>(["player", code]) ?? readSnapshot(code);
+        if (snap) return snap;
+        throw err;
+      }
+    },
+  });
+
+  async function fetchPlayerData(): Promise<PlayerData> {
+    {
       const screenRes = await supabase.from("screens").select("*").eq("code", code).maybeSingle();
+      if (screenRes.error) throw screenRes.error;
       const screen = (screenRes.data ?? null) as ScreenRow | null;
 
       const [playlistRes, itemsRes, mediaRes, schedulesRes, settingsRes] = await Promise.all([
@@ -96,6 +114,9 @@ function PlayerPage() {
         supabase.from("schedules").select("*"),
         supabase.from("app_settings").select("*").eq("id", 1).maybeSingle(),
       ]);
+      for (const r of [playlistRes, itemsRes, mediaRes, schedulesRes, settingsRes] as Array<{ error?: unknown }>) {
+        if (r.error) throw r.error;
+      }
 
       return {
         screen,
@@ -105,8 +126,18 @@ function PlayerPage() {
         schedules: (schedulesRes.data ?? []) as ScheduleRow[],
         settings: (settingsRes.data ?? null) as SettingsRow | null,
       };
-    },
-  });
+    }
+  }
+
+  // Baixa antecipadamente todas as mídias da grade para tocar mesmo sem internet.
+  useEffect(() => {
+    if (!data) return;
+    const ids = new Set(data.items.map((i) => i.media_id));
+    const paths = data.media
+      .filter((m) => ids.has(m.id) && m.storage_path && (m.type === "image" || m.type === "video"))
+      .map((m) => m.storage_path as string);
+    void prefetchToCache(paths);
+  }, [data]);
 
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refresh = useCallback(() => {
@@ -525,6 +556,51 @@ function PlayerPage() {
 }
 
 const MEDIA_CACHE = "telahub-media-v1";
+const SNAPSHOT_PREFIX = "telahub_player_snapshot_";
+
+function readSnapshot(code: string): PlayerData | undefined {
+  try {
+    if (typeof localStorage === "undefined") return undefined;
+    const raw = localStorage.getItem(SNAPSHOT_PREFIX + code);
+    return raw ? (JSON.parse(raw) as PlayerData) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveSnapshot(code: string, data: PlayerData) {
+  try {
+    if (data.screen) localStorage.setItem(SNAPSHOT_PREFIX + code, JSON.stringify(data));
+  } catch {
+    /* armazenamento cheio: ignora */
+  }
+}
+
+let prefetchRunning = false;
+/** Grava no aparelho, um por vez, os arquivos ainda não guardados. */
+async function prefetchToCache(paths: string[]) {
+  if (prefetchRunning || typeof caches === "undefined") return;
+  prefetchRunning = true;
+  try {
+    const cache = await caches.open(MEDIA_CACHE);
+    for (const path of paths) {
+      const key = `https://cache.telahub.local/${encodeURIComponent(path)}`;
+      try {
+        if (await cache.match(key)) continue;
+        const signed = await getSignedUrl(path);
+        if (!signed) continue;
+        const res = await fetch(signed);
+        if (!res.ok) continue;
+        const blob = await res.blob();
+        await cache.put(key, new Response(blob, { headers: { "Content-Type": blob.type || "application/octet-stream" } }));
+      } catch {
+        /* tenta de novo na próxima atualização */
+      }
+    }
+  } finally {
+    prefetchRunning = false;
+  }
+}
 const blobUrls = new Map<string, Promise<string | null>>();
 
 /**
