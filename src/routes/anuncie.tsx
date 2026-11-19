@@ -56,7 +56,7 @@ const stats = [
 
 const reasons = [
   { icon: Eye, title: "Não dá para pular", text: "Sem botão de pular, sem bloqueador de anúncio. Sua marca aparece de verdade." },
-  { icon: MapPin, title: "Público do seu bairro", text: "Quem vê a tela mora, treina e compra perto de você." },
+  { icon: MapPin, title: "Anuncie na sua região", text: "Escolha telas específicas ou circule em toda a rede local com total flexibilidade." },
   { icon: Newspaper, title: "Tela que prende o olhar", text: "Notícias do g1, clima e Ibovespa intercalados com os anúncios." },
   { icon: QrCode, title: "Do olhar ao contato", text: "Seu anúncio pode levar um QR Code direto para o seu WhatsApp." },
   { icon: RefreshCw, title: "Troca rápida", text: "Mudou a promoção? Atualizamos o anúncio sem custo de gráfica." },
