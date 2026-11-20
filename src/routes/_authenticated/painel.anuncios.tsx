@@ -1,8 +1,10 @@
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Download, Newspaper, Pencil, Plus, Trash2 } from "lucide-react";
+import { Download, MoreVertical, Newspaper, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { MediaPreview } from "@/components/admin/MediaPreview";
@@ -47,6 +49,7 @@ function AnunciosPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [deletingMedia, setDeletingMedia] = useState<MediaRow | null>(null);
   const [editingMedia, setEditingMedia] = useState<MediaRow | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDuration, setEditDuration] = useState(10);
@@ -381,34 +384,25 @@ function AnunciosPage() {
                       : "Sem período definido"}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Baixar ${media.title}`}
-                    title="Baixar arquivo"
-                    onClick={() => void downloadMedia(media)}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Editar ${media.title}`}
-                    title="Editar anúncio"
-                    onClick={() => openEditor(media)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Remover anúncio"
-                    title="Remover anúncio"
-                    onClick={() => deleteMedia.mutate(media)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                <div className="flex shrink-0 items-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" aria-label={`Ações de ${media.title}`} title="Mais ações">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => void downloadMedia(media)}>
+                        <Download className="mr-2 h-4 w-4" /> Baixar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => openEditor(media)}>
+                        <Pencil className="mr-2 h-4 w-4" /> Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setDeletingMedia(media)}>
+                        <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
@@ -433,6 +427,26 @@ function AnunciosPage() {
            Nenhum anúncio ainda. Publique uma imagem ou um vídeo.
         </p>
       ) : null}
+
+      <AlertDialog open={Boolean(deletingMedia)} onOpenChange={(o) => { if (!o) setDeletingMedia(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza que quer excluir?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O anúncio "{deletingMedia?.title}" será removido de todas as telas. Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (deletingMedia) deleteMedia.mutate(deletingMedia); setDeletingMedia(null); }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={Boolean(editingMedia)} onOpenChange={(nextOpen) => { if (!nextOpen) setEditingMedia(null); }}>
         <DialogContent>
