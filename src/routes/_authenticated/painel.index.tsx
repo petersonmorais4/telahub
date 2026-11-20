@@ -1,3 +1,4 @@
+import { formatScreenAddress } from "@/lib/address";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { MonitorPlay, Images, ListOrdered, Radio, Percent } from "lucide-react";
@@ -69,7 +70,7 @@ function Dashboard() {
         const items = data?.screens ?? [];
         if (items.length === 0) return "Nenhuma tela cadastrada ainda.";
         return items
-          .map((s) => `${s.name} (${s.location ?? "Sem local"}) — ${isOnline(s.last_seen) ? "Online" : "Offline"}`)
+          .map((s) => `${s.name} (${formatScreenAddress(s) || "Sem local"}) — ${isOnline(s.last_seen) ? "Online" : "Offline"}`)
           .join("\n");
       }),
   });
@@ -130,7 +131,7 @@ function Dashboard() {
                 <div>
                   <p className="font-medium">{screen.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {screen.location || "Sem local"} · Última sincronização:{" "}
+                    {formatScreenAddress(screen) || "Sem local"} · Última sincronização:{" "}
                     {formatDateTime(screen.last_seen)}
                   </p>
                 </div>
