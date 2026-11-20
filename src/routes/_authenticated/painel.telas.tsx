@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Copy, ExternalLink, MapPin, Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Copy, ExternalLink, MapPin, MoreVertical, Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { AddressFields } from "@/components/admin/AddressFields";
 import { BusinessHoursFields } from "@/components/admin/BusinessHoursFields";
 import { businessHoursSchema, type BusinessHours } from "@/lib/business-hours";
@@ -64,6 +65,7 @@ function TelasPage() {
   const [orientation, setOrientation] = useState<string>("horizontal");
   const [address, setAddress] = useState<AddressForm>(emptyAddress());
   const [businessHours, setBusinessHours] = useState<BusinessHours | null>(null);
+  const [deletingScreen, setDeletingScreen] = useState<ScreenRow | null>(null);
   const [editing, setEditing] = useState<{
     id: string;
     name: string;
@@ -320,82 +322,14 @@ function TelasPage() {
               </p>
             </div>
 
-            <div className="w-44">
-              <Select
-                value={screen.orientation ?? "horizontal"}
-                onValueChange={(value) => updateScreen.mutate({ id: screen.id, values: { orientation: value } })}
-              >
-                <SelectTrigger aria-label="Orientação da TV">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="horizontal">Horizontal</SelectItem>
-                  <SelectItem value="vertical">Vertical / Totem</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" aria-label="Girar imagem da TV" className="gap-1">
-                  <RotateCw className="h-4 w-4" />
-                  {screen.rotation ?? (screen.orientation === "vertical" ? 90 : 0)}°
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label={`Ações de ${screen.name}`} title="Mais ações">
+                  <MoreVertical className="h-4 w-4" />
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56">
-                <p className="mb-2 text-sm font-medium">Girar imagem na TV</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[0, 90, 180, 270].map((deg) => {
-                    const current = screen.rotation ?? (screen.orientation === "vertical" ? 90 : 0);
-                    return (
-                      <Button
-                        key={deg}
-                        size="sm"
-                        variant={current === deg ? "default" : "outline"}
-                        onClick={() => updateScreen.mutate({ id: screen.id, values: { rotation: deg } })}
-                      >
-                        <RotateCw className="h-4 w-4" style={{ transform: `rotate(${deg}deg)` }} />
-                        {deg}°
-                      </Button>
-                    );
-                  })}
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">Use se a imagem aparecer deitada ou de cabeça para baixo.</p>
-              </PopoverContent>
-            </Popover>
-
-            <div className="w-52">
-              <Select
-                value={screen.playlist_id ?? NONE}
-                onValueChange={(value) =>
-                  updateScreen.mutate({
-                    id: screen.id,
-                    values: { playlist_id: value === NONE ? null : value },
-                  })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sem playlist" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>Sem playlist</SelectItem>
-                  {(data?.playlists ?? []).map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Dados do ponto e horários"
-                title="Dados do ponto e horários"
-                onClick={() =>
-                  setEditing({
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onSelect={() => setEditing({
                     id: screen.id,
                     name: screen.name,
                     form: {
@@ -411,49 +345,74 @@ function TelasPage() {
                     partnerName: data?.contacts[screen.id]?.partner_name ?? "",
                     partnerEmail: data?.contacts[screen.id]?.partner_email ?? "",
                     businessHours: businessHoursSchema.safeParse(screen.business_hours).success ? businessHoursSchema.parse(screen.business_hours) : null,
-                  })
-                }
-              >
-                <MapPin className={screen.show_on_map && screen.latitude != null ? "h-4 w-4 text-primary" : "h-4 w-4"} />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Renomear tela"
-                onClick={() => {
+                  })}>
+                  <MapPin className="mr-2 h-4 w-4" /> Endereço e horários
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
                   const next = window.prompt("Novo nome da tela", screen.name)?.trim();
-                  if (next && next !== screen.name) {
-                    updateScreen.mutate({ id: screen.id, values: { name: next } });
-                  }
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Copiar link do player"
-                onClick={() => {
+                  if (next && next !== screen.name) updateScreen.mutate({ id: screen.id, values: { name: next } });
+                }}>
+                  <Pencil className="mr-2 h-4 w-4" /> Renomear
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => {
                   navigator.clipboard.writeText(playerUrl(screen.code));
                   toast.success("Link copiado", { description: playerUrl(screen.code) });
-                }}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" asChild aria-label="Abrir player">
-                <a href={`/player/${screen.code}`} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label="Remover tela"
-                onClick={() => deleteScreen.mutate(screen.id)}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
+                }}>
+                  <Copy className="mr-2 h-4 w-4" /> Copiar link do player
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href={`/player/${screen.code}`} target="_blank" rel="noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> Abrir player
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Grade: {(data?.playlists ?? []).find((p) => p.id === screen.playlist_id)?.name ?? "Sem playlist"}</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={screen.playlist_id ?? NONE}
+                      onValueChange={(value) => updateScreen.mutate({ id: screen.id, values: { playlist_id: value === NONE ? null : value } })}
+                    >
+                      <DropdownMenuRadioItem value={NONE}>Sem playlist</DropdownMenuRadioItem>
+                      {(data?.playlists ?? []).map((p) => (
+                        <DropdownMenuRadioItem key={p.id} value={p.id}>{p.name}</DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Orientação: {screen.orientation === "vertical" ? "Vertical" : "Horizontal"}</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={screen.orientation ?? "horizontal"}
+                      onValueChange={(value) => updateScreen.mutate({ id: screen.id, values: { orientation: value } })}
+                    >
+                      <DropdownMenuRadioItem value="horizontal">Horizontal</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="vertical">Vertical / Totem</DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <RotateCw className="mr-2 h-4 w-4" /> Girar: {screen.rotation ?? (screen.orientation === "vertical" ? 90 : 0)}°
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={String(screen.rotation ?? (screen.orientation === "vertical" ? 90 : 0))}
+                      onValueChange={(value) => updateScreen.mutate({ id: screen.id, values: { rotation: Number(value) } })}
+                    >
+                      {[0, 90, 180, 270].map((deg) => (
+                        <DropdownMenuRadioItem key={deg} value={String(deg)}>{deg}°</DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onSelect={() => setDeletingScreen(screen)}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ))}
         {!isLoading && (data?.screens.length ?? 0) === 0 ? (
@@ -462,6 +421,25 @@ function TelasPage() {
           </p>
         ) : null}
       </div>
+      <AlertDialog open={Boolean(deletingScreen)} onOpenChange={(o) => { if (!o) setDeletingScreen(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza que quer excluir?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A tela "{deletingScreen?.name}" será removida. Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (deletingScreen) deleteScreen.mutate(deletingScreen.id); setDeletingScreen(null); }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
