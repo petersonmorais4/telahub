@@ -14,6 +14,7 @@ import {
   Menu,
   Wallet,
   KanbanSquare,
+  Contact,
 } from "lucide-react";
 import { canSeeFinance, canUseSales, canManageUsers, useMyRoles } from "@/lib/my-role";
 
@@ -28,6 +29,7 @@ const nav = [
   { to: "/painel/anuncios", label: "Anúncios", icon: Images, exact: false },
   { to: "/painel/playlists", label: "Playlists", icon: ListOrdered, exact: false },
   { to: "/painel/agendamentos", label: "Agendamentos", icon: CalendarClock, exact: false },
+  { to: "/painel/clientes", label: "Clientes", icon: Contact, exact: false },
   { to: "/painel/funil", label: "Funil de Vendas", icon: KanbanSquare, exact: false },
   { to: "/painel/relatorios", label: "Relatórios", icon: FileBarChart, exact: false },
   { to: "/painel/financeiro", label: "Financeiro", icon: Wallet, exact: false },
