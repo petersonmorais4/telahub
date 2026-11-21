@@ -227,8 +227,13 @@ function Index() {
             <Button asChild size="lg">
               <Link to="/anunciar">Quero anunciar</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-background/70 backdrop-blur-sm">
+            <Button asChild size="lg">
               <Link to="/parceiro">Seja Parceiro</Link>
+            </Button>
+            <Button asChild size="lg">
+              <a href="https://telahub.app/player/6EEAJK" target="_blank" rel="noopener noreferrer">
+                Grade ao vivo
+              </a>
             </Button>
           </div>
         </div>
