@@ -34,17 +34,17 @@ const places = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TelaHub — Anuncie em telas de alta circulação" },
+      { title: "TelaHUB — Anuncie em telas de salões, academias e restaurantes" },
       {
         name: "description",
         content:
-          "Sua marca em recepções, elevadores, academias e áreas comuns de condomínios. Anuncie em vídeo ou imagem e alcance seu público onde ele realmente está.",
+          "Anúncios em vídeo ou imagem nas telas de salões, barbearias, academias e restaurantes de Jundiaí e Região. Relatório de exibições para acompanhar sua campanha.",
       },
-      { property: "og:title", content: "TelaHub — Anuncie em telas de alta circulação" },
+      { property: "og:title", content: "TelaHUB — Anuncie em telas de salões, academias e restaurantes" },
       {
         property: "og:description",
         content:
-          "Alcance seu público em locais de alta circulação com anúncios em tela cheia.",
+          "Anúncios em vídeo ou imagem nas telas de salões, barbearias, academias e restaurantes de Jundiaí e Região. Relatório de exibições para acompanhar sua campanha.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -218,21 +218,30 @@ function Index() {
 
         <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-40 sm:pb-20 sm:pt-44">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">
-            Mídia indoor
+            Mídia indoor em Jundiaí e Região
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-5xl">
-            Sua marca onde as pessoas realmente estão
+            Seu anúncio nas telas de salões, academias e restaurantes da região
           </h1>
+          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+            Anúncios de 15 segundos em telas nas recepções e áreas de espera dos nossos parceiros, com relatório de exibições para você acompanhar.
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
               <Link to="/anunciar">Quero anunciar</Link>
             </Button>
-            <Button asChild size="lg">
+            <Button asChild variant="outline" size="lg" className="border-foreground/40 bg-background/40 backdrop-blur-sm">
               <Link to="/parceiro">Seja Parceiro</Link>
             </Button>
-            <Button asChild size="lg">
-              <a href="https://telahub.app/player/6EEAJK" target="_blank" rel="noopener noreferrer">
-                Grade ao vivo
+            <Button asChild variant="ghost" size="lg" className="bg-background/40 backdrop-blur-sm">
+              <a
+                href="https://telahub.app/player/6EEAJK"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ver a grade de anúncios ao vivo"
+              >
+                <span className="h-2 w-2 rounded-full bg-primary motion-safe:animate-pulse" aria-hidden />
+                Ver ao vivo
               </a>
             </Button>
           </div>
@@ -241,7 +250,7 @@ function Index() {
 
       <section className="mx-auto max-w-6xl px-6 py-20">
         <div id="como-funciona" className="scroll-mt-24">
-          <h2 className="text-2xl font-bold">Por que anunciar na TelaHub?</h2>
+          <h2 className="text-2xl font-bold">Por que anunciar na TelaHUB?</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {benefits.map((b) => (
               <div key={b.title} className="panel p-6">
@@ -261,7 +270,7 @@ function Index() {
 
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <h2 className="text-2xl font-bold">Onde estamos</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Pontos da rede TelaHub onde sua marca pode aparecer.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Pontos da rede TelaHUB onde sua marca pode aparecer.</p>
         <div className="mt-6">
           <ClientOnly fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
             <Suspense fallback={<div className="h-[420px] rounded-xl border border-border bg-card" />}>
