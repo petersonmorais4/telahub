@@ -141,6 +141,13 @@
       "when": 1794666505274,
       "tag": "0019_optimize_exhibition_report_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795221293010,
+      "tag": "0020_add_client_phone",
+      "breakpoints": true
     }
   ]
 }

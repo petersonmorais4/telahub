@@ -1,0 +1,1 @@
+ALTER TABLE public.media_contacts ADD COLUMN IF NOT EXISTS client_phone text;

@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useMemo, useState } from "react";
-import { Mail, Image as ImageIcon, Video, MonitorPlay, Wallet, Search } from "lucide-react";
+import { Mail, Phone, Image as ImageIcon, Video, MonitorPlay, Wallet, Search, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +35,7 @@ const isLive = (m: ClientMedia) => m.active && (!m.end_date || m.end_date >= tod
 function ClientsPage() {
   const roles = useMyRoles().data ?? [];
   const finance = canSeeFinance(roles);
+  const staff = roles.some((r) => r !== "viewer");
   const [q, setQ] = useState("");
   const [openKey, setOpenKey] = useState<string | null>(null);
 
@@ -41,7 +44,7 @@ function ClientsPage() {
     queryFn: async () => {
       const [mediaR, contactsR, itemsR, screensR, revR] = await Promise.all([
         supabase.from("media").select("id, title, type, active, start_date, end_date"),
-        supabase.from("media_contacts").select("media_id, client_name, client_email, send_report"),
+        supabase.from("media_contacts").select("media_id, client_name, client_email, client_phone, send_report"),
         supabase.from("playlist_items").select("media_id, playlist_id"),
         supabase.from("screens").select("id, name, playlist_id"),
         finance
@@ -53,7 +56,7 @@ function ClientsPage() {
       const contacts = new Map((contactsR.data ?? []).map((c) => [c.media_id, c]));
       const media: ClientMedia[] = (mediaR.data ?? []).map((m) => {
         const c = contacts.get(m.id);
-        return { ...m, client_name: c?.client_name ?? null, client_email: c?.client_email ?? null, send_report: c?.send_report ?? false };
+        return { ...m, client_name: c?.client_name ?? null, client_email: c?.client_email ?? null, client_phone: c?.client_phone ?? null, send_report: c?.send_report ?? false };
       });
       const screensByMedia = new Map<string, string[]>();
       for (const it of itemsR.data ?? []) {
@@ -69,7 +72,7 @@ function ClientsPage() {
   const clients = useMemo(() => {
     const all = dataQ.data?.clients ?? [];
     const t = q.trim().toLowerCase();
-    return t ? all.filter((c) => c.name.toLowerCase().includes(t) || c.emails.some((e) => e.toLowerCase().includes(t))) : all;
+    return t ? all.filter((c) => c.name.toLowerCase().includes(t) || c.emails.some((e) => e.toLowerCase().includes(t)) || c.arts.some((a) => a.title.toLowerCase().includes(t))) : all;
   }, [dataQ.data, q]);
   const open = clients.find((c) => c.key === openKey) ?? null;
   const screensOf = (id: string) => dataQ.data?.screensByMedia.get(id) ?? [];
@@ -79,7 +82,7 @@ function ClientsPage() {
       <div className="mb-4 flex items-center gap-2">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-8" placeholder="Buscar por nome ou e-mail" value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="pl-8" placeholder="Buscar por nome, e-mail ou anúncio" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <span className="text-sm text-muted-foreground">{clients.length} clientes</span>
       </div>
@@ -106,12 +109,22 @@ function ClientsPage() {
                 {open.emails.length ? open.emails.map((e) => (
                   <a key={e} href={`mailto:${e}`} className="flex items-center gap-2 text-primary hover:underline"><Mail className="h-4 w-4" />{e}</a>
                 )) : <p className="text-muted-foreground">Sem e-mail cadastrado</p>}
+                {open.phones.map((ph) => (
+                  <a key={ph} href={`tel:${ph.replace(/\D/g, "")}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" />{ph}</a>
+                ))}
+                {staff && <PhoneForm group={open} />}
+                {!open.hasContact && (
+                  <p className="mt-2 flex items-center gap-2 rounded-md bg-muted p-2 text-xs text-muted-foreground"><AlertTriangle className="h-4 w-4" />Sem contato cadastrado. Complete nome e e-mail no anúncio.</p>
+                )}
               </section>
               <section className="mt-5 space-y-2 text-sm">
-                <h3 className="font-semibold">Artes ({open.media.length})</h3>
-                {open.media.length === 0 && <p className="text-muted-foreground">Nenhuma arte vinculada.</p>}
-                {open.media.map((m) => (
-                  <div key={m.id} className="rounded-md border border-border p-3">
+                <h3 className="font-semibold">Artes ({open.arts.length})</h3>
+                {open.arts.length === 0 && <p className="text-muted-foreground">Nenhuma arte vinculada.</p>}
+                {open.arts.map((a) => (
+                  <div key={a.key} className="space-y-2 rounded-md border border-border p-3">
+                    <p className="font-semibold">{a.title}{a.versions.length > 1 ? ` · ${a.versions.length} versões` : ""}</p>
+                {a.versions.map((m) => (
+                  <div key={m.id} className="rounded-md bg-muted/50 p-2">
                     <div className="flex items-center justify-between gap-2">
                       <span className="flex items-center gap-2 font-medium">
                         {m.type === "video" ? <Video className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />}{m.title}
@@ -124,6 +137,8 @@ function ClientsPage() {
                     <p className="mt-1 flex items-start gap-1 text-xs text-muted-foreground">
                       <MonitorPlay className="mt-0.5 h-3 w-3 shrink-0" />{screensOf(m.id).join(", ") || "Fora das grades"}
                     </p>
+                  </div>
+                ))}
                   </div>
                 ))}
               </section>
@@ -169,12 +184,42 @@ function ClientCard({ c, finance, onOpen }: { c: ClientGroup; finance: boolean; 
       <p className="font-semibold">{c.name}</p>
       <p className="truncate text-xs text-muted-foreground">{c.emails[0] ?? "Sem e-mail"}</p>
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
-        <span className="rounded bg-muted px-1.5 py-0.5">{live} em exibição / {c.media.length} artes</span>
+        <span className="rounded bg-muted px-1.5 py-0.5">{live} em exibição / {c.arts.length} artes</span>
+        {!c.hasContact && <span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground">Sem contato</span>}
         {finance && (
           <span className="flex items-center gap-1 rounded bg-muted px-1.5 py-0.5"><Wallet className="h-3 w-3" />{brl(c.total)}</span>
         )}
         {finance && overdue && <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-destructive">Cobrança vencida</span>}
       </div>
     </button>
+  );
+}
+
+function PhoneForm({ group }: { group: ClientGroup }) {
+  const qc = useQueryClient();
+  const [phone, setPhone] = useState(group.phones[0] ?? "");
+  const [saving, setSaving] = useState(false);
+  const save = async () => {
+    setSaving(true);
+    const value = phone.trim() || null;
+    const results = await Promise.all(group.media.map((m) =>
+      supabase.from("media_contacts").upsert(
+        { media_id: m.id, client_phone: value, client_name: m.client_name, client_email: m.client_email, send_report: m.send_report },
+        { onConflict: "media_id" },
+      ),
+    ));
+    setSaving(false);
+    if (results.some((r) => r.error)) {
+      toast.error("Não foi possível salvar o telefone.");
+      return;
+    }
+    toast.success("Telefone salvo.");
+    qc.invalidateQueries({ queryKey: ["clients-overview"] });
+  };
+  return (
+    <div className="mt-2 flex gap-2">
+      <Input placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" />
+      <Button size="sm" onClick={save} disabled={saving || group.media.length === 0}>{group.phones.length ? "Atualizar" : "Adicionar"}</Button>
+    </div>
   );
 }
