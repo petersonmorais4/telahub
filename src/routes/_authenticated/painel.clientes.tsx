@@ -1,4 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
@@ -8,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { canSeeFinance, useMyRoles } from "@/lib/my-role";
-import { groupClients, type ClientGroup, type ClientMedia, type ClientRevenue } from "@/lib/clients";
+import { groupClients, isInternalMedia, type ClientGroup, type ClientMedia, type ClientRevenue } from "@/lib/clients";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -44,7 +47,7 @@ function ClientsPage() {
     queryFn: async () => {
       const [mediaR, contactsR, itemsR, screensR, revR] = await Promise.all([
         supabase.from("media").select("id, title, type, active, start_date, end_date"),
-        supabase.from("media_contacts").select("media_id, client_name, client_email, client_phone, send_report"),
+        supabase.from("media_contacts").select("media_id, client_name, client_email, client_phone, client_notes, send_report"),
         supabase.from("playlist_items").select("media_id, playlist_id"),
         supabase.from("screens").select("id, name, playlist_id"),
         finance
@@ -56,7 +59,7 @@ function ClientsPage() {
       const contacts = new Map((contactsR.data ?? []).map((c) => [c.media_id, c]));
       const media: ClientMedia[] = (mediaR.data ?? []).map((m) => {
         const c = contacts.get(m.id);
-        return { ...m, client_name: c?.client_name ?? null, client_email: c?.client_email ?? null, client_phone: c?.client_phone ?? null, send_report: c?.send_report ?? false };
+        return { ...m, client_name: c?.client_name ?? null, client_email: c?.client_email ?? null, client_phone: c?.client_phone ?? null, client_notes: c?.client_notes ?? null, send_report: c?.send_report ?? false };
       });
       const screensByMedia = new Map<string, string[]>();
       for (const it of itemsR.data ?? []) {
@@ -64,7 +67,7 @@ function ClientsPage() {
         const cur = screensByMedia.get(it.media_id) ?? [];
         screensByMedia.set(it.media_id, [...new Set([...cur, ...names])]);
       }
-      return { clients: groupClients(media, (revR.data ?? []) as ClientRevenue[]), screensByMedia };
+      return { clients: groupClients(media, (revR.data ?? []) as ClientRevenue[]), screensByMedia, allMedia: media.filter((x) => !isInternalMedia(x.title)) };
     },
     staleTime: 60_000,
   });
@@ -74,7 +77,7 @@ function ClientsPage() {
     const t = q.trim().toLowerCase();
     return t ? all.filter((c) => c.name.toLowerCase().includes(t) || c.emails.some((e) => e.toLowerCase().includes(t)) || c.arts.some((a) => a.title.toLowerCase().includes(t))) : all;
   }, [dataQ.data, q]);
-  const open = clients.find((c) => c.key === openKey) ?? null;
+  const open = (dataQ.data?.clients ?? []).find((c) => c.key === openKey || (!!openKey && c.media.some((m) => `m:${m.id}` === openKey))) ?? null;
   const screensOf = (id: string) => dataQ.data?.screensByMedia.get(id) ?? [];
 
   return (
@@ -95,7 +98,7 @@ function ClientsPage() {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {clients.map((c) => (
-          <ClientCard key={c.key} c={c} finance={finance} onOpen={() => setOpenKey(c.key)} />
+          <ClientCard key={c.key} c={c} finance={finance} onOpen={() => setOpenKey(c.media[0] ? `m:${c.media[0].id}` : c.key)} />
         ))}
       </div>
 
@@ -112,13 +115,17 @@ function ClientsPage() {
                 {open.phones.map((ph) => (
                   <a key={ph} href={`tel:${ph.replace(/\D/g, "")}`} className="flex items-center gap-2 text-primary hover:underline"><Phone className="h-4 w-4" />{ph}</a>
                 ))}
-                {staff && <PhoneForm group={open} />}
+                {open.notes && <p className="mt-2 whitespace-pre-wrap rounded-md bg-muted p-2 text-xs">{open.notes}</p>}
+                {staff && <EditClientForm key={open.key} group={open} />}
                 {!open.hasContact && (
-                  <p className="mt-2 flex items-center gap-2 rounded-md bg-muted p-2 text-xs text-muted-foreground"><AlertTriangle className="h-4 w-4" />Sem contato cadastrado. Complete nome e e-mail no anúncio.</p>
+                  <p className="mt-2 flex items-center gap-2 rounded-md bg-muted p-2 text-xs text-muted-foreground"><AlertTriangle className="h-4 w-4" />Sem contato cadastrado. Use "Editar cliente" para completar.</p>
                 )}
               </section>
               <section className="mt-5 space-y-2 text-sm">
-                <h3 className="font-semibold">Artes ({open.arts.length})</h3>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-semibold">Artes ({open.arts.length})</h3>
+                  {staff && <AddMediaPicker group={open} all={dataQ.data?.allMedia ?? []} />}
+                </div>
                 {open.arts.length === 0 && <p className="text-muted-foreground">Nenhuma arte vinculada.</p>}
                 {open.arts.map((a) => (
                   <div key={a.key} className="space-y-2 rounded-md border border-border p-3">
@@ -137,6 +144,7 @@ function ClientsPage() {
                     <p className="mt-1 flex items-start gap-1 text-xs text-muted-foreground">
                       <MonitorPlay className="mt-0.5 h-3 w-3 shrink-0" />{screensOf(m.id).join(", ") || "Fora das grades"}
                     </p>
+                    {staff && <MediaEditor m={m} canRemove={open.media.length > 1} />}
                   </div>
                 ))}
                   </div>
@@ -144,7 +152,10 @@ function ClientsPage() {
               </section>
               {finance && (
                 <section className="mt-5 space-y-2 text-sm">
-                  <h3 className="font-semibold">Financeiro</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">Financeiro</h3>
+                    <Link to="/painel/financeiro" className="text-xs text-primary hover:underline">Ver em Receitas</Link>
+                  </div>
                   <div className="grid grid-cols-3 gap-2">
                     <Kpi label="Total recebido" value={brl(open.total)} />
                     <Kpi label="Último pagamento" value={fmtDate(open.lastPayment)} />
@@ -195,31 +206,113 @@ function ClientCard({ c, finance, onOpen }: { c: ClientGroup; finance: boolean; 
   );
 }
 
-function PhoneForm({ group }: { group: ClientGroup }) {
-  const qc = useQueryClient();
-  const [phone, setPhone] = useState(group.phones[0] ?? "");
+type ContactFields = { client_name: string | null; client_email: string | null; client_phone: string | null; client_notes: string | null; send_report: boolean };
+async function saveContacts(ids: string[], f: ContactFields) {
+  const res = await Promise.all(ids.map((media_id) => supabase.from("media_contacts").upsert({ media_id, ...f }, { onConflict: "media_id" })));
+  return !res.some((r) => r.error);
+}
+const useRefresh = () => { const qc = useQueryClient(); return () => qc.invalidateQueries({ queryKey: ["clients-overview"] }); };
+
+function EditClientForm({ group }: { group: ClientGroup }) {
+  const refresh = useRefresh();
+  const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [f, setF] = useState({
+    name: group.hasContact ? group.name : "",
+    email: group.emails[0] ?? "",
+    phone: group.phones[0] ?? "",
+    notes: group.notes ?? "",
+    report: group.media.some((m) => m.send_report),
+  });
+  if (!editing) return <Button size="sm" variant="outline" className="mt-2" onClick={() => setEditing(true)}>Editar cliente</Button>;
   const save = async () => {
     setSaving(true);
-    const value = phone.trim() || null;
-    const results = await Promise.all(group.media.map((m) =>
-      supabase.from("media_contacts").upsert(
-        { media_id: m.id, client_phone: value, client_name: m.client_name, client_email: m.client_email, send_report: m.send_report },
-        { onConflict: "media_id" },
-      ),
-    ));
+    const ok = await saveContacts(group.media.map((m) => m.id), {
+      client_name: f.name.trim() || null, client_email: f.email.trim() || null, client_phone: f.phone.trim() || null,
+      client_notes: f.notes.trim() || null, send_report: f.report,
+    });
     setSaving(false);
-    if (results.some((r) => r.error)) {
-      toast.error("Não foi possível salvar o telefone.");
-      return;
-    }
-    toast.success("Telefone salvo.");
-    qc.invalidateQueries({ queryKey: ["clients-overview"] });
+    if (!ok) { toast.error("Não foi possível salvar o cliente."); return; }
+    toast.success("Cliente atualizado.");
+    setEditing(false);
+    refresh();
   };
   return (
+    <div className="mt-3 space-y-2 rounded-md border border-border p-3">
+      <div><Label>Nome do cliente</Label><Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
+      <div><Label>E-mail</Label><Input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+      <div><Label>Telefone</Label><Input inputMode="tel" placeholder="(11) 99999-9999" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+      <div><Label>Observações</Label><Textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
+      <div className="flex items-center gap-2"><Switch checked={f.report} onCheckedChange={(v) => setF({ ...f, report: v })} /><Label>Receber relatório semanal</Label></div>
+      <div className="flex gap-2">
+        <Button size="sm" onClick={save} disabled={saving || group.media.length === 0}>Salvar</Button>
+        <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>Cancelar</Button>
+      </div>
+    </div>
+  );
+}
+
+function AddMediaPicker({ group, all }: { group: ClientGroup; all: ClientMedia[] }) {
+  const refresh = useRefresh();
+  const [open, setOpen] = useState(false);
+  const [t, setT] = useState("");
+  const inGroup = new Set(group.media.map((m) => m.id));
+  const list = all.filter((m) => !inGroup.has(m.id) && m.title.toLowerCase().includes(t.toLowerCase())).slice(0, 30);
+  const base = group.media[0];
+  const add = async (m: ClientMedia) => {
+    const ok = await saveContacts([m.id, ...(group.hasContact ? [] : group.media.map((x) => x.id))], {
+      client_name: group.name, client_email: group.emails[0] ?? null, client_phone: group.phones[0] ?? null,
+      client_notes: group.notes, send_report: base?.send_report ?? false,
+    });
+    if (!ok) { toast.error("Não foi possível adicionar o anúncio."); return; }
+    toast.success(`"${m.title}" adicionado a ${group.name}.`);
+    refresh();
+  };
+  if (!open) return <Button size="sm" variant="outline" onClick={() => setOpen(true)}>Adicionar anúncio a este cliente</Button>;
+  return (
+    <div className="w-full space-y-2 rounded-md border border-border p-2">
+      <Input autoFocus placeholder="Buscar anúncio" value={t} onChange={(e) => setT(e.target.value)} />
+      <div className="max-h-56 overflow-y-auto">
+        {list.map((m) => (
+          <button key={m.id} onClick={() => add(m)} className="flex w-full justify-between rounded px-2 py-1.5 text-left hover:bg-muted">
+            <span>{m.title}</span><span className="text-xs text-muted-foreground">{m.client_name ?? "sem cliente"}</span>
+          </button>
+        ))}
+        {list.length === 0 && <p className="p-2 text-xs text-muted-foreground">Nenhum anúncio encontrado.</p>}
+      </div>
+      <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Fechar</Button>
+    </div>
+  );
+}
+
+function MediaEditor({ m, canRemove }: { m: ClientMedia; canRemove: boolean }) {
+  const refresh = useRefresh();
+  const [editing, setEditing] = useState(false);
+  const [f, setF] = useState({ start: m.start_date ?? "", end: m.end_date ?? "", active: m.active });
+  const save = async () => {
+    const { error } = await supabase.from("media").update({ start_date: f.start || null, end_date: f.end || null, active: f.active }).eq("id", m.id);
+    if (error) { toast.error("Não foi possível salvar a arte."); return; }
+    toast.success("Arte atualizada."); setEditing(false); refresh();
+  };
+  const remove = async () => {
+    const ok = await saveContacts([m.id], { client_name: null, client_email: null, client_phone: null, client_notes: null, send_report: false });
+    if (!ok) { toast.error("Não foi possível remover."); return; }
+    toast.success("Anúncio removido deste cliente."); refresh();
+  };
+  if (!editing) return (
     <div className="mt-2 flex gap-2">
-      <Input placeholder="(11) 99999-9999" value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" />
-      <Button size="sm" onClick={save} disabled={saving || group.media.length === 0}>{group.phones.length ? "Atualizar" : "Adicionar"}</Button>
+      <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditing(true)}>Editar arte</Button>
+      {canRemove && <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-destructive" onClick={remove}>Remover deste cliente</Button>}
+    </div>
+  );
+  return (
+    <div className="mt-2 space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        <div><Label className="text-xs">Início</Label><Input type="date" value={f.start} onChange={(e) => setF({ ...f, start: e.target.value })} /></div>
+        <div><Label className="text-xs">Fim</Label><Input type="date" value={f.end} onChange={(e) => setF({ ...f, end: e.target.value })} /></div>
+      </div>
+      <div className="flex items-center gap-2"><Switch checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label className="text-xs">Ativa</Label></div>
+      <div className="flex gap-2"><Button size="sm" onClick={save}>Salvar</Button><Button size="sm" variant="ghost" onClick={() => setEditing(false)}>Cancelar</Button></div>
     </div>
   );
 }

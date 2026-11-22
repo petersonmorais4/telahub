@@ -195,6 +195,7 @@ export type Database = {
         Row: {
           client_email: string | null
           client_name: string | null
+          client_notes: string | null
           client_phone: string | null
           media_id: string
           send_report: boolean
@@ -203,6 +204,7 @@ export type Database = {
         Insert: {
           client_email?: string | null
           client_name?: string | null
+          client_notes?: string | null
           client_phone?: string | null
           media_id: string
           send_report?: boolean
@@ -211,6 +213,7 @@ export type Database = {
         Update: {
           client_email?: string | null
           client_name?: string | null
+          client_notes?: string | null
           client_phone?: string | null
           media_id?: string
           send_report?: boolean

@@ -148,6 +148,13 @@
       "when": 1795221293010,
       "tag": "0020_add_client_phone",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795355135542,
+      "tag": "0021_add_client_notes",
+      "breakpoints": true
     }
   ]
 }

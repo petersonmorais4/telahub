@@ -27,6 +27,12 @@ describe("groupClients", () => {
     assert.equal(g[0]!.arts[0]!.versions.length, 2);
     assert.equal(g[0]!.hasContact, false);
   });
+  it("numbered pieces of the same campaign form one folder", () => {
+    const g = groupClients([m("a", null, null, "hamburgueria4.png"), m("b", null, null, "hamburgueria 3.png"), m("c", null, null, "hamburgueria 2.png")], []);
+    assert.equal(g.length, 1);
+    assert.equal(g[0]!.arts.length, 1);
+    assert.equal(g[0]!.arts[0]!.versions.length, 3);
+  });
   it("internal media is ignored", () => {
     assert.equal(groupClients([m("a", null, null, "Notícias G1"), m("b", null, null, "tempo jundiai"), m("c", null, null, "ibovespa hoje"), m("d", null, null, "TelaHUB Anuncie Aqui")], []).length, 0);
   });

@@ -1,15 +1,15 @@
 // Groups advertiser data (ad contacts + revenues) into one client folder.
 // Union order: shared e-mail, contact name, revenue media_id, then ad title without orientation suffix.
-export interface ClientMedia { id: string; title: string; type: string; active: boolean; start_date: string | null; end_date: string | null; client_name: string | null; client_email: string | null; client_phone?: string | null; send_report: boolean }
+export interface ClientMedia { id: string; title: string; type: string; active: boolean; start_date: string | null; end_date: string | null; client_name: string | null; client_email: string | null; client_phone?: string | null; client_notes?: string | null; send_report: boolean }
 export interface ClientRevenue { id: string; client_name: string; amount: number; payment_date: string; payment_method: string; recurring: boolean; recurrence_days: number; media_id: string | null; description: string | null }
 export interface ClientArt { key: string; title: string; versions: ClientMedia[] }
-export interface ClientGroup { key: string; name: string; emails: string[]; phones: string[]; media: ClientMedia[]; arts: ClientArt[]; revenues: ClientRevenue[]; total: number; lastPayment: string | null; nextDue: string | null; hasContact: boolean }
+export interface ClientGroup { key: string; name: string; emails: string[]; phones: string[]; notes: string | null; media: ClientMedia[]; arts: ClientArt[]; revenues: ClientRevenue[]; total: number; lastPayment: string | null; nextDue: string | null; hasContact: boolean }
 
 export const clientKey = (name: string) =>
   name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
 
 export const artKey = (title: string) =>
-  clientKey(title.replace(/\.(png|jpe?g|webp|mp4|mov)$/i, "")).replace(/\b(vertical|horizontal)\b/g, "").replace(/\s+/g, " ").trim();
+  clientKey(title.replace(/\.(png|jpe?g|webp|mp4|mov)$/i, "")).replace(/\b(vertical|horizontal)\b/g, "").replace(/\d+\s*$/, "").replace(/\s+/g, " ").trim();
 
 const INTERNAL = [/^noticias\b/, /^tempo\b/, /^ibovespa\b/, /^telahub\b/];
 export const isInternalMedia = (title: string) => INTERNAL.some((r) => r.test(artKey(title)));
@@ -41,7 +41,7 @@ export function groupClients(media: ClientMedia[], revenues: ClientRevenue[]): C
   const groups = new Map<string, ClientGroup>();
   const get = (root: string) => {
     let g = groups.get(root);
-    if (!g) { g = { key: root, name: "", emails: [], phones: [], media: [], arts: [], revenues: [], total: 0, lastPayment: null, nextDue: null, hasContact: false }; groups.set(root, g); }
+    if (!g) { g = { key: root, name: "", emails: [], phones: [], notes: null, media: [], arts: [], revenues: [], total: 0, lastPayment: null, nextDue: null, hasContact: false }; groups.set(root, g); }
     return g;
   };
   for (const m of ads) {
@@ -50,6 +50,7 @@ export function groupClients(media: ClientMedia[], revenues: ClientRevenue[]): C
     if (m.client_name?.trim() || m.client_email?.trim()) g.hasContact = true;
     if (m.client_name?.trim() && !g.name) g.name = m.client_name.trim();
     const e = m.client_email?.trim(); if (e && !g.emails.some((x) => x.toLowerCase() === e.toLowerCase())) g.emails.push(e);
+    if (!g.notes && m.client_notes?.trim()) g.notes = m.client_notes.trim();
     const p = m.client_phone?.trim(); if (p && !g.phones.includes(p)) g.phones.push(p);
   }
   for (const r of revs) {
@@ -62,7 +63,7 @@ export function groupClients(media: ClientMedia[], revenues: ClientRevenue[]): C
     const arts = new Map<string, ClientArt>();
     for (const m of g.media) {
       const k = artKey(m.title);
-      const a = arts.get(k) ?? { key: k, title: m.title.replace(/\s*\b(vertical|horizontal)\b\s*/gi, " ").trim(), versions: [] };
+      const a = arts.get(k) ?? { key: k, title: m.title.replace(/\.(png|jpe?g|webp|mp4|mov)$/i, "").replace(/\s*\b(vertical|horizontal)\b\s*/gi, " ").replace(/\s*\d+\s*$/, "").trim(), versions: [] };
       a.versions.push(m); arts.set(k, a);
     }
     g.arts = [...arts.values()].sort((a, b) => a.title.localeCompare(b.title, "pt-BR"));
