@@ -15,10 +15,10 @@ export const Route = createFileRoute("/api/public/media-url")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const today = new Date().toISOString().slice(0, 10);
         const [{ data: media }, { data: settings }] = await Promise.all([
-          supabaseAdmin.from("media").select("id, end_date").eq("storage_path", path).eq("active", true).limit(1),
+          supabaseAdmin.from("media").select("id, start_date, end_date").eq("storage_path", path).eq("active", true).limit(1),
           supabaseAdmin.from("app_settings").select("logo_url").eq("logo_url", path).limit(1),
         ]);
-        const okMedia = (media ?? []).some((m) => !m.end_date || m.end_date >= today);
+        const okMedia = (media ?? []).some((m) => (!m.end_date || m.end_date >= today) && (!m.start_date || m.start_date <= today));
         if (!okMedia && !(settings ?? []).length) {
           return Response.json({ error: "Arquivo indisponível." }, { status: 404 });
         }

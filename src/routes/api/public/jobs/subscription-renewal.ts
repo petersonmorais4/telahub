@@ -130,7 +130,7 @@ export const Route = createFileRoute("/api/public/jobs/subscription-renewal")({
             { filename: `relatorio-telahub-${slug}.pdf`, data: pdf });
           report.push(`renovação: ${d.last.client_name} → ${contact.client_email} ${err ? `(falha ${err})` : `(enviado, ${summary.total} exibições)`}`);
         }
-        console.log(report.join("\n"));
+        console.log(`subscription-renewal: ${report.length} item(s) processados, ${report.filter((r) => r.includes("falha")).length} falha(s)`);
         return Response.json({ results: report });
       },
     },

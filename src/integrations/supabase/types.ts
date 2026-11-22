@@ -22,6 +22,7 @@ export type Database = {
           id: string
           name: string
           notified_at: string | null
+          notify_token_hash: string | null
           phone: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           id?: string
           name: string
           notified_at?: string | null
+          notify_token_hash?: string | null
           phone: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           id?: string
           name?: string
           notified_at?: string | null
+          notify_token_hash?: string | null
           phone?: string
         }
         Relationships: []
@@ -237,6 +240,7 @@ export type Database = {
           created_at: string
           id: string
           notified_at: string | null
+          notify_token_hash: string | null
         }
         Insert: {
           address: string
@@ -245,6 +249,7 @@ export type Database = {
           created_at?: string
           id?: string
           notified_at?: string | null
+          notify_token_hash?: string | null
         }
         Update: {
           address?: string
@@ -253,6 +258,7 @@ export type Database = {
           created_at?: string
           id?: string
           notified_at?: string | null
+          notify_token_hash?: string | null
         }
         Relationships: []
       }

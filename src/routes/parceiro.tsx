@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { newLeadToken } from "@/lib/lead-token";
 import { useState } from "react";
 import { z } from "zod";
 import {
@@ -113,8 +114,9 @@ function Parceiro() {
     setErrors({});
     setSubmitting(true);
     const leadId = crypto.randomUUID();
-    const { error } = await supabase.from("partner_leads").insert({ ...parsed.data, id: leadId });
-    if (!error) void fetch("/api/public/lead-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "partner", id: leadId }) }).catch(() => {});
+    const { token, hash } = await newLeadToken();
+    const { error } = await supabase.from("partner_leads").insert({ ...parsed.data, id: leadId, notify_token_hash: hash });
+    if (!error) void fetch("/api/public/lead-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "partner", id: leadId, token }) }).catch(() => {});
     setSubmitting(false);
     if (error) {
       toast.error("Não foi possível enviar. Tente novamente.");

@@ -155,6 +155,13 @@
       "when": 1795355135542,
       "tag": "0021_add_client_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795355435477,
+      "tag": "0022_harden_role_checks_and_lead_token",
+      "breakpoints": true
     }
   ]
 }

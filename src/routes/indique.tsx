@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { newLeadToken } from "@/lib/lead-token";
 import { useState } from "react";
 import { z } from "zod";
 import {
@@ -92,10 +93,11 @@ function Indique() {
     setSubmitting(true);
     const { referrer, name, email, phone, referred } = parsed.data;
     const leadId = crypto.randomUUID();
+    const { token, hash } = await newLeadToken();
     const { error } = await supabase
       .from("advertiser_leads")
-      .insert({ id: leadId, name, email, phone, company: `[Indicação de ${referrer}] ${referred}`.slice(0, 250) });
-    if (!error) void fetch("/api/public/lead-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "advertiser", id: leadId }) }).catch(() => {});
+      .insert({ id: leadId, notify_token_hash: hash, name, email, phone, company: `[Indicação de ${referrer}] ${referred}`.slice(0, 250) });
+    if (!error) void fetch("/api/public/lead-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "advertiser", id: leadId, token }) }).catch(() => {});
     setSubmitting(false);
     if (error) {
       toast.error("Não foi possível enviar. Tente novamente.");

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { brandedHtml } from "@/lib/email-brand";
+import { sha256Hex } from "@/lib/lead-token";
 
 const OWNER_TO = "petersonmorais4@gmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
@@ -11,7 +12,7 @@ const header = (v: string) => (/^[\x00-\x7F]*$/.test(v) ? v : `=?UTF-8?B?${b64(v
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-const bodySchema = z.object({ kind: z.enum(["advertiser", "partner"]), id: z.string().uuid() });
+const bodySchema = z.object({ kind: z.enum(["advertiser", "partner"]), id: z.string().uuid(), token: z.string().min(32).max(200) });
 
 export const Route = createFileRoute("/api/public/lead-notify")({
   server: {
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/api/public/lead-notify")({
       POST: async ({ request }) => {
         const parsed = bodySchema.safeParse(await request.json().catch(() => null));
         if (!parsed.success) return Response.json({ ok: false }, { status: 400 });
-        const { kind, id } = parsed.data;
+        const { kind, id, token } = parsed.data;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const table = kind === "advertiser" ? "advertiser_leads" : "partner_leads";
         const since = new Date(Date.now() - 10 * 60_000).toISOString();
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/api/public/lead-notify")({
           .from(table)
           .update({ notified_at: new Date().toISOString() })
           .eq("id", id)
+          .eq("notify_token_hash", await sha256Hex(token))
           .is("notified_at", null)
           .gte("created_at", since)
           .select("*")
