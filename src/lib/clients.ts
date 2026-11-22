@@ -1,9 +1,10 @@
 // Groups advertiser data (ad contacts + revenues) into one client folder.
 // Union order: shared e-mail, contact name, revenue media_id, then ad title without orientation suffix.
-export interface ClientMedia { id: string; title: string; type: string; active: boolean; start_date: string | null; end_date: string | null; client_name: string | null; client_email: string | null; client_phone?: string | null; client_notes?: string | null; send_report: boolean }
+export interface ClientMedia { id: string; title: string; type: string; active: boolean; start_date: string | null; end_date: string | null; client_name: string | null; client_email: string | null; client_phone?: string | null; client_notes?: string | null; client_type?: string | null; send_report: boolean }
 export interface ClientRevenue { id: string; client_name: string; amount: number; payment_date: string; payment_method: string; recurring: boolean; recurrence_days: number; media_id: string | null; description: string | null }
+export type ClientType = "pagante" | "parceiro";
 export interface ClientArt { key: string; title: string; versions: ClientMedia[] }
-export interface ClientGroup { key: string; name: string; emails: string[]; phones: string[]; notes: string | null; media: ClientMedia[]; arts: ClientArt[]; revenues: ClientRevenue[]; total: number; lastPayment: string | null; nextDue: string | null; hasContact: boolean }
+export interface ClientGroup { key: string; name: string; emails: string[]; phones: string[]; notes: string | null; type: ClientType | null; explicitType: boolean; media: ClientMedia[]; arts: ClientArt[]; revenues: ClientRevenue[]; total: number; lastPayment: string | null; nextDue: string | null; hasContact: boolean }
 
 export const clientKey = (name: string) =>
   name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/\s+/g, " ");
@@ -41,7 +42,7 @@ export function groupClients(media: ClientMedia[], revenues: ClientRevenue[]): C
   const groups = new Map<string, ClientGroup>();
   const get = (root: string) => {
     let g = groups.get(root);
-    if (!g) { g = { key: root, name: "", emails: [], phones: [], notes: null, media: [], arts: [], revenues: [], total: 0, lastPayment: null, nextDue: null, hasContact: false }; groups.set(root, g); }
+    if (!g) { g = { key: root, name: "", emails: [], phones: [], notes: null, type: null, explicitType: false, media: [], arts: [], revenues: [], total: 0, lastPayment: null, nextDue: null, hasContact: false }; groups.set(root, g); }
     return g;
   };
   for (const m of ads) {
@@ -50,6 +51,7 @@ export function groupClients(media: ClientMedia[], revenues: ClientRevenue[]): C
     if (m.client_name?.trim() || m.client_email?.trim()) g.hasContact = true;
     if (m.client_name?.trim() && !g.name) g.name = m.client_name.trim();
     const e = m.client_email?.trim(); if (e && !g.emails.some((x) => x.toLowerCase() === e.toLowerCase())) g.emails.push(e);
+    if (!g.explicitType && (m.client_type === "pagante" || m.client_type === "parceiro")) { g.type = m.client_type; g.explicitType = true; }
     if (!g.notes && m.client_notes?.trim()) g.notes = m.client_notes.trim();
     const p = m.client_phone?.trim(); if (p && !g.phones.includes(p)) g.phones.push(p);
   }
@@ -68,6 +70,7 @@ export function groupClients(media: ClientMedia[], revenues: ClientRevenue[]): C
     }
     g.arts = [...arts.values()].sort((a, b) => a.title.localeCompare(b.title, "pt-BR"));
     if (!g.name) g.name = g.arts[0]?.title ?? g.revenues[0]?.client_name?.trim() ?? "Sem nome";
+    if (!g.explicitType) g.type = g.revenues.length ? "pagante" : null;
     const last = [...g.revenues].sort((a, b) => b.payment_date.localeCompare(a.payment_date))[0];
     if (last?.recurring) {
       const d = new Date(last.payment_date + "T12:00:00Z");

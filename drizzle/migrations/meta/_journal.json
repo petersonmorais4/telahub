@@ -162,6 +162,13 @@
       "when": 1795355435477,
       "tag": "0022_harden_role_checks_and_lead_token",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795356137235,
+      "tag": "0023_add_client_type",
+      "breakpoints": true
     }
   ]
 }

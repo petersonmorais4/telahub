@@ -1,0 +1,1 @@
+ALTER TABLE public.media_contacts ADD COLUMN IF NOT EXISTS client_type text CHECK (client_type IN ('pagante','parceiro'));

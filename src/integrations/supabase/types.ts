@@ -200,6 +200,7 @@ export type Database = {
           client_name: string | null
           client_notes: string | null
           client_phone: string | null
+          client_type: string | null
           media_id: string
           send_report: boolean
           updated_at: string
@@ -209,6 +210,7 @@ export type Database = {
           client_name?: string | null
           client_notes?: string | null
           client_phone?: string | null
+          client_type?: string | null
           media_id: string
           send_report?: boolean
           updated_at?: string
@@ -218,6 +220,7 @@ export type Database = {
           client_name?: string | null
           client_notes?: string | null
           client_phone?: string | null
+          client_type?: string | null
           media_id?: string
           send_report?: boolean
           updated_at?: string

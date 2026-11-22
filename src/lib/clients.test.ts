@@ -33,6 +33,12 @@ describe("groupClients", () => {
     assert.equal(g[0]!.arts.length, 1);
     assert.equal(g[0]!.arts[0]!.versions.length, 3);
   });
+  it("type: explicit wins, else pagante with revenue, else none", () => {
+    const p = { ...m("a", "Ana", "a@x.com"), client_type: "parceiro" };
+    assert.equal(groupClients([p], [r("1", "Ana", 10, "2026-11-01", "a")])[0]!.type, "parceiro");
+    assert.equal(groupClients([m("b", "Bia", "b@x.com")], [r("2", "Bia", 10, "2026-11-01", "b")])[0]!.type, "pagante");
+    assert.equal(groupClients([m("c", "Cid", "c@x.com")], [])[0]!.type, null);
+  });
   it("internal media is ignored", () => {
     assert.equal(groupClients([m("a", null, null, "Notícias G1"), m("b", null, null, "tempo jundiai"), m("c", null, null, "ibovespa hoje"), m("d", null, null, "TelaHUB Anuncie Aqui")], []).length, 0);
   });

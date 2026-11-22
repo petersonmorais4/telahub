@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { supabase } from "@/integrations/supabase/client";
 import { canSeeFinance, useMyRoles } from "@/lib/my-role";
-import { groupClients, isInternalMedia, type ClientGroup, type ClientMedia, type ClientRevenue } from "@/lib/clients";
+import { groupClients, isInternalMedia, type ClientType, type ClientGroup, type ClientMedia, type ClientRevenue } from "@/lib/clients";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
@@ -40,6 +41,7 @@ function ClientsPage() {
   const finance = canSeeFinance(roles);
   const staff = roles.some((r) => r !== "viewer");
   const [q, setQ] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"all" | ClientType | "none">("all");
   const [openKey, setOpenKey] = useState<string | null>(null);
 
   const dataQ = useQuery({
@@ -47,7 +49,7 @@ function ClientsPage() {
     queryFn: async () => {
       const [mediaR, contactsR, itemsR, screensR, revR] = await Promise.all([
         supabase.from("media").select("id, title, type, active, start_date, end_date"),
-        supabase.from("media_contacts").select("media_id, client_name, client_email, client_phone, client_notes, send_report"),
+        supabase.from("media_contacts").select("media_id, client_name, client_email, client_phone, client_notes, client_type, send_report"),
         supabase.from("playlist_items").select("media_id, playlist_id"),
         supabase.from("screens").select("id, name, playlist_id"),
         finance
@@ -59,7 +61,7 @@ function ClientsPage() {
       const contacts = new Map((contactsR.data ?? []).map((c) => [c.media_id, c]));
       const media: ClientMedia[] = (mediaR.data ?? []).map((m) => {
         const c = contacts.get(m.id);
-        return { ...m, client_name: c?.client_name ?? null, client_email: c?.client_email ?? null, client_phone: c?.client_phone ?? null, client_notes: c?.client_notes ?? null, send_report: c?.send_report ?? false };
+        return { ...m, client_name: c?.client_name ?? null, client_email: c?.client_email ?? null, client_phone: c?.client_phone ?? null, client_notes: c?.client_notes ?? null, client_type: c?.client_type ?? null, send_report: c?.send_report ?? false };
       });
       const screensByMedia = new Map<string, string[]>();
       for (const it of itemsR.data ?? []) {
@@ -75,13 +77,20 @@ function ClientsPage() {
   const clients = useMemo(() => {
     const all = dataQ.data?.clients ?? [];
     const t = q.trim().toLowerCase();
-    return t ? all.filter((c) => c.name.toLowerCase().includes(t) || c.emails.some((e) => e.toLowerCase().includes(t)) || c.arts.some((a) => a.title.toLowerCase().includes(t))) : all;
-  }, [dataQ.data, q]);
+    const byType = typeFilter === "all" ? all : all.filter((c) => (typeFilter === "none" ? !c.type : c.type === typeFilter));
+    return t ? byType.filter((c) => c.name.toLowerCase().includes(t) || c.emails.some((e) => e.toLowerCase().includes(t)) || c.arts.some((a) => a.title.toLowerCase().includes(t))) : byType;
+  }, [dataQ.data, q, typeFilter]);
   const open = (dataQ.data?.clients ?? []).find((c) => c.key === openKey || (!!openKey && c.media.some((m) => `m:${m.id}` === openKey))) ?? null;
   const screensOf = (id: string) => dataQ.data?.screensByMedia.get(id) ?? [];
 
   return (
     <AdminShell title="Clientes" description="Tudo de cada cliente em um só lugar: contato, artes e pagamentos.">
+      {dataQ.data && <TypeDashboard clients={dataQ.data.clients} finance={finance} />}
+      <div className="mb-3 flex flex-wrap gap-2">
+        {([["all", "Todos"], ["pagante", "Pagantes"], ["parceiro", "Parceiros"], ["none", "Sem tipo"]] as const).map(([v, l]) => (
+          <Button key={v} size="sm" variant={typeFilter === v ? "default" : "outline"} onClick={() => setTypeFilter(v)}>{l}</Button>
+        ))}
+      </div>
       <div className="mb-4 flex items-center gap-2">
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -107,6 +116,7 @@ function ClientsPage() {
           {open && (
             <>
               <SheetHeader><SheetTitle>{open.name}</SheetTitle></SheetHeader>
+              <TypeSelector group={open} canEdit={staff} />
               <section className="mt-4 space-y-1 text-sm">
                 <h3 className="font-semibold">Contato</h3>
                 {open.emails.length ? open.emails.map((e) => (
@@ -192,7 +202,7 @@ function ClientCard({ c, finance, onOpen }: { c: ClientGroup; finance: boolean; 
   const overdue = c.nextDue && c.nextDue < today();
   return (
     <button onClick={onOpen} className="rounded-lg border border-border bg-card p-4 text-left transition hover:border-primary">
-      <p className="font-semibold">{c.name}</p>
+      <div className="flex items-start justify-between gap-2"><p className="font-semibold">{c.name}</p><TypeBadge type={c.type} /></div>
       <p className="truncate text-xs text-muted-foreground">{c.emails[0] ?? "Sem e-mail"}</p>
       <div className="mt-3 flex flex-wrap gap-2 text-xs">
         <span className="rounded bg-muted px-1.5 py-0.5">{live} em exibição / {c.arts.length} artes</span>
@@ -206,7 +216,7 @@ function ClientCard({ c, finance, onOpen }: { c: ClientGroup; finance: boolean; 
   );
 }
 
-type ContactFields = { client_name: string | null; client_email: string | null; client_phone: string | null; client_notes: string | null; send_report: boolean };
+type ContactFields = { client_name: string | null; client_email: string | null; client_phone: string | null; client_notes: string | null; client_type?: string | null; send_report: boolean };
 async function saveContacts(ids: string[], f: ContactFields) {
   const res = await Promise.all(ids.map((media_id) => supabase.from("media_contacts").upsert({ media_id, ...f }, { onConflict: "media_id" })));
   return !res.some((r) => r.error);
@@ -262,7 +272,7 @@ function AddMediaPicker({ group, all }: { group: ClientGroup; all: ClientMedia[]
   const add = async (m: ClientMedia) => {
     const ok = await saveContacts([m.id, ...(group.hasContact ? [] : group.media.map((x) => x.id))], {
       client_name: group.name, client_email: group.emails[0] ?? null, client_phone: group.phones[0] ?? null,
-      client_notes: group.notes, send_report: base?.send_report ?? false,
+      client_notes: group.notes, client_type: group.explicitType ? group.type : null, send_report: base?.send_report ?? false,
     });
     if (!ok) { toast.error("Não foi possível adicionar o anúncio."); return; }
     toast.success(`"${m.title}" adicionado a ${group.name}.`);
@@ -313,6 +323,81 @@ function MediaEditor({ m, canRemove }: { m: ClientMedia; canRemove: boolean }) {
       </div>
       <div className="flex items-center gap-2"><Switch checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label className="text-xs">Ativa</Label></div>
       <div className="flex gap-2"><Button size="sm" onClick={save}>Salvar</Button><Button size="sm" variant="ghost" onClick={() => setEditing(false)}>Cancelar</Button></div>
+    </div>
+  );
+}
+
+const TYPE_LABEL = { pagante: "Pagante", parceiro: "Parceiro" } as const;
+
+function TypeBadge({ type }: { type: ClientType | null }) {
+  if (!type) return <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">Sem tipo</span>;
+  return (
+    <span className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium ${type === "pagante" ? "bg-primary/15 text-primary" : "bg-accent text-accent-foreground"}`}>
+      {TYPE_LABEL[type]}
+    </span>
+  );
+}
+
+function TypeSelector({ group, canEdit }: { group: ClientGroup; canEdit: boolean }) {
+  const refresh = useRefresh();
+  const set = async (t: ClientType) => {
+    const res = await Promise.all(group.media.map((m) =>
+      supabase.from("media_contacts").upsert(
+        { media_id: m.id, client_type: t, client_name: m.client_name ?? (group.hasContact ? group.name : group.name), send_report: m.send_report },
+        { onConflict: "media_id" },
+      ),
+    ));
+    if (res.some((r) => r.error)) { toast.error("Não foi possível alterar o tipo."); return; }
+    toast.success(`Cliente marcado como ${TYPE_LABEL[t]}.`);
+    refresh();
+  };
+  return (
+    <div className="mt-3 flex items-center gap-2 text-sm">
+      <span className="text-muted-foreground">Tipo:</span>
+      {canEdit && group.media.length > 0 ? (
+        (["pagante", "parceiro"] as const).map((t) => (
+          <Button key={t} size="sm" variant={group.type === t ? "default" : "outline"} onClick={() => set(t)}>{TYPE_LABEL[t]}</Button>
+        ))
+      ) : <TypeBadge type={group.type} />}
+      {!group.explicitType && group.type && <span className="text-xs text-muted-foreground">(automático)</span>}
+    </div>
+  );
+}
+
+function TypeDashboard({ clients, finance }: { clients: ClientGroup[]; finance: boolean }) {
+  const pag = clients.filter((c) => c.type === "pagante");
+  const par = clients.filter((c) => c.type === "parceiro");
+  const none = clients.length - pag.length - par.length;
+  const liveOf = (list: ClientGroup[]) => list.reduce((n, c) => n + c.media.filter(isLive).length, 0);
+  const month = today().slice(0, 7);
+  const monthRevenue = pag.reduce((s, c) => s + c.revenues.filter((r) => r.payment_date.startsWith(month)).reduce((a, r) => a + (Number(r.amount) || 0), 0), 0);
+  const pie = [
+    { name: "Pagantes", value: pag.length, color: "var(--primary)" },
+    { name: "Parceiros", value: par.length, color: "var(--chart-2)" },
+    { name: "Sem tipo", value: none, color: "var(--muted-foreground)" },
+  ].filter((d) => d.value > 0);
+  return (
+    <div className="mb-5 grid gap-3 lg:grid-cols-[1fr_220px]">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Kpi label="Clientes" value={String(clients.length)} />
+        <Kpi label="Pagantes" value={String(pag.length)} />
+        <Kpi label="Parceiros" value={String(par.length)} />
+        <Kpi label="Sem tipo" value={String(none)} />
+        <Kpi label="Artes no ar (pagantes)" value={String(liveOf(pag))} />
+        <Kpi label="Artes no ar (parceiros)" value={String(liveOf(par))} />
+        {finance && <Kpi label="Receita dos pagantes no mês" value={brl(monthRevenue)} />}
+        {finance && <Kpi label="Média por pagante" value={brl(pag.length ? monthRevenue / pag.length : 0)} />}
+      </div>
+      <div className="h-[180px] rounded-md bg-muted p-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie data={pie} dataKey="value" nameKey="name" innerRadius={40} outerRadius={70}>
+              {pie.map((d) => <Cell key={d.name} fill={d.color} />)}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
