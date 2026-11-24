@@ -13,13 +13,15 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
-import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
-import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
-import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
-import localNoveJulho from "@/assets/locais/av-nove-de-julho-jundiai.jpg.asset.json";
-import localBragantina from "@/assets/locais/estrada-bragantina-campo-limpo.jpg.asset.json";
-import localJoseValter from "@/assets/locais/rua-jose-valter-pacheco-campo-limpo.jpg.asset.json";
+import localStudioSA from "@/assets/locais/studio-sa-campo-limpo-recepcao.jpg.asset.json";
+import localBarbearia from "@/assets/locais/evandro-barbearia-campo-limpo.jpg.asset.json";
+import localStudioJundiai from "@/assets/locais/studio-sa-jundiai-recepcao.jpg.asset.json";
+import localVidaPilates from "@/assets/locais/vida-pilates-jundiai.jpg.asset.json";
+import localNutrifit from "@/assets/locais/nutrifit-lounge-jundiai.jpg.asset.json";
+import localVibeFit from "@/assets/locais/vibe-fit-campo-limpo.jpg.asset.json";
+import localFazendinhaJoseValter from "@/assets/locais/fazendinha-do-leo-jose-valter.jpg.asset.json";
+import localFazendinhaCentro from "@/assets/locais/fazendinha-do-leo-centro.jpg.asset.json";
+import localJBR from "@/assets/locais/restaurante-jbr-campo-limpo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
@@ -66,11 +68,13 @@ const reasons = [
 const places = [
   { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
   { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
-  { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
-  { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
-  { alt: "Tela TelaHUB na Av. Nove de Julho, Jundiaí", img: localNoveJulho.url },
-  { alt: "Tela TelaHUB na Estrada da Bragantina, Campo Limpo Paulista", img: localBragantina.url },
-  { alt: "Tela TelaHUB na Rua José Valter Pacheco, Campo Limpo Paulista", img: localJoseValter.url },
+  { alt: "Tela TelaHUB no Studio S&A, unidade Jundiaí", img: localStudioJundiai.url },
+  { alt: "Tela TelaHUB no Vida Pilates, Jundiaí", img: localVidaPilates.url },
+  { alt: "Tela TelaHUB no Nutrifit Lounge, Av. Nove de Julho, Jundiaí", img: localNutrifit.url },
+  { alt: "Tela TelaHUB na Vibe Fit, Estrada da Bragantina, Campo Limpo Paulista", img: localVibeFit.url },
+  { alt: "Tela TelaHUB na Fazendinha do Léo, Rua José Valter Pacheco, Campo Limpo Paulista", img: localFazendinhaJoseValter.url },
+  { alt: "Tela TelaHUB na Fazendinha do Léo Centro, Campo Limpo Paulista", img: localFazendinhaCentro.url },
+  { alt: "Tela TelaHUB no Restaurante JBR, Campo Limpo Paulista", img: localJBR.url },
 ];
 
 const steps = [
