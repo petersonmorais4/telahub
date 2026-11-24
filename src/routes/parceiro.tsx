@@ -6,7 +6,7 @@ import {
   BadgeDollarSign,
   Building2,
   CheckCircle2,
-  Hash,
+  Phone,
   MapPin,
   Network,
   Store,
@@ -43,10 +43,6 @@ export const Route = createFileRoute("/parceiro")({
 });
 
 const partnerSchema = z.object({
-  cnpj: z
-    .string()
-    .trim()
-    .regex(/^\d{14}$/, "CNPJ deve ter 14 números (somente dígitos)"),
   business_name: z
     .string()
     .trim()
@@ -57,6 +53,9 @@ const partnerSchema = z.object({
     .trim()
     .min(5, "Informe o endereço completo")
     .max(300, "Endereço muito longo"),
+  phone: z
+    .string()
+    .regex(/^\d{10,11}$/, "Informe um telefone com DDD"),
 });
 
 type PartnerForm = z.infer<typeof partnerSchema>;
@@ -79,22 +78,23 @@ const partnerBenefits = [
   },
 ];
 
-function maskCnpj(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 14);
-  return digits
-    .replace(/^(\d{2})(\d)/, "$1.$2")
-    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/\.(\d{3})(\d)/, ".$1/$2")
-    .replace(/(\d{4})(\d)/, "$1-$2");
+function maskPhone(value: string) {
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return d.length ? `(${d}` : "";
+  const rest = d.slice(2);
+  const split = d.length === 11 ? 5 : 4;
+  return rest.length > split
+    ? `(${d.slice(0, 2)}) ${rest.slice(0, split)}-${rest.slice(split)}`
+    : `(${d.slice(0, 2)}) ${rest}`;
 }
 
 function Parceiro() {
   const [form, setForm] = useState<PartnerForm>({
-    cnpj: "",
     business_name: "",
     address: "",
+    phone: "",
   });
-  const [cnpjDisplay, setCnpjDisplay] = useState("");
+  const [phoneDisplay, setPhoneDisplay] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof PartnerForm, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -187,27 +187,7 @@ function Parceiro() {
               </p>
               <form onSubmit={handleSubmit} className="mt-6 space-y-5" noValidate>
               <div className="space-y-2">
-                <Label htmlFor="cnpj">CNPJ</Label>
-                <div className="relative">
-                  <Hash className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-                  <Input
-                    id="cnpj"
-                    className="pl-9"
-                    placeholder="00.000.000/0000-00"
-                    inputMode="numeric"
-                    value={cnpjDisplay}
-                    onChange={(e) => {
-                      const masked = maskCnpj(e.target.value);
-                      setCnpjDisplay(masked);
-                      setForm((f) => ({ ...f, cnpj: masked.replace(/\D/g, "") }));
-                    }}
-                  />
-                </div>
-                {errors.cnpj && <p className="text-sm text-destructive">{errors.cnpj}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="business_name">Nome do negócio</Label>
+                <Label htmlFor="business_name">Nome da empresa/negócio</Label>
                 <div className="relative">
                   <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
                   <Input
@@ -242,6 +222,27 @@ function Parceiro() {
                 {errors.address && (
                   <p className="text-sm text-destructive">{errors.address}</p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefone</Label>
+                <div className="relative">
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                  <Input
+                    id="phone"
+                    className="pl-9"
+                    placeholder="(11) 99999-9999"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    value={phoneDisplay}
+                    onChange={(e) => {
+                      const masked = maskPhone(e.target.value);
+                      setPhoneDisplay(masked);
+                      setForm((f) => ({ ...f, phone: masked.replace(/\D/g, "") }));
+                    }}
+                  />
+                </div>
+                {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
               </div>
 
               <Button type="submit" size="lg" className="w-full" disabled={submitting}>

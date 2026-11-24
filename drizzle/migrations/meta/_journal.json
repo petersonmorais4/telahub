@@ -169,6 +169,13 @@
       "when": 1795356137235,
       "tag": "0023_add_client_type",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795546432985,
+      "tag": "0024_partner_leads_phone",
+      "breakpoints": true
     }
   ]
 }

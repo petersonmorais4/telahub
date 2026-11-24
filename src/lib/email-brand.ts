@@ -4,8 +4,8 @@ const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /** Wraps a plain-text email body in the TelaHUB layout with the logo on top. */
-export function brandedHtml(text: string) {
-  const body = text
+export function brandedHtml(text: string, opts?: { html?: boolean }) {
+  const body = opts?.html ? text : text
     .split("\n")
     .map((l) => (l.trim() ? esc(l).replace(/(https?:\/\/\S+)/g, '<a href="$1" style="color:#0fb98f">$1</a>') : "&nbsp;"))
     .join("<br>");

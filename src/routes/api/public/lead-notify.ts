@@ -12,6 +12,12 @@ const header = (v: string) => (/^[\x00-\x7F]*$/.test(v) ? v : `=?UTF-8?B?${b64(v
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
+const fmtPhone = (p?: string | null) => {
+  const d = (p ?? "").replace(/\D/g, "");
+  if (d.length < 10) return p ?? "";
+  return `(${d.slice(0, 2)}) ${d.slice(2, -4)}-${d.slice(-4)}`;
+};
+
 const bodySchema = z.object({ kind: z.enum(["advertiser", "partner"]), id: z.string().uuid(), token: z.string().min(32).max(200) });
 
 export const Route = createFileRoute("/api/public/lead-notify")({
@@ -36,11 +42,11 @@ export const Route = createFileRoute("/api/public/lead-notify")({
           .maybeSingle();
         if (!row) return Response.json({ ok: true });
 
-        const r = row as unknown as { company: string; name: string; email: string; phone: string; business_name: string; cnpj: string; address: string };
+        const r = row as unknown as { company: string; name: string; email: string; phone: string; business_name: string; phone_p?: string; address: string };
         const fields: [string, string][] =
           kind === "advertiser"
             ? [["Empresa", r.company], ["Contato", r.name], ["E-mail", r.email], ["Telefone", r.phone]]
-            : [["Estabelecimento", r.business_name], ["CNPJ", r.cnpj], ["Endereço", r.address]];
+            : [["Estabelecimento", r.business_name], ["Endereço", r.address], ["Telefone", fmtPhone(r.phone)]];
         const title = kind === "advertiser"
           ? r.company?.startsWith("[Indicação") ? "Nova indicação (Indique e Ganhe)" : "Novo interessado em anunciar"
           : "Novo interessado em ser parceiro";
@@ -50,7 +56,7 @@ export const Route = createFileRoute("/api/public/lead-notify")({
           .join("")}</table>
 <p style="margin-top:16px">O lead já foi adicionado ao Funil de Vendas na etapa Prospecção.</p>`;
         const raw = b64(
-          [`To: ${OWNER_TO}`, `Subject: ${header(`TelaHUB — ${title}`)}`, "MIME-Version: 1.0", 'Content-Type: text/html; charset="UTF-8"', "", brandedHtml(html)].join("\r\n"),
+          [`To: ${OWNER_TO}`, `Subject: ${header(`TelaHUB — ${title}`)}`, "MIME-Version: 1.0", 'Content-Type: text/html; charset="UTF-8"', "", brandedHtml(html, { html: true })].join("\r\n"),
         ).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
         const res = await fetch(`${GATEWAY_URL}/users/me/messages/send`, {
           method: "POST",

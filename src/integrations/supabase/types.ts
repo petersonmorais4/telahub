@@ -239,29 +239,32 @@ export type Database = {
         Row: {
           address: string
           business_name: string
-          cnpj: string
+          cnpj: string | null
           created_at: string
           id: string
           notified_at: string | null
           notify_token_hash: string | null
+          phone: string | null
         }
         Insert: {
           address: string
           business_name: string
-          cnpj: string
+          cnpj?: string | null
           created_at?: string
           id?: string
           notified_at?: string | null
           notify_token_hash?: string | null
+          phone?: string | null
         }
         Update: {
           address?: string
           business_name?: string
-          cnpj?: string
+          cnpj?: string | null
           created_at?: string
           id?: string
           notified_at?: string | null
           notify_token_hash?: string | null
+          phone?: string | null
         }
         Relationships: []
       }
