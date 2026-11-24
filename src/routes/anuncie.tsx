@@ -1,4 +1,3 @@
-import { places, evandroPhoto } from "@/lib/place-photos";
 import { createFileRoute, Link, ClientOnly } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -14,6 +13,13 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
+import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
+import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
+import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
+import localNoveJulho from "@/assets/locais/av-nove-de-julho-jundiai.jpg.asset.json";
+import localBragantina from "@/assets/locais/estrada-bragantina-campo-limpo.jpg.asset.json";
+import localJoseValter from "@/assets/locais/rua-jose-valter-pacheco-campo-limpo.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
@@ -57,7 +63,15 @@ const reasons = [
   { icon: BarChart3, title: "Relatório de exibição", text: "Você recebe dia e horário em que seu anúncio passou." },
 ];
 
-
+const places = [
+  { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
+  { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
+  { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
+  { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
+  { alt: "Tela TelaHUB na Av. Nove de Julho, Jundiaí", img: localNoveJulho.url },
+  { alt: "Tela TelaHUB na Estrada da Bragantina, Campo Limpo Paulista", img: localBragantina.url },
+  { alt: "Tela TelaHUB na Rua José Valter Pacheco, Campo Limpo Paulista", img: localJoseValter.url },
+];
 
 const steps = [
   { title: "Fale com a gente", text: "Conte seu objetivo e região." },
@@ -183,7 +197,7 @@ function Anuncie() {
           </div>
           <div className="relative">
             <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/20 blur-3xl" aria-hidden />
-            <img src={evandroPhoto.img} alt={evandroPhoto.alt} className="aspect-[4/3] w-full rounded-2xl border border-border object-cover object-[center_30%] shadow-[var(--shadow-lift)]" />
+            <img src={localBarbearia.url} alt="Tela TelaHUB exibindo anúncio na Evandro Barbearia" className="aspect-[4/3] w-full rounded-2xl border border-border object-cover object-[center_30%] shadow-[var(--shadow-lift)]" />
           </div>
         </div>
       </section>
