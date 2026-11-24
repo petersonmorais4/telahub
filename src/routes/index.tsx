@@ -1,3 +1,4 @@
+import { places } from "@/lib/place-photos";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
@@ -9,27 +10,8 @@ import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
-import academiaTv from "@/assets/home-gallery/academia-new.png.asset.json";
-import farmaciaTv from "@/assets/home-gallery/farmacia-new.png.asset.json";
-import barbeariaTv from "@/assets/home-gallery/barbearia-new.png.asset.json";
-import localStudioSA from "@/assets/locais/studio-sa-campo-limpo.jpg.asset.json";
-import localBarbearia from "@/assets/locais/evandro-barbearia.jpg.asset.json";
-import localStudioJundiai from "@/assets/locais/studio-sa-jundiai.jpg.asset.json";
-import localPilates from "@/assets/locais/pilates-jundiai.jpg.asset.json";
-import localNoveJulho from "@/assets/locais/av-nove-de-julho-jundiai.jpg.asset.json";
-import localBragantina from "@/assets/locais/estrada-bragantina-campo-limpo.jpg.asset.json";
-import localJoseValter from "@/assets/locais/rua-jose-valter-pacheco-campo-limpo.jpg.asset.json";
-import mercadoTv from "@/assets/home-gallery/mercado-new.png.asset.json";
 
-const places = [
-  { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
-  { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
-  { alt: "Tela TelaHUB no Ed. Jatobá, Jundiaí", img: localStudioJundiai.url },
-  { alt: "Tela TelaHUB em estúdio de pilates, Jundiaí", img: localPilates.url },
-  { alt: "Tela TelaHUB na Av. Nove de Julho, Jundiaí", img: localNoveJulho.url },
-  { alt: "Tela TelaHUB na Estrada da Bragantina, Campo Limpo Paulista", img: localBragantina.url },
-  { alt: "Tela TelaHUB na Rua José Valter Pacheco, Campo Limpo Paulista", img: localJoseValter.url },
-];
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,12 +58,11 @@ const benefits = [
   },
 ];
 
-const showcaseImages = [
-  { src: academiaTv.url, alt: "Anúncio exibido em uma TV de academia", position: "object-center" },
-  { src: farmaciaTv.url, alt: "Anúncio exibido em uma TV de farmácia", position: "object-center" },
-  { src: barbeariaTv.url, alt: "Anúncio exibido em uma TV de barbearia", position: "object-center" },
-  { src: mercadoTv.url, alt: "Anúncio exibido em uma TV de supermercado", position: "object-center" },
-];
+const showcaseImages = places.map((place) => ({
+  src: place.img,
+  alt: place.alt,
+  position: "object-center",
+}));
 
 function shuffled(n: number) {
   const a = Array.from({ length: n }, (_, i) => i);

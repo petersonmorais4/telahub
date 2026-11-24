@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Substituir e conferir as nove fotos na página inicial e nas apresentações de parceiros e comercial.
+
 - [x] Aplicar e validar carrossel de três fotos nas apresentações para anunciantes e parceiros.
 
 - [x] Medir créditos, consultas, índices, armazenamento e tarefas agendadas; otimizar gargalos comprovados sem alterar exibições.
