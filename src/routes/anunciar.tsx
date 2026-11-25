@@ -118,7 +118,8 @@ function Anunciar() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
+      <div className={sent ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_40%]"}>
+      <section className="mx-auto w-full max-w-xl px-6 py-16">
         {sent ? (
           <div className="panel mx-auto max-w-lg p-10 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden />
@@ -132,7 +133,7 @@ function Anunciar() {
             </Button>
           </div>
         ) : (
-          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,32rem)_1fr] lg:gap-16">
+          <div className="grid items-start gap-10 ">
           <div>
             <h1 className="text-3xl font-bold">Quero anunciar</h1>
             <p className="mt-3 text-muted-foreground">
@@ -220,10 +221,15 @@ function Anunciar() {
               </Button>
             </form>
           </div>
-          <FormSidePhotos className="mx-auto w-full max-w-md lg:sticky lg:top-8" />
           </div>
         )}
       </section>
+      {!sent && (
+        <div className="lg:sticky lg:top-0 lg:self-start">
+          <FormSidePhotos full className="w-full" />
+        </div>
+      )}
+      </div>
     </main>
   );
 }

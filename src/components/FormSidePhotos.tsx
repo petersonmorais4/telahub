@@ -7,7 +7,7 @@ const photos = [
   { src: fazendinha.url, name: "Fazendinha do Léo", address: "Rua José Valter Pacheco, 761 · Campo Limpo Paulista" },
 ] as const;
 
-export function FormSidePhotos({ className = "" }: { className?: string }) {
+export function FormSidePhotos({ className = "", full = false }: { className?: string; full?: boolean }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
@@ -20,13 +20,13 @@ export function FormSidePhotos({ className = "" }: { className?: string }) {
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border border-border bg-muted ${className}`}
+      className={`relative overflow-hidden bg-muted ${full ? "" : "rounded-xl border border-border"} ${className}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <div className="relative aspect-[3/4] w-full">
+      <div className={`relative w-full ${full ? "h-[70vh] lg:h-[calc(100vh-81px)]" : "aspect-[3/4]"}`}>
         {photos.map((p, i) => (
           <img
             key={p.name}
@@ -36,7 +36,7 @@ export function FormSidePhotos({ className = "" }: { className?: string }) {
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"}`}
           />
         ))}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 to-transparent p-4 pt-12">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 to-transparent p-6 pt-16">
           <p className="font-semibold text-foreground">{photos[index]?.name}</p>
           <p className="text-sm text-muted-foreground">{photos[index]?.address}</p>
           <div className="mt-3 flex gap-2">

@@ -137,6 +137,7 @@ function Parceiro() {
         </div>
       </header>
 
+      <div className={sent ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_40%]"}>
       <section className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
         {sent ? (
           <div className="panel mx-auto max-w-lg p-10 text-center">
@@ -151,7 +152,7 @@ function Parceiro() {
             </Button>
           </div>
         ) : (
-          <div className="grid items-start gap-12 lg:grid-cols-[1fr_26rem] lg:gap-12 xl:grid-cols-[1fr_26rem_18rem] xl:gap-10">
+          <div className="grid items-start gap-12 xl:grid-cols-[1fr_24rem] xl:gap-10">
             <div>
               <p className="text-sm font-semibold uppercase text-primary">
                 Rede de parceiros TelaHub
@@ -251,10 +252,15 @@ function Parceiro() {
               </Button>
               </form>
             </div>
-            <FormSidePhotos className="mx-auto w-full max-w-md lg:col-span-2 xl:col-span-1 xl:sticky xl:top-8" />
           </div>
         )}
       </section>
+      {!sent && (
+        <div className="lg:sticky lg:top-0 lg:self-start">
+          <FormSidePhotos full className="w-full" />
+        </div>
+      )}
+      </div>
     </main>
   );
 }
