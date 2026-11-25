@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { newLeadToken } from "@/lib/lead-token";
 import { useState } from "react";
+import { FormSidePhotos } from "@/components/FormSidePhotos";
 import { z } from "zod";
 import {
   BadgeDollarSign,
@@ -150,7 +151,7 @@ function Parceiro() {
             </Button>
           </div>
         ) : (
-          <div className="grid items-start gap-12 lg:grid-cols-[1fr_26rem] lg:gap-20">
+          <div className="grid items-start gap-12 lg:grid-cols-[1fr_26rem] lg:gap-12 xl:grid-cols-[1fr_26rem_18rem] xl:gap-10">
             <div>
               <p className="text-sm font-semibold uppercase text-primary">
                 Rede de parceiros TelaHub
@@ -250,6 +251,7 @@ function Parceiro() {
               </Button>
               </form>
             </div>
+            <FormSidePhotos className="mx-auto w-full max-w-md lg:col-span-2 xl:col-span-1 xl:sticky xl:top-8" />
           </div>
         )}
       </section>

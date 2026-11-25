@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { FormSidePhotos } from "@/components/FormSidePhotos";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/anunciar")({
@@ -117,9 +118,9 @@ function Anunciar() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-lg px-6 py-16">
+      <section className="mx-auto max-w-6xl px-6 py-16">
         {sent ? (
-          <div className="panel p-10 text-center">
+          <div className="panel mx-auto max-w-lg p-10 text-center">
             <CheckCircle2 className="mx-auto h-12 w-12 text-primary" aria-hidden />
             <h1 className="mt-4 text-2xl font-bold">Pedido recebido!</h1>
             <p className="mt-2 text-muted-foreground">
@@ -131,7 +132,8 @@ function Anunciar() {
             </Button>
           </div>
         ) : (
-          <>
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,32rem)_1fr] lg:gap-16">
+          <div>
             <h1 className="text-3xl font-bold">Quero anunciar</h1>
             <p className="mt-3 text-muted-foreground">
               Coloque sua marca em telas de alta circulação. Preencha os dados
@@ -217,7 +219,9 @@ function Anunciar() {
                 {submitting ? "Enviando..." : "Solicitar proposta"}
               </Button>
             </form>
-          </>
+          </div>
+          <FormSidePhotos className="mx-auto w-full max-w-md lg:sticky lg:top-8" />
+          </div>
         )}
       </section>
     </main>
