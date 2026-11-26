@@ -8,7 +8,6 @@ import { Eye, Users, MonitorPlay, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { supabase } from "@/integrations/supabase/client";
 import academiaTv from "@/assets/home-gallery/academia-new.png.asset.json";
 import farmaciaTv from "@/assets/home-gallery/farmacia-new.png.asset.json";
 import barbeariaTv from "@/assets/home-gallery/barbearia-new.png.asset.json";
@@ -171,18 +170,7 @@ function PlacesCarousel() {
 }
 
 function Index() {
-  const [signedIn, setSignedIn] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
-
-  useEffect(() => {
-    let alive = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (alive) setSignedIn(Boolean(data.session));
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -309,12 +297,6 @@ function Index() {
             </svg>
             @telahubjundiai
           </a>
-          <Link
-            to={signedIn ? "/painel" : "/auth"}
-            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >
-            {signedIn ? "Abrir painel" : "Acesso administrador"}
-          </Link>
         </div>
       </footer>
     </main>

@@ -64,7 +64,7 @@ export function AdminShell({
     queryClient.clear();
     Object.keys(sessionStorage).filter((k) => k.startsWith("telahub_mfa_ok_")).forEach((k) => sessionStorage.removeItem(k));
     await supabase.auth.signOut();
-    navigate({ to: "/auth", search: { next: "" }, replace: true });
+    navigate({ to: "/acessar", search: { next: "" }, replace: true });
   }
 
   return (

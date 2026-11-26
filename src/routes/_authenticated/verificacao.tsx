@@ -100,7 +100,7 @@ function VerifyPage() {
               className="text-muted-foreground hover:underline"
               onClick={async () => {
                 await supabase.auth.signOut();
-                navigate({ to: "/auth", search: { next: "" } });
+                navigate({ to: "/acessar", search: { next: "" } });
               }}
             >
               Sair
