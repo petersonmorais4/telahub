@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 import { brandedHtml, parseEmails } from "@/lib/email-brand";
 import { isWithinBusinessHours } from "@/lib/business-hours";
+import { isInternalScreen } from "@/lib/internal-screens";
 
-const ADMIN_TO = "petersonmorais4@gmail.com";
+const ADMIN_TO = "petersonmorais4@gmail.com, johnata_ramos@hotmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const OFFLINE_AFTER_MS = 3 * 60_000;
 
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/api/public/jobs/partner-tv-reminder")({
 
         const now = Date.now();
         const offline = ((screensRes.data ?? []) as Row[]).filter(
-          (s) => isWithinBusinessHours(s.business_hours, new Date(now)) && (!s.last_seen || now - new Date(s.last_seen).getTime() > OFFLINE_AFTER_MS),
+          (s) => !isInternalScreen(s.name) && isWithinBusinessHours(s.business_hours, new Date(now)) && (!s.last_seen || now - new Date(s.last_seen).getTime() > OFFLINE_AFTER_MS),
         );
         if (offline.length === 0) return Response.json({ offline: 0 });
 

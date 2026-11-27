@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 import { brandedHtml } from "@/lib/email-brand";
+import { isInternalScreen } from "@/lib/internal-screens";
 
-const ALERT_TO = "petersonmorais4@gmail.com";
+const ALERT_TO = "petersonmorais4@gmail.com, johnata_ramos@hotmail.com";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_mail/gmail/v1";
 const OFFLINE_AFTER_MS = 3 * 60_000;
 
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/api/public/jobs/screens-offline-alert")({
 
         const now = Date.now();
         const offline = (data ?? []).filter(
-          (s) => !s.last_seen || now - new Date(s.last_seen).getTime() > OFFLINE_AFTER_MS,
+          (s) => !isInternalScreen(s.name) && (!s.last_seen || now - new Date(s.last_seen).getTime() > OFFLINE_AFTER_MS),
         );
         if (offline.length === 0) return Response.json({ sent: false, offline: 0 });
 
