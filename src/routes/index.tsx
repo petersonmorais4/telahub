@@ -1,3 +1,4 @@
+import estudioEc from "@/assets/estudio_ec.png.asset.json";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
@@ -84,6 +85,7 @@ const benefits = [
 ];
 
 const showcaseImages = [
+  { src: estudioEc.url, alt: "Anúncio exibido em uma TV do Estúdio EC", position: "object-center" },
   { src: academiaTv.url, alt: "Anúncio exibido em uma TV de academia", position: "object-center" },
   { src: farmaciaTv.url, alt: "Anúncio exibido em uma TV de farmácia", position: "object-center" },
   { src: barbeariaTv.url, alt: "Anúncio exibido em uma TV de barbearia", position: "object-center" },
