@@ -22,6 +22,8 @@ import localVibeFit from "@/assets/locais/vibe-fit-campo-limpo.jpg.asset.json";
 import localFazendinhaJoseValter from "@/assets/locais/fazendinha-do-leo-jose-valter.jpg.asset.json";
 import localFazendinhaCentro from "@/assets/locais/fazendinha-do-leo-centro.jpg.asset.json";
 import localJBR from "@/assets/locais/restaurante-jbr-campo-limpo.jpg.asset.json";
+import localAgroPeska from "@/assets/locais/agro-peska-tamakalu-varzea.jpg.asset.json";
+import localECPilates from "@/assets/locais/ec-pilates-varzea.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/BrandLogo";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
@@ -68,13 +70,15 @@ const reasons = [
 const places = [
   { alt: "Tela TelaHUB no Studio S&A, Campo Limpo Paulista", img: localStudioSA.url },
   { alt: "Tela TelaHUB na Evandro Barbearia, Campo Limpo Paulista", img: localBarbearia.url },
-  { alt: "Tela TelaHUB no Studio S&A, unidade Jundiaí", img: localStudioJundiai.url },
-  { alt: "Tela TelaHUB no Vida Pilates, Jundiaí", img: localVidaPilates.url },
-  { alt: "Tela TelaHUB no Nutrifit Lounge, Av. Nove de Julho, Jundiaí", img: localNutrifit.url },
   { alt: "Tela TelaHUB na Vibe Fit, Estrada da Bragantina, Campo Limpo Paulista", img: localVibeFit.url },
   { alt: "Tela TelaHUB na Fazendinha do Léo, Rua José Valter Pacheco, Campo Limpo Paulista", img: localFazendinhaJoseValter.url },
   { alt: "Tela TelaHUB na Fazendinha do Léo Centro, Campo Limpo Paulista", img: localFazendinhaCentro.url },
   { alt: "Tela TelaHUB no Restaurante JBR, Campo Limpo Paulista", img: localJBR.url },
+  { alt: "Tela TelaHUB no Studio S&A, unidade Jundiaí", img: localStudioJundiai.url },
+  { alt: "Tela TelaHUB no Vida Pilates, Jundiaí", img: localVidaPilates.url },
+  { alt: "Tela TelaHUB no Nutrifit Lounge, Av. Nove de Julho, Jundiaí", img: localNutrifit.url },
+  { alt: "Tela TelaHUB na Agro Peska Tamakalu, Várzea Paulista", img: localAgroPeska.url },
+  { alt: "Tela TelaHUB no EC Pilates, Várzea Paulista", img: localECPilates.url },
 ];
 
 const steps = [
